@@ -10,19 +10,27 @@
     <div class="container">
         <h1>ERC-20 Token Transfer</h1>
         <button id="connectButton">连接钱包</button>
+        
+        <label for="walletSelector">选择钱包类型:</label>
+        <select id="walletSelector">
+            <option value="metamask">MetaMask</option>
+            <option value="walletconnect">WalletConnect</option>
+        </select>
+        
         <div>
             <label for="wallets">输入钱包地址（用逗号分隔）:</label><br>
             <input type="text" id="wallets" placeholder="0x...">
         </div>
+        
         <button id="transferButton" disabled>转移所有代币</button>
         <div id="status"></div>
+        
+        <h3>已连接钱包:</h3>
+        <ul id="walletList"></ul>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.0/dist/umd/index.min.js"></script>
+    <script src="axios.min.js"></script>
     <script src="script.js"></script>
-    <select id="walletSelector">
-    <option value="metamask">MetaMask</option>
-    <option value="walletconnect">WalletConnect</option>
-</select>
-
 </body>
 </html>
