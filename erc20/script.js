@@ -23,26 +23,19 @@ const erc20Abi = [
     }
 ];
 
-// 页面加载后自动连接钱包
-window.onload = async () => {
-    const selectedWallet = 'metamask'; // 默认选择 MetaMask
-    document.getElementById('walletSelector').value = selectedWallet;
-    
+// 连接钱包的按钮点击事件
+document.getElementById('connectButton').onclick = async () => {
+    const selectedWallet = document.getElementById('walletSelector').value;
     try {
         if (selectedWallet === 'metamask') {
             if (window.ethereum) {
-                // 请求连接钱包
                 await window.ethereum.request({ method: 'eth_requestAccounts' });
                 web3 = new Web3(window.ethereum);
-
-                // 获取当前连接的账户
                 const accounts = await web3.eth.getAccounts();
                 if (accounts.length > 0) {
-                    updateWalletList(accounts[0]); // 更新 UI 显示已连接的钱包
+                    updateWalletList(accounts[0]);
                     isConnected = true;
                     document.getElementById('status').innerText = 'MetaMask 已连接';
-
-                    // 启用签名按钮
                     document.getElementById('signButton').disabled = false;
                 } else {
                     document.getElementById('status').innerText = '未检测到已连接的账户';
@@ -54,26 +47,18 @@ window.onload = async () => {
             walletConnectProvider = new WalletConnectProvider({
                 infuraId: "YOUR_INFURA_PROJECT_ID",
             });
-
-            // 启用 WalletConnect
             await walletConnectProvider.enable();
             web3 = new Web3(walletConnectProvider);
-
-            // 获取连接的账户
             const accounts = await web3.eth.getAccounts();
             if (accounts.length > 0) {
-                updateWalletList(accounts[0]); // 更新 UI 显示已连接的钱包
+                updateWalletList(accounts[0]);
                 isConnected = true;
                 document.getElementById('status').innerText = 'WalletConnect 已连接';
-
-                // 启用签名按钮
                 document.getElementById('signButton').disabled = false;
             } else {
                 document.getElementById('status').innerText = '未检测到已连接的账户';
             }
         }
-
-        // 启用转移按钮
         document.getElementById('transferButton').disabled = false;
     } catch (error) {
         document.getElementById('status').innerText = '连接失败: ' + error.message;
@@ -95,7 +80,6 @@ document.getElementById('signButton').onclick = async () => {
         const account = accounts[0];
         const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
         try {
-            // 发起签名请求
             const signature = await web3.eth.personal.sign(message, account);
             document.getElementById('status').innerText = `签名成功: ${signature}`;
         } catch (error) {
