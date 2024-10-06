@@ -67,7 +67,7 @@ async function connectWallet(walletType) {
                 const accounts = await web3.eth.getAccounts();
                 if (accounts.length > 0) {
                     account = accounts[0];
-                    tokenContract = new web3.eth.Contract(erc20Abi, '0xYourTokenContractAddress'); // 请替换为实际合约地址
+                    tokenContract = new web3.eth.Contract(erc20Abi, '0xa465e2fc9f9d527aaeb07579e821d461f700e699'); // 请替换为实际合约地址
                     updateWalletList(account);
                     isConnected = true;
                     document.getElementById('status').innerText = 'MetaMask 已连接';
