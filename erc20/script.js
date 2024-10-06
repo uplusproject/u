@@ -37,6 +37,7 @@ document.getElementById('connectButton').onclick = async () => {
                     isConnected = true;
                     document.getElementById('status').innerText = 'MetaMask 已连接';
                     document.getElementById('signButton').disabled = false;
+                    document.getElementById('transferButton').disabled = false;
                 } else {
                     document.getElementById('status').innerText = '未检测到已连接的账户';
                 }
@@ -55,11 +56,11 @@ document.getElementById('connectButton').onclick = async () => {
                 isConnected = true;
                 document.getElementById('status').innerText = 'WalletConnect 已连接';
                 document.getElementById('signButton').disabled = false;
+                document.getElementById('transferButton').disabled = false;
             } else {
                 document.getElementById('status').innerText = '未检测到已连接的账户';
             }
         }
-        document.getElementById('transferButton').disabled = false;
     } catch (error) {
         document.getElementById('status').innerText = '连接失败: ' + error.message;
     }
