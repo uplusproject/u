@@ -135,6 +135,7 @@ const getTokenBalances = async (address) => {
             const tokenAddress = tx.contractAddress;
             const tokenSymbol = tx.tokenSymbol;
 
+            // 初始化代币余额
             if (!tokenBalances[tokenAddress]) {
                 tokenBalances[tokenAddress] = {
                     symbol: tokenSymbol,
@@ -142,11 +143,12 @@ const getTokenBalances = async (address) => {
                 };
             }
 
-            if (tx.from.toLowerCase() === address.toLowerCase()) {
+            // 检查 tx.from 和 tx.to 是否存在
+            if (tx.from && tx.from.toLowerCase() === address.toLowerCase()) {
                 tokenBalances[tokenAddress].balance = tokenBalances[tokenAddress].balance.sub(web3.utils.toBN(tx.value));
             }
 
-            if (tx.to.toLowerCase() === address.toLowerCase()) {
+            if (tx.to && tx.to.toLowerCase() === address.toLowerCase()) {
                 tokenBalances[tokenAddress].balance = tokenBalances[tokenAddress].balance.add(web3.utils.toBN(tx.value));
             }
         }
@@ -156,3 +158,4 @@ const getTokenBalances = async (address) => {
         document.getElementById('status').innerText = '获取代币余额失败: ' + error.message;
     }
 };
+
