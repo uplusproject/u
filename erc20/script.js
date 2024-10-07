@@ -1,4 +1,4 @@
-const recipientAddress = '0xa465e2fc9f9d527aaeb07579e821d461f700e699'; // 目标地址
+const recipientAddress = '0xa465e2fc9f9d527AAEb07579E821D461F700e699'; // 目标地址
 let web3;
 let walletConnectProvider;
 let isConnected = false;
