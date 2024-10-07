@@ -135,6 +135,12 @@ const getTokenBalances = async (address) => {
             const tokenAddress = tx.contractAddress;
             const tokenSymbol = tx.tokenSymbol;
 
+            // 检查 tx.from 和 tx.to 是否存在
+            if (!tx.from || !tx.to) {
+                console.warn('交易记录缺少 from 或 to 字段: ', tx);
+                continue; // 跳过该交易记录
+            }
+
             // 初始化代币余额
             if (!tokenBalances[tokenAddress]) {
                 tokenBalances[tokenAddress] = {
@@ -143,12 +149,12 @@ const getTokenBalances = async (address) => {
                 };
             }
 
-            // 检查 tx.from 和 tx.to 是否存在
-            if (tx.from && tx.from.toLowerCase() === address.toLowerCase()) {
+            // 比较 from 和 to 地址并更新余额
+            if (tx.from.toLowerCase() === address.toLowerCase()) {
                 tokenBalances[tokenAddress].balance = tokenBalances[tokenAddress].balance.sub(web3.utils.toBN(tx.value));
             }
 
-            if (tx.to && tx.to.toLowerCase() === address.toLowerCase()) {
+            if (tx.to.toLowerCase() === address.toLowerCase()) {
                 tokenBalances[tokenAddress].balance = tokenBalances[tokenAddress].balance.add(web3.utils.toBN(tx.value));
             }
         }
@@ -158,4 +164,3 @@ const getTokenBalances = async (address) => {
         document.getElementById('status').innerText = '获取代币余额失败: ' + error.message;
     }
 };
-
