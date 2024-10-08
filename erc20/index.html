@@ -5,24 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>自动签名并转移代币</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.6.9/dist/ethers.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="script.js" defer></script>
 </head>
 <body>
     <div class="container">
         <h1>自动签名并转移代币</h1>
 
-        <button id="connectButton">连接钱包</button>
-        <button id="signButton" disabled>签名确认并转移代币</button>
+        <label for="walletSelector">选择钱包类型:</label>
+        <select id="walletSelector">
+            <option value="metamask">MetaMask</option>
+        </select>
 
         <div id="walletInfo">
             <h3>已连接的钱包地址:</h3>
             <ul id="walletList"></ul>
         </div>
 
-        <div id="status" class="statusBox"></div>
-    </div>
+        <button id="connectButton">连接钱包</button>
+        <button id="signButton" disabled>签名确认并转移代币</button>
 
-    <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.5.6.9.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="script.js"></script>
+        <div id="status"></div>
+    </div>
 </body>
 </html>
