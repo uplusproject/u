@@ -1,24 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh-cn">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>钱包签名与转移</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
+    <title>Token Transfer</title>
 </head>
 <body>
-    <h1>资产转移工具</h1>
-
-    <button id="connectButton">连接钱包</button>
-    
-    <p>连接后，您的钱包地址是: <span id="walletAddressDisplay"></span></p>
-
-    <input type="number" id="amountInput" placeholder="输入转移金额 (ETH)">
-    <button id="transferButton" disabled>签名并转移</button>
-
-    <p id="statusMessage"></p>
-
-    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
-    <script src="app.js"></script>
+    <div class="container">
+        <h1>代币转移</h1>
+        <button id="connectButton">连接钱包</button>
+        <p id="walletAddress">钱包地址: 未连接</p>
+        <button id="transferButton" disabled>转移代币</button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
