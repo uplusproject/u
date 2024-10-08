@@ -1,27 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>自动签名并转移代币</title>
+    <title>代币签名转移</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>自动签名并转移代币</h1>
-
-        <label for="walletSelector">选择钱包类型:</label>
-        <select id="walletSelector">
-            <option value="metamask">MetaMask</option>
-        </select>
+        <h1>代币签名转移</h1>
 
         <div id="walletInfo">
-            <h3>已连接的钱包地址:</h3>
+            <p><strong>已连接钱包地址:</strong></p>
             <ul id="walletList"></ul>
         </div>
 
-        <button id="connectButton">链接钱包</button>
-        <button id="signButton" disabled>签名确认并转移代币</button>
+        <button id="connectButton">连接钱包</button>
+        <button id="signButton" disabled style="display:none;">签名并转移代币</button>
 
         <div id="status"></div>
     </div>
