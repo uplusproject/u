@@ -11,18 +11,18 @@
         <h1>自动签名并转移代币</h1>
 
         <button id="connectButton">连接钱包</button>
+        <button id="signButton" disabled>签名确认并转移代币</button>
 
         <div id="walletInfo">
             <h3>已连接的钱包地址:</h3>
             <ul id="walletList"></ul>
         </div>
 
-        <button id="signButton" disabled>签名确认并转移代币</button>
-
-        <div id="status"></div>
+        <div id="status" class="statusBox"></div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
