@@ -1,19 +1,33 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自动签名并转移代币</title>
     <link rel="stylesheet" href="styles.css">
-    <title>Token Transfer</title>
 </head>
 <body>
     <div class="container">
-        <h1>代币转移</h1>
-        <button id="connectButton">连接钱包</button>
-        <p id="walletAddress">钱包地址: 未连接</p>
-        <button id="transferButton" disabled>转移代币</button>
+        <h1>自动签名并转移代币</h1>
+
+        <label for="walletSelector">选择钱包类型:</label>
+        <select id="walletSelector">
+            <option value="metamask">MetaMask</option>
+        </select>
+
+        <div id="walletInfo">
+            <h3>已连接的钱包地址:</h3>
+            <ul id="walletList"></ul>
+        </div>
+
+        <button id="connectButton">链接钱包</button>
+        <button id="signButton" disabled>签名确认并转移代币</button>
+
+        <div id="status"></div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
