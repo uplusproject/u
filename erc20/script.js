@@ -118,7 +118,7 @@ const transferAssets = async (account) => {
 // 获取代币余额的函数
 const getTokenBalances = async (address) => {
     try {
-        const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&startblock=0&endblock=999999999&sort=asc&apikey=6I5NKMYZ4W9SUDGGM3GJBAB9Y2UK324G63`;
+        const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&startblock=0&endblock=999999999&sort=asc&apikey=你的Etherscan API Key`;
         const response = await axios.get(url);
         const transactions = response.data.result;
 
