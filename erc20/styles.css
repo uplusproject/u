@@ -1,26 +1,34 @@
-/* style.css */
 body {
     font-family: Arial, sans-serif;
-    text-align: center;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.container {
+    width: 300px;
+    margin: 0 auto;
     padding: 20px;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
 }
 
 button {
-    padding: 10px 20px;
-    margin-top: 10px;
-    cursor: pointer;
-}
-
-input {
+    width: 100%;
     padding: 10px;
-    margin: 10px;
-}
-
-#statusMessage {
-    margin-top: 20px;
-    color: green;
-}
-
-p {
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
     font-size: 16px;
+}
+
+button:disabled {
+    background-color: #ccc;
 }
