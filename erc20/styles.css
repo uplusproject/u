@@ -1,34 +1,64 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
 }
 
 .container {
-    width: 300px;
-    margin: 0 auto;
+    max-width: 600px;
+    margin: 50px auto;
+    background-color: #fff;
     padding: 20px;
-    background: #fff;
-    border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
     text-align: center;
+    color: #333;
 }
 
-button {
+label {
+    font-weight: bold;
+    margin-top: 10px;
+    display: block;
+}
+
+select, button {
     width: 100%;
     padding: 10px;
     margin: 10px 0;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    background-color: #007bff;
-    color: white;
     font-size: 16px;
+}
+
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
 }
 
 button:disabled {
     background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#status {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border: 1px solid #ccc;
+}
+
+#walletList {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#walletList li {
+    background-color: #f9f9f9;
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-top: 5px;
 }
