@@ -10,10 +10,6 @@ const erc20Abi = [
 
 // 页面加载后初始化
 window.onload = async () => {
-    const selectedWallet = 'metamask'; // 默认选择 MetaMask
-    document.getElementById('walletSelector').value = selectedWallet;
-
-    // 连接钱包按钮点击事件
     document.getElementById('connectButton').onclick = async () => {
         if (window.ethereum) {
             try {
