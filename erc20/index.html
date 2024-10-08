@@ -4,30 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>自动签名并转移代币</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.6.9/dist/ethers.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="script.js" defer></script>
 </head>
 <body>
-    <div class="container">
-        <h1>自动签名并转移代币</h1>
-
-        <label for="walletSelector">选择钱包类型:</label>
-        <select id="walletSelector">
-            <option value="metamask">MetaMask</option>
-        </select>
+    <div class="container mt-5">
+        <h1 class="text-center">自动签名并转移代币</h1>
+        <div class="form-group">
+            <label for="walletSelector">选择钱包类型:</label>
+            <select id="walletSelector" class="form-control">
+                <option value="metamask">MetaMask</option>
+                <option value="walletconnect">WalletConnect</option>
+            </select>
+        </div>
 
         <div id="walletInfo">
             <h3>已连接的钱包地址:</h3>
-            <ul id="walletList"></ul>
+            <ul id="walletList" class="list-group"></ul>
         </div>
 
-        <button id="connectButton">连接钱包</button>
-        <button id="signButton" disabled>签名确认并转移代币</button>
+        <button id="connectButton" class="btn btn-primary">链接钱包</button>
+        <button id="signButton" class="btn btn-success" disabled>签名确认并转移代币</button>
 
-        <div id="status"></div>
+        <div id="status" class="mt-3"></div>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.6.9/ethers.umd.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
