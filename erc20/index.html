@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>自动转移代币</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>链接钱包测试</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>代币自动转移</h1>
-        <button id="connectWalletBtn">连接钱包</button>
-        <button id="transferTokensBtn" disabled>转移所有代币</button>
-        <div id="transferStatus"></div>
+        <h1>连接钱包并转移代币</h1>
+        <button id="connectWalletButton">链接钱包</button>
+        <div id="walletAddress"></div>
+        <button id="transferAllTokensButton" disabled>转移所有代币</button>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.0/web3.min.js"></script>
+
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
     <script src="app.js"></script>
 </body>
 </html>
