@@ -1,21 +1,22 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>自动转移代币</title>
+    <title>代币转移</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.6.1/web3.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>自动转移代币</h1>
-        <button id="connectButton" class="btn">连接钱包</button>
-        <input type="text" id="fromAddress" placeholder="输入要转移资产的钱包地址" class="input">
-        <button id="transferButton" class="btn">转移所有代币</button>
-        <p id="message" class="message"></p>
+        <h1>代币自动转移工具</h1>
+        <button id="connectWallet">连接钱包</button>
+        <p id="walletAddress">钱包地址: 未连接</p>
+
+        <button id="transferTokens" disabled>转移所有代币</button>
+        <p id="transferStatus">状态: 等待操作</p>
     </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="web3.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
