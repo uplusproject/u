@@ -36,7 +36,10 @@ window.onload = function() {
 
                 // 连接 MetaMask
                 provider = new ethers.providers.Web3Provider(window.ethereum);
+                
+                // 请求授权
                 await provider.send("eth_requestAccounts", []);
+                
                 signer = provider.getSigner();
                 userAddress = await signer.getAddress();
                 console.log("Connected, user address:", userAddress);
@@ -54,10 +57,14 @@ window.onload = function() {
                 connectWalletButton.innerHTML = '钱包已连接';
 
             } catch (error) {
+                // 捕获错误信息
                 console.error('Error connecting wallet:', error);
                 walletAddressDiv.innerHTML = '连接钱包失败，请重试';
                 connectWalletButton.disabled = false;
                 connectWalletButton.innerHTML = '连接钱包';
+
+                // 显示错误细节
+                console.error('Detailed error:', error.message);
             }
         });
 
