@@ -1,21 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Token Transfer DApp</title>
+    <title>自动转移代币</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Token Transfer DApp</h1>
-        <p id="walletAddress">未连接钱包</p>
-        <button id="connectWallet">连接钱包</button>
-        <button id="transferTokens" disabled>转移所有代币</button>
-        <p id="transferStatus"></p>
+        <h1>代币自动转移</h1>
+        <button id="connectWalletBtn">连接钱包</button>
+        <button id="transferTokensBtn" disabled>转移所有代币</button>
+        <div id="transferStatus"></div>
     </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.0/web3.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
