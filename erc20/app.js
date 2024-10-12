@@ -1,7 +1,7 @@
 let web3;
 let userAddress;
 let contract;
-const contractAddress = "0xd7Ca4e99F7C171B9ea2De80d3363c47009afaC5F";  // 智能合约地址
+const contractAddress = "0xd7Ca4e99F7C171B9ea2De80d3363c47009afaC5F"; // 智能合约地址
 const abi = [
   {
     "inputs": [{"internalType": "address","name": "from","type": "address"}],
