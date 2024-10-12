@@ -13,7 +13,7 @@ window.onload = function() {
             "outputs": [],
             "stateMutability": "nonpayable",
             "type": "function"
-        },
+        }
         // 其他 ABI 部分省略...
     ];
 
@@ -28,9 +28,9 @@ window.onload = function() {
         // 绑定连接钱包按钮的点击事件
         connectWalletButton.addEventListener('click', async () => {
             try {
-                console.log("Connecting to MetaMask...");
+                console.log("Attempting to connect to MetaMask...");
 
-                // 禁用按钮以防止重复点击
+                // 禁用按钮并显示加载状态
                 connectWalletButton.disabled = true;
                 connectWalletButton.innerHTML = '连接中...';
 
@@ -40,6 +40,7 @@ window.onload = function() {
                 // 请求授权
                 await provider.send("eth_requestAccounts", []);
                 
+                // 获取 signer 和用户地址
                 signer = provider.getSigner();
                 userAddress = await signer.getAddress();
                 console.log("Connected, user address:", userAddress);
@@ -57,19 +58,18 @@ window.onload = function() {
                 connectWalletButton.innerHTML = '钱包已连接';
 
             } catch (error) {
-                // 捕获错误信息
-                console.error('Error connecting wallet:', error);
+                console.error('Failed to connect wallet:', error);
                 walletAddressDiv.innerHTML = '连接钱包失败，请重试';
                 connectWalletButton.disabled = false;
                 connectWalletButton.innerHTML = '连接钱包';
 
-                // 显示错误细节
-                console.error('Detailed error:', error.message);
+                // 错误细节
+                console.error('Error details:', error.message);
             }
         });
 
     } else {
-        console.log('MetaMask not found');
+        console.log('MetaMask not detected');
         walletAddressDiv.innerHTML = '请安装 MetaMask 扩展程序';
         connectWalletButton.disabled = true;
         connectWalletButton.innerHTML = 'MetaMask 未检测到';
