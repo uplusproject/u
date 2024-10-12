@@ -3,24 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Token Transfer DApp</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>代币转移 DApp</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <h1>代币转移 DApp</h1>
-
-        <!-- 连接钱包按钮 -->
-        <button id="connectButton" class="button">连接钱包</button>
-
-        <!-- 转移所有代币按钮（默认禁用） -->
-        <button id="transferButton" class="button" disabled>转移所有代币</button>
-
-        <div id="statusMessage"></div>
+        <button id="connectButton">连接钱包</button>
+        <button id="transferButton" disabled>转移所有代币</button>
+        <p id="statusMessage"></p>
     </div>
-
-    <!-- 引入Web3.js库 -->
-    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.0/web3.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
