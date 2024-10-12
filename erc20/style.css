@@ -1,0 +1,56 @@
+/* 设置页面背景色和基本字体 */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* 容器的样式 */
+.container {
+    margin-top: 50px;
+    max-width: 600px;
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+/* 页面标题样式 */
+h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* 输入框的样式 */
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    padding: 10px;
+    font-size: 16px;
+}
+
+/* 按钮的样式 */
+.btn {
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+/* 按钮的悬停效果 */
+.btn-primary:hover, .btn-success:hover {
+    opacity: 0.85;
+}
+
+/* 成功信息或错误信息的样式 */
+#message {
+    font-size: 16px;
+    font-weight: 500;
+    color: #28a745;
+}
+
+/* 对于失败时的消息颜色 */
+#error {
+    color: #dc3545;
+}
