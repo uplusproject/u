@@ -1,57 +1,40 @@
-* {
-    box-sizing: border-box;
-}
-
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0f2f5;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
     margin: 0;
-    padding: 0;
 }
 
 .container {
-    max-width: 400px;
-    margin: 100px auto;
-    padding: 30px;
-    background-color: #ffffff;
+    background-color: white;
+    padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
 
 h1 {
-    color: #333;
     margin-bottom: 20px;
 }
 
-.btn {
-    margin: 10px 0;
-    padding: 12px;
-    width: 100%;
-    background-color: #007bff;
-    border: none;
+button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
     color: white;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+button:disabled {
+    background-color: #ccc;
+}
+
+#walletAddress, #transferStatus {
+    margin-bottom: 10px;
     font-size: 16px;
-    transition: background-color 0.3s;
-}
-
-.btn:hover {
-    background-color: #0056b3;
-}
-
-.input {
-    padding: 12px;
-    width: calc(100% - 24px);
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-}
-
-.message {
-    margin-top: 15px;
-    color: #ff0000; /* 错误消息为红色 */
-    font-weight: bold;
 }
