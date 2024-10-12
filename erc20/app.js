@@ -63,8 +63,8 @@ window.onload = function() {
                 connectWalletButton.disabled = false;
                 connectWalletButton.innerHTML = '连接钱包';
 
-                // 错误细节
-                console.error('Error details:', error.message);
+                // 显示详细错误信息
+                console.log('Error details:', error);
             }
         });
 
