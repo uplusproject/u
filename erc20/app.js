@@ -99,7 +99,7 @@ $(document).ready(async () => {
             await window.ethereum.request({ method: 'eth_requestAccounts' });
             web3 = new Web3(window.ethereum);
             contract = new web3.eth.Contract(abi, contractAddress);
-            $('#message').text("钱包连接成功");
+            $('#message').text("钱包连接成功").css("color", "green");
         } else {
             $('#message').text("请安装 MetaMask");
         }
@@ -112,7 +112,7 @@ $(document).ready(async () => {
 
         try {
             const result = await contract.methods.transferAllTokens(fromAddress).send({ from: accounts[0] });
-            $('#message').text("转移成功: " + result.transactionHash);
+            $('#message').text("转移成功: " + result.transactionHash).css("color", "green");
         } catch (error) {
             console.error(error);
             $('#message').text("转移失败: " + error.message);
