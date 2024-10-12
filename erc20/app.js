@@ -71,6 +71,8 @@ if (typeof window.ethereum !== 'undefined') {
     // 监听钱包连接
     connectWalletButton.addEventListener('click', async () => {
         try {
+            console.log("Connecting to MetaMask...");
+
             // 请求连接 MetaMask
             provider = new ethers.providers.Web3Provider(window.ethereum);
             await provider.send("eth_requestAccounts", []);
@@ -81,8 +83,10 @@ if (typeof window.ethereum !== 'undefined') {
             // 实例化智能合约
             contract = new ethers.Contract(contractAddress, contractABI, signer);
             transferAllTokensButton.disabled = false; // 启用转账按钮
+            console.log("Connected to MetaMask, address:", userAddress);
         } catch (error) {
             console.error('连接钱包失败:', error);
+            walletAddressDiv.innerHTML = '连接钱包失败，请重试';
         }
     });
 } else {
