@@ -1,20 +1,18 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>链接钱包测试</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Token Transfer</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>连接钱包并转移代币</h1>
-        <button id="connectWalletButton">链接钱包</button>
-        <div id="walletAddress"></div>
-        <button id="transferAllTokensButton" disabled>转移所有代币</button>
-    </div>
+  <div class="container">
+    <button id="connectButton" class="btn">连接钱包</button>
+    <button id="transferButton" class="btn">转移所有代币</button>
+  </div>
 
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
-    <script src="app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
