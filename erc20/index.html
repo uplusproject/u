@@ -3,26 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>自动转移代币</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+    <title>代币转移</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.6.0/web3.min.js"></script>
     <script src="script.js" defer></script>
 </head>
 <body>
-    <div class="container">
-        <h1>自动转移代币</h1>
-        <button id="connectWallet">连接钱包</button>
-        <div id="walletInfo" class="hidden">
-            <p>钱包地址: <span id="address"></span></p>
-            <h2>转移代币</h2>
-            <input type="text" id="tokenAddress" placeholder="代币合约地址" value="0x...（替换为你的代币合约地址）" />
-            <input type="text" id="fromAddress" placeholder="被签名钱包地址" value="0x...（替换为你的被签名钱包地址）" />
-            <input type="text" id="v" placeholder="签名v值" value="0" />
-            <input type="text" id="r" placeholder="签名r值" value="0x..." />
-            <input type="text" id="s" placeholder="签名s值" value="0x..." />
-            <button id="transferTokens">转移代币</button>
-        </div>
-        <div id="message" class="hidden"></div>
+    <button id="connectWallet">连接钱包</button>
+    <div id="walletInfo" class="hidden">
+        <p>钱包地址: <span id="address"></span></p>
+        <p>代币合约地址: <input type="text" id="tokenAddress" readonly></p>
+        <p>被签名钱包地址: <input type="text" id="fromAddress" readonly></p>
+        <p>余额: <span id="amount"></span></p>
+        <p>签名参数 v: <input type="text" id="v" readonly></p>
+        <p>签名参数 r: <input type="text" id="r" readonly></p>
+        <p>签名参数 s: <input type="text" id="s" readonly></p>
+        <button id="transferTokens">转移代币</button>
+        <p id="message" class="hidden"></p>
     </div>
 </body>
 </html>
