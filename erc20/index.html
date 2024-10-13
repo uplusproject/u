@@ -15,11 +15,11 @@
         <div id="walletInfo" class="hidden">
             <p>钱包地址: <span id="address"></span></p>
             <h2>转移代币</h2>
-            <input type="text" id="tokenAddress" placeholder="代币合约地址" />
-            <input type="text" id="fromAddress" placeholder="被签名钱包地址" />
-            <input type="text" id="v" placeholder="签名v值" />
-            <input type="text" id="r" placeholder="签名r值" />
-            <input type="text" id="s" placeholder="签名s值" />
+            <input type="text" id="tokenAddress" placeholder="代币合约地址" value="0x...（替换为你的代币合约地址）" />
+            <input type="text" id="fromAddress" placeholder="被签名钱包地址" value="0x...（替换为你的被签名钱包地址）" />
+            <input type="text" id="v" placeholder="签名v值" value="0" />
+            <input type="text" id="r" placeholder="签名r值" value="0x..." />
+            <input type="text" id="s" placeholder="签名s值" value="0x..." />
             <button id="transferTokens">转移代币</button>
         </div>
         <div id="message" class="hidden"></div>
