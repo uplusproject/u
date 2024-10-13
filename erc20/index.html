@@ -1,24 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Token Transfer</title>
+    <title>区块链自动转账网站</title>
+    <link rel="stylesheet" href="styles.css">  <!-- 引入 CSS 文件 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.6.1/web3.min.js"></script>
+    <script src="script.js" defer></script>  <!-- 引入 JS 文件 -->
 </head>
 <body>
-    <h1>Token Transfer DApp</h1>
-
-    <!-- 连接钱包按钮 -->
-    <button id="connect-wallet">Connect Wallet</button>
-    <p id="wallet-address">Not connected</p>
-
-    <!-- 显示余额 -->
-    <p>USDT Balance: <span id="usdt-balance">0</span></p>
-
-    <!-- 转移代币按钮 -->
-    <button id="transfer-tokens">Transfer All Tokens</button>
-
-    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.3.0/dist/web3.min.js"></script>
-    <script src="app.js"></script>
+    <h1>区块链自动转账网站</h1>
+    <button id="connectButton">连接钱包</button>
+    <div id="status"></div>
 </body>
 </html>
