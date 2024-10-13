@@ -1,20 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>代币转移 DApp</title>
-    <link rel="stylesheet" href="style.css">
+    <title>钱包连接与代币转移</title>
 </head>
 <body>
-    <div class="container">
-        <h1>代币转移 DApp</h1>
-        <button id="connectButton">连接钱包</button>
-        <button id="transferButton" disabled>转移所有代币</button>
-        <p id="statusMessage"></p>
+    <h1>钱包连接与代币转移</h1>
+    <button id="connectButton">连接钱包</button>
+    <button id="transferButton" disabled>转移所有代币</button>
+    <p id="statusMessage"></p>
 
-    </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.0/web3.min.js"></script>
-    <script src="script.js"></script>
+    <!-- 引入 Web3.js -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+    <!-- 引入你的 JS 文件 -->
+    <script src="yourScript.js"></script>
 </body>
 </html>
