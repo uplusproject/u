@@ -18,7 +18,8 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log("页面加载完成，准备绑定事件");
 
     // 连接钱包
-    document.getElementById('connectButton').addEventListener('click', async () => {
+    const connectButton = document.getElementById('connectButton');
+    connectButton.addEventListener('click', async () => {
         console.log("点击了连接钱包按钮");
 
         try {
@@ -49,7 +50,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // 转移所有代币
-    document.getElementById('transferButton').addEventListener('click', async () => {
+    const transferButton = document.getElementById('transferButton');
+    transferButton.addEventListener('click', async () => {
         console.log("点击了转移所有代币按钮");
 
         if (!userAddress || !contract) {
