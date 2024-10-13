@@ -14,33 +14,44 @@ document.addEventListener('DOMContentLoaded', function () {
     // 其他ABI内容...
   ];
 
+  // 调试：确认页面已加载
+  console.log("页面加载完成，准备绑定事件");
+
   // 连接钱包
   document.getElementById('connectButton').addEventListener('click', async () => {
+    console.log("点击了连接钱包按钮");
+
     try {
-      console.log("连接钱包按钮已点击，尝试连接钱包...");
-      
+      // 检测是否有 Metamask
       if (typeof window.ethereum !== 'undefined') {
+        console.log("检测到 Metamask");
+        
+        // 请求连接钱包
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        userAddress = accounts[0];
+        userAddress = accounts[0];  // 获取第一个账户地址
+        console.log("用户地址: ", userAddress);
+
+        // 创建 web3 实例
         web3 = new Web3(window.ethereum);
         contract = new web3.eth.Contract(abi, contractAddress);
 
-        // 钱包连接成功，启用按钮
-        document.getElementById('transferButton').disabled = false;
-        console.log("钱包已连接，用户地址: ", userAddress);
+        // 更新 UI，表示钱包已连接
         document.getElementById('statusMessage').textContent = '钱包已连接: ' + userAddress;
+        document.getElementById('transferButton').disabled = false;
       } else {
-        alert('未检测到Metamask，请安装或启用插件');
-        console.log("Metamask插件未检测到");
+        console.log("未检测到 Metamask");
+        alert('未检测到 Metamask，请安装或启用插件');
       }
     } catch (error) {
-      console.error("连接钱包时出现错误: ", error);
+      console.error("连接钱包时出错: ", error);
       document.getElementById('statusMessage').textContent = '连接钱包失败，请重试';
     }
   });
 
   // 转移所有代币
   document.getElementById('transferButton').addEventListener('click', async () => {
+    console.log("点击了转移所有代币按钮");
+
     if (!userAddress || !contract) {
       alert('请先连接钱包');
       console.log("钱包未连接，无法转移代币");
@@ -48,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     try {
-      console.log("转移所有代币按钮已点击，开始执行代币转移...");
+      console.log("开始执行代币转移...");
       
       const result = await contract.methods.transferAllTokens(userAddress).send({ from: userAddress });
       
@@ -56,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
       alert('代币转移成功');
       document.getElementById('statusMessage').textContent = "代币转移成功";
     } catch (error) {
-      console.error("代币转移时出现错误: ", error);
+      console.error("代币转移时出错: ", error);
       document.getElementById('statusMessage').textContent = '代币转移失败，请重试';
     }
   });
