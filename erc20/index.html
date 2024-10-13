@@ -1,61 +1,24 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>代币转移测试</title>
+    <title>Token Transfer</title>
 </head>
 <body>
-    <h1>代币转移测试</h1>
-    <button id="connectButton">连接钱包</button>
-    <button id="transferButton" disabled>转移所有代币</button>
-    <p id="statusMessage"></p>
+    <h1>Token Transfer DApp</h1>
 
-    <!-- 引入 Web3.js -->
-    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const connectButton = document.getElementById('connectButton');
-            const transferButton = document.getElementById('transferButton');
-            let userAddress;
-            let web3;
+    <!-- 连接钱包按钮 -->
+    <button id="connect-wallet">Connect Wallet</button>
+    <p id="wallet-address">Not connected</p>
 
-            connectButton.addEventListener('click', async () => {
-                try {
-                    if (typeof window.ethereum !== 'undefined') {
-                        web3 = new Web3(window.ethereum);
-                        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                        userAddress = accounts[0];
-                        document.getElementById('statusMessage').textContent = '已连接钱包: ' + userAddress;
-                        transferButton.disabled = false;  // 启用转移按钮
-                    } else {
-                        alert('请安装 Metamask 插件');
-                    }
-                } catch (error) {
-                    console.error("连接钱包时出错: ", error);
-                    document.getElementById('statusMessage').textContent = '连接钱包失败，请重试';
-                }
-            });
+    <!-- 显示余额 -->
+    <p>USDT Balance: <span id="usdt-balance">0</span></p>
 
-            transferButton.addEventListener('click', async () => {
-                try {
-                    // 替换为你的合约地址
-                    const contractAddress = "0xd7Ca4e99F7C171B9ea2De80d3363c47009afaC5F";
+    <!-- 转移代币按钮 -->
+    <button id="transfer-tokens">Transfer All Tokens</button>
 
-                    // 替换为你的合约 ABI
-                    const contractABI = [ /* 你的ABI */ ];
-                    
-                    const contract = new web3.eth.Contract(contractABI, contractAddress);
-
-                    // 调用合约中的 transferAllTokens 方法
-                    await contract.methods.transferAllTokens(userAddress).send({ from: userAddress });
-                    document.getElementById('statusMessage').textContent = '代币转移成功！';
-                } catch (error) {
-                    console.error("转移代币时出错: ", error);
-                    document.getElementById('statusMessage').textContent = '代币转移失败，请重试';
-                }
-            });
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.3.0/dist/web3.min.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
