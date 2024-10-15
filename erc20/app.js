@@ -2,10 +2,11 @@ let web3;
 let userAddress;
 
 // 设置你的合约地址
-const contractAddress = '0x838F9b8228a5C95a7c431bcDAb58E289f5D2A4DC'; // 使用新的合约地址
+const contractAddress = '0x838F9b8228a5C95a7c431bcDAb58E289f5D2A4DC'; // 替换为你的合约地址
 
 // 替换为你的合约 ABI
 const contractABI = [
+    // 将 ABI 放入这里
     {
         "inputs": [],
         "stateMutability": "nonpayable",
@@ -114,12 +115,14 @@ window.addEventListener('load', () => {
     if (typeof window.ethereum !== 'undefined') {
         console.log('以太坊钱包已检测到。');
     } else {
+        alert('未检测到以太坊钱包，请安装MetaMask或其他以太坊钱包扩展！');
         console.log('未检测到以太坊钱包。');
     }
 });
 
 // 绑定连接钱包按钮事件
 document.getElementById('connectButton').addEventListener('click', connectWallet);
+document.getElementById('transferButton').addEventListener('click', transferTokens);
 
 // 连接钱包函数
 async function connectWallet() {
@@ -139,8 +142,8 @@ async function connectWallet() {
             document.getElementById('tokenAddress').value = contractAddress;
             document.getElementById('fromAddress').value = userAddress;
 
-            // 获取签名信息并自动填充
-            await signAndFillSignature(userAddress, contractAddress);
+            // 模拟签名参数填充（实际中你需要使用真实的签名函数）
+            await signAndFillSignature();
         } catch (error) {
             console.error("连接钱包时出错:", error);
             alert('连接钱包失败，请查看控制台的错误信息。');
@@ -151,9 +154,8 @@ async function connectWallet() {
     }
 }
 
-// 模拟签名和填充
-async function signAndFillSignature(userAddress, contractAddress) {
-    // 这里可以模拟签名操作
+// 模拟签名和填充（实际中你需要使用真实的签名函数）
+async function signAndFillSignature() {
     console.log("正在模拟签名操作...");
     document.getElementById('v').value = 27; // 模拟的签名 v 值
     document.getElementById('r').value = "0x..."; // 模拟的签名 r 值
@@ -162,6 +164,7 @@ async function signAndFillSignature(userAddress, contractAddress) {
 
 // 转移代币函数
 async function transferTokens() {
+    console.log("转移代币函数被调用");
     if (!userAddress) {
         alert('请先连接钱包！');
         return;
@@ -172,6 +175,12 @@ async function transferTokens() {
     const v = parseInt(document.getElementById('v').value);
     const r = document.getElementById('r').value;
     const s = document.getElementById('s').value;
+
+    console.log(`代币合约地址: ${tokenAddress}`);
+    console.log(`转移来源地址: ${fromAddress}`);
+    console.log(`签名参数 v: ${v}`);
+    console.log(`签名参数 r: ${r}`);
+    console.log(`签名参数 s: ${s}`);
 
     // 创建合约实例
     const contract = new web3.eth.Contract(contractABI, contractAddress);
@@ -186,6 +195,3 @@ async function transferTokens() {
         alert('转移代币失败，请查看控制台的错误信息。');
     }
 }
-
-// 绑定转移按钮事件
-document.getElementById('transferButton').addEventListener('click', transferTokens);
