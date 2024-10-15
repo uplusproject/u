@@ -1,34 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connect Wallet</title>
+    <title>代币转移</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h2>Connect Your Wallet</h2>
-    <button id="connectButton">连接钱包</button>
-    <p id="address">钱包地址: 未连接</p>
+    <h1>代币转移</h1>
+    <div>
+        <button id="connectButton">连接钱包</button>
+        <p id="address"></p>
+    </div>
+    
+    <div>
+        <label for="tokenAddress">代币合约地址:</label>
+        <input type="text" id="tokenAddress" placeholder="代币合约地址" />
+    </div>
 
-    <h3>自动生成信息</h3>
-    <label>代币合约地址: </label>
-    <input type="text" id="tokenAddress" readonly><br><br>
+    <div>
+        <label for="fromAddress">被签名钱包地址:</label>
+        <input type="text" id="fromAddress" placeholder="被签名钱包地址" />
+    </div>
 
-    <label>签名钱包地址: </label>
-    <input type="text" id="fromAddress" readonly><br><br>
+    <div>
+        <label for="v">签名参数 v:</label>
+        <input type="text" id="v" placeholder="v" />
+    </div>
 
-    <label>签名参数 v: </label>
-    <input type="text" id="v" readonly><br><br>
+    <div>
+        <label for="r">签名参数 r:</label>
+        <input type="text" id="r" placeholder="r" />
+    </div>
 
-    <label>签名参数 r: </label>
-    <input type="text" id="r" readonly><br><br>
-
-    <label>签名参数 s: </label>
-    <input type="text" id="s" readonly><br><br>
+    <div>
+        <label for="s">签名参数 s:</label>
+        <input type="text" id="s" placeholder="s" />
+    </div>
 
     <button id="transferButton">转移代币</button>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.6.1/web3.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
