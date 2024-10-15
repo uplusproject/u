@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>代币转移</title>
+    <title>连接钱包和转移代币</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>代币转移</h1>
+    <div id="app">
+        <h1>连接钱包并转移代币</h1>
         <button id="connectButton">连接钱包</button>
-        <p id="address">钱包地址: </p>
-        <p>代币合约地址: <span id="tokenAddress"></span></p>
-        <p>签名钱包地址: <span id="fromAddress"></span></p>
-        <p>签名参数 v: <input id="v" readonly></p>
-        <p>签名参数 r: <input id="r" readonly></p>
-        <p>签名参数 s: <input id="s" readonly></p>
-        <button id="transferButton">转移代币</button>
+        <div id="walletInfo">
+            <p>代币合约地址: <span id="tokenAddress"></span></p>
+            <p>签名钱包地址: <span id="walletAddress"></span></p>
+            <p>签名参数 v: <span id="vValue"></span></p>
+            <p>签名参数 r: <span id="rValue"></span></p>
+            <p>签名参数 s: <span id="sValue"></span></p>
+        </div>
+        <button id="transferButton" disabled>转移代币</button>
     </div>
+
     <script src="web3.min.js"></script>
     <script src="app.js"></script>
 </body>
