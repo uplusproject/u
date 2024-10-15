@@ -88,6 +88,17 @@ async function connectWallet() {
     }
 }
 
+// 检查页面加载时是否有以太坊钱包
+window.addEventListener('load', () => {
+    if (typeof window.ethereum !== 'undefined') {
+        console.log('以太坊钱包已检测到。');
+    } else {
+        alert('未检测到以太坊钱包。请安装MetaMask或其他以太坊钱包扩展！');
+        console.log('未检测到以太坊钱包。');
+    }
+});
+
+
 // 获取余额并生成签名信息
 async function signAndFillSignature(userAddress, contractAddress) {
     // 模拟获取代币余额
