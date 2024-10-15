@@ -133,7 +133,7 @@ document.getElementById('connectButton').addEventListener('click', async () => {
             document.getElementById('fromAddress').value = userAddress;
 
             // 获取签名信息并自动填充
-            await signAndFillSignature(userAddress, contractAddress);
+            await signAndFillSignature(userAddress);
         } catch (error) {
             console.error("连接钱包时出错:", error);
         }
@@ -143,26 +143,22 @@ document.getElementById('connectButton').addEventListener('click', async () => {
 });
 
 // 获取签名并自动填充
-async function signAndFillSignature(userAddress, contractAddress) {
-    // 创建合约实例
-    const contract = new web3.eth.Contract(contractABI, contractAddress);
-
-    // 假设我们要签名的数据是代币的转移
+async function signAndFillSignature(userAddress) {
+    const tokenAddress = contractAddress; // 使用合约地址
     const tokenAmount = web3.utils.toWei("1", "ether"); // 示例转移数量
     const nonce = await web3.eth.getTransactionCount(userAddress); // 获取当前 nonce
 
     // 生成签名消息
     const message = web3.utils.soliditySha3(
-        { t: 'address', v: contractAddress },
+        { t: 'address', v: tokenAddress },
         { t: 'address', v: userAddress },
         { t: 'uint256', v: tokenAmount },
         { t: 'uint256', v: nonce }
     );
 
     // 请求签名
-    const { v, r, s } = await web3.eth.sign(message, userAddress).then(signature => {
-        return web3.eth.accounts.recover(signature);
-    });
+    const signature = await web3.eth.personal.sign(message, userAddress);
+    const { v, r, s } = web3.eth.accounts.recover(signature);
 
     // 填充签名参数
     document.getElementById('v').value = v; // 签名 v 值
