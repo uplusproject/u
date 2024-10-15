@@ -1,39 +1,39 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-    margin: 0;
-    padding: 20px;
+    background-color: #f4f4f4;
+    text-align: center;
+    padding: 50px;
 }
 
-.container {
-    max-width: 600px;
-    margin: auto;
-    background: white;
+#app {
+    background-color: white;
+    border-radius: 10px;
     padding: 20px;
-    border-radius: 5px;
+    max-width: 500px;
+    margin: 0 auto;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
-    text-align: center;
+    color: #333;
 }
 
 button {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    background-color: #007BFF;
+    background-color: #4CAF50;
     color: white;
     border: none;
-    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
     cursor: pointer;
+    margin-top: 20px;
 }
 
-button:hover {
-    background-color: #0056b3;
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
 
-p {
-    margin: 10px 0;
+#walletInfo p {
+    font-size: 14px;
+    color: #555;
 }
