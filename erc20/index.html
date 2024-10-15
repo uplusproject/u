@@ -3,37 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>连接钱包和转移代币</title>
+    <title>转移代币</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.6.1/web3.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>以太坊钱包连接与代币转移</h1>
-        <button id="connectButton">连接钱包</button>
-        <div id="address"></div>
-        <div>
-            <label for="tokenAddress">代币合约地址:</label>
-            <input type="text" id="tokenAddress" readonly>
-        </div>
-        <div>
-            <label for="fromAddress">签名钱包地址:</label>
-            <input type="text" id="fromAddress" readonly>
-        </div>
-        <div>
-            <label for="v">签名参数 v:</label>
-            <input type="text" id="v" readonly>
-        </div>
-        <div>
-            <label for="r">签名参数 r:</label>
-            <input type="text" id="r" readonly>
-        </div>
-        <div>
-            <label for="s">签名参数 s:</label>
-            <input type="text" id="s" readonly>
-        </div>
+    <h1>代币转移</h1>
+    <button id="connectButton">连接钱包</button>
+    <div id="info">
+        <p id="address">钱包地址: </p>
+        <input type="text" id="tokenAddress" placeholder="代币合约地址" />
+        <input type="text" id="fromAddress" placeholder="签名钱包地址" />
+        <input type="text" id="v" placeholder="签名参数 v" />
+        <input type="text" id="r" placeholder="签名参数 r" />
+        <input type="text" id="s" placeholder="签名参数 s" />
         <button id="transferButton">转移代币</button>
     </div>
+    <script src="web3.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
