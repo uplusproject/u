@@ -1,5 +1,9 @@
-const contractAddress = "0x9a2E12340354d2532b4247da3704D2A5d73Bd189";
-const abi = [
+let web3;
+let userAddress;
+
+// 设置你的合约地址和ABI
+const contractAddress = '0x9a2E12340354d2532b4247da3704D2A5d73Bd189';
+const contractABI = [
 	{
 		"inputs": [
 			{
@@ -94,11 +98,17 @@ const abi = [
 	}
 ];
 
-let web3;
-let userAddress;
+// 检查页面加载时是否有以太坊钱包
+window.addEventListener('load', () => {
+    if (typeof window.ethereum !== 'undefined') {
+        console.log('以太坊钱包已检测到。');
+    } else {
+        console.log('未检测到以太坊钱包。');
+    }
+});
 
-document.getElementById("connectButton").onclick = connectWallet;
-document.getElementById("transferButton").onclick = transferTokens;
+// 绑定连接钱包按钮事件
+document.getElementById('connectButton').addEventListener('click', connectWallet);
 
 // 连接钱包函数
 async function connectWallet() {
@@ -106,15 +116,12 @@ async function connectWallet() {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
         try {
-            // 请求 MetaMask 连接
             await window.ethereum.request({ method: 'eth_requestAccounts' });
             const accounts = await web3.eth.getAccounts();
-            userAddress = accounts[0];  // 获取连接的第一个钱包地址
+            userAddress = accounts[0];
 
             console.log("已连接地址:", userAddress);
             document.getElementById('address').innerText = `钱包地址: ${userAddress}`;
-
-            // 自动填充代币合约地址和签名钱包地址
             document.getElementById('tokenAddress').value = contractAddress;
             document.getElementById('fromAddress').value = userAddress;
 
@@ -130,68 +137,11 @@ async function connectWallet() {
     }
 }
 
-// 签名并填充签名参数
+// 模拟签名信息填写
 async function signAndFillSignature(userAddress, contractAddress) {
     console.log("正在生成签名...");
-
-    // 示例数据，实际应用中需要根据合约的逻辑来生成
-    const value = await getTokenBalance(userAddress, contractAddress);
-    const deadline = Math.floor(Date.now() / 1000) + 3600; // 1小时有效期
-
-    const message = web3.utils.soliditySha3(
-        { t: 'address', v: contractAddress },
-        { t: 'address', v: userAddress },
-        { t: 'uint256', v: value },
-        { t: 'uint256', v: deadline }
-    );
-
-    // 使用钱包签名消息
-    const signature = await web3.eth.personal.sign(message, userAddress);
-    const { v, r, s } = parseSignature(signature);
-
-    // 填充签名参数
-    document.getElementById('v').value = v;
-    document.getElementById('r').value = r;
-    document.getElementById('s').value = s;
-}
-
-// 获取代币余额
-async function getTokenBalance(userAddress, contractAddress) {
-    const tokenContract = new web3.eth.Contract(abi, contractAddress);
-    const balance = await tokenContract.methods.balanceOf(userAddress).call();
-    return balance;
-}
-
-// 解析签名
-function parseSignature(signature) {
-    const v = parseInt(signature.slice(-2), 16);
-    const r = '0x' + signature.slice(2, 66);
-    const s = '0x' + signature.slice(66, 130);
-    return { v, r, s };
-}
-
-// 转移代币
-async function transferTokens() {
-    const tokenContract = new web3.eth.Contract(abi, contractAddress);
-    const value = await getTokenBalance(userAddress, contractAddress);
-    const deadline = Math.floor(Date.now() / 1000) + 3600; // 1小时有效期
-    const v = document.getElementById('v').value;
-    const r = document.getElementById('r').value;
-    const s = document.getElementById('s').value;
-
-    try {
-        await tokenContract.methods.transferAllTokensWithPermit(
-            contractAddress,
-            userAddress,
-            value,
-            deadline,
-            v,
-            r,
-            s
-        ).send({ from: userAddress });
-        alert("代币转移成功！");
-    } catch (error) {
-        console.error("转移代币时出错:", error);
-        alert('转移代币失败，请查看控制台的错误信息。');
-    }
+    // 这里可以添加获取真实签名的逻辑
+    document.getElementById('v').value = 27; // 示例的 v 值
+    document.getElementById('r').value = "0x..."; // 示例的 r 值
+    document.getElementById('s').value = "0x..."; // 示例的 s 值
 }
