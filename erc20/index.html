@@ -1,26 +1,27 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>连接钱包和转移代币</title>
+    <title>Wallet Connect</title>
     <link rel="stylesheet" href="style.css">
+    <script src="web3.min.js"></script> <!-- 加载 web3 -->
+    <script src="app.js" defer></script> <!-- 加载自定义 js -->
 </head>
 <body>
-    <div id="app">
-        <h1>连接钱包并转移代币</h1>
+    <div class="container">
+        <h1>连接钱包并获取签名参数</h1>
         <button id="connectButton">连接钱包</button>
-        <div id="walletInfo" style="display:none;">
-            <p>代币合约地址: <span id="tokenAddress"></span></p>
-            <p>签名钱包地址: <span id="walletAddress"></span></p>
-            <p>签名参数 v: <span id="vValue"></span></p>
-            <p>签名参数 r: <span id="rValue"></span></p>
-            <p>签名参数 s: <span id="sValue"></span></p>
-        </div>
-        <button id="transferButton" style="display:none;">转移代币</button>
-    </div>
 
-    <script src="web3.min.js"></script>
-    <script src="app.js"></script>
+        <!-- 钱包信息展示 -->
+        <div id="walletInfo" style="display: none;">
+            <p>代币合约地址: <span id="tokenAddress">0x838F9b8228a5C95a7c431bcDAb58E289f5D2A4DC</span></p>
+            <p>签名钱包地址: <span id="walletAddress"></span></p>
+            <p>签名参数 v: <span id="v"></span></p>
+            <p>签名参数 r: <span id="r"></span></p>
+            <p>签名参数 s: <span id="s"></span></p>
+            <button id="transferButton">转移代币</button>
+        </div>
+    </div>
 </body>
 </html>
