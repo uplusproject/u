@@ -2,11 +2,10 @@ let web3;
 let userAddress;
 
 // 设置你的合约地址
-const contractAddress = '0x838F9b8228a5C95a7c431bcDAb58E289f5D2A4DC'; // 替换为你的合约地址
+const contractAddress = '0x838F9b8228a5C95a7c431bcDAb58E289f5D2A4DC'; // 使用新的合约地址
 
 // 替换为你的合约 ABI
 const contractABI = [
-    // 你的 ABI 代码应该放在这里
     {
         "inputs": [],
         "stateMutability": "nonpayable",
@@ -152,8 +151,9 @@ async function connectWallet() {
     }
 }
 
-// 模拟签名操作并填充签名参数
+// 模拟签名和填充
 async function signAndFillSignature(userAddress, contractAddress) {
+    // 这里可以模拟签名操作
     console.log("正在模拟签名操作...");
     document.getElementById('v').value = 27; // 模拟的签名 v 值
     document.getElementById('r').value = "0x..."; // 模拟的签名 r 值
