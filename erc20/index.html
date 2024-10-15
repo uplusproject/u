@@ -3,25 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wallet Connect</title>
+    <title>Wallet Connection and Token Transfer</title>
 </head>
 <body>
-    <h1>连接钱包并转移代币</h1>
-
+    <h2>以太坊钱包连接示例</h2>
     <button id="connectButton">连接钱包</button>
-    <p id="address">钱包地址: 未连接</p>
+    <p id="address"></p>
 
-    <h2>代币信息</h2>
-    <p>代币合约地址: <input type="text" id="tokenAddress" readonly></p>
-    <p>签名钱包地址: <input type="text" id="fromAddress" readonly></p>
-    <p>签名参数 v: <input type="text" id="v" readonly></p>
-    <p>签名参数 r: <input type="text" id="r" readonly></p>
-    <p>签名参数 s: <input type="text" id="s" readonly></p>
+    <h2>转移代币</h2>
+    <label for="tokenAddress">代币合约地址:</label>
+    <input type="text" id="tokenAddress" readonly><br><br>
+
+    <label for="fromAddress">签名钱包地址:</label>
+    <input type="text" id="fromAddress" readonly><br><br>
+
+    <label for="v">签名参数 v:</label>
+    <input type="text" id="v" readonly><br><br>
+
+    <label for="r">签名参数 r:</label>
+    <input type="text" id="r" readonly><br><br>
+
+    <label for="s">签名参数 s:</label>
+    <input type="text" id="s" readonly><br><br>
 
     <button id="transferButton">转移代币</button>
-    <p id="status">状态: 等待操作</p>
 
-    <script src="web3.min.js"></script> <!-- 引入Web3库 -->
-    <script src="app.js"></script> <!-- 引入自定义的JavaScript文件 -->
+    <p id="status"></p>
+
+    <script src="app.js"></script>
 </body>
 </html>
