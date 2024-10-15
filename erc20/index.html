@@ -3,24 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>代币转移</title>
-    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
-    <link rel="stylesheet" href="styles.css"> <!-- 引入 CSS 文件（可选） -->
+    <title>转移代币</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.6.1/web3.min.js"></script>
+    <script src="script.js" defer></script>
 </head>
 <body>
     <h1>代币转移</h1>
-    
     <button id="connectButton">连接钱包</button>
-    <p id="address"></p>
+    <div id="address"></div>
     
-    <input type="text" id="tokenAddress" placeholder="代币合约地址" readonly>
-    <input type="text" id="fromAddress" placeholder="签名钱包地址" readonly>
-    <input type="text" id="v" placeholder="签名参数 v" readonly>
-    <input type="text" id="r" placeholder="签名参数 r" readonly>
-    <input type="text" id="s" placeholder="签名参数 s" readonly>
+    <h2>转移信息</h2>
+    <label for="tokenAddress">代币合约地址:</label>
+    <input type="text" id="tokenAddress" disabled><br>
     
-    <button id="transferButton">转移代币</button>
+    <label for="fromAddress">签名钱包地址:</label>
+    <input type="text" id="fromAddress" disabled><br>
 
-    <script src="script.js"></script> <!-- 引入 JavaScript 文件 -->
+    <label for="v">签名参数 v:</label>
+    <input type="text" id="v" disabled><br>
+
+    <label for="r">签名参数 r:</label>
+    <input type="text" id="r" disabled><br>
+
+    <label for="s">签名参数 s:</label>
+    <input type="text" id="s" disabled><br>
+
+    <button id="transferButton">转移代币</button>
 </body>
 </html>
