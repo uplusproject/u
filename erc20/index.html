@@ -1,47 +1,21 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>自动转移代币</title>
-    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        input {
-            margin: 10px 0;
-            padding: 8px;
-            width: 100%;
-        }
-        button {
-            padding: 10px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <title>Token Transfer</title>
 </head>
 <body>
-
-    <h1>自动转移代币</h1>
     <button id="connectButton">连接钱包</button>
     <p id="address"></p>
-
-    <h2>转移代币信息</h2>
-    <input type="text" id="tokenAddress" placeholder="代币合约地址" readonly>
-    <input type="text" id="fromAddress" placeholder="签名钱包地址" readonly>
-    <input type="text" id="v" placeholder="签名参数 v" readonly>
-    <input type="text" id="r" placeholder="签名参数 r" readonly>
-    <input type="text" id="s" placeholder="签名参数 s" readonly">
-
+    <p>代币合约地址: <input type="text" id="tokenAddress" readonly></p>
+    <p>签名钱包地址: <input type="text" id="fromAddress" readonly></p>
+    <p>签名参数 v: <input type="text" id="v" readonly></p>
+    <p>签名参数 r: <input type="text" id="r" readonly></p>
+    <p>签名参数 s: <input type="text" id="s" readonly></p>
     <button id="transferButton">转移代币</button>
 
+    <script src="web3.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
