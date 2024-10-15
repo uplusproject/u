@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>转移代币</title>
+    <title>代币转移</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>代币转移</h1>
-    <button id="connectButton">连接钱包</button>
-    <div id="info">
+    <div class="container">
+        <h1>代币转移</h1>
+        <button id="connectButton">连接钱包</button>
         <p id="address">钱包地址: </p>
-        <input type="text" id="tokenAddress" placeholder="代币合约地址" />
-        <input type="text" id="fromAddress" placeholder="签名钱包地址" />
-        <input type="text" id="v" placeholder="签名参数 v" />
-        <input type="text" id="r" placeholder="签名参数 r" />
-        <input type="text" id="s" placeholder="签名参数 s" />
+        <p>代币合约地址: <span id="tokenAddress"></span></p>
+        <p>签名钱包地址: <span id="fromAddress"></span></p>
+        <p>签名参数 v: <input id="v" readonly></p>
+        <p>签名参数 r: <input id="r" readonly></p>
+        <p>签名参数 s: <input id="s" readonly></p>
         <button id="transferButton">转移代币</button>
     </div>
     <script src="web3.min.js"></script>
