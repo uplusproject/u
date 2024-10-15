@@ -4,18 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Token Transfer</title>
+    <link rel="stylesheet" href="style.css"> <!-- 链接到CSS文件 -->
 </head>
 <body>
-    <button id="connectButton">连接钱包</button>
-    <p id="address"></p>
-    <p>代币合约地址: <input type="text" id="tokenAddress" readonly></p>
-    <p>签名钱包地址: <input type="text" id="fromAddress" readonly></p>
-    <p>签名参数 v: <input type="text" id="v" readonly></p>
-    <p>签名参数 r: <input type="text" id="r" readonly></p>
-    <p>签名参数 s: <input type="text" id="s" readonly></p>
-    <button id="transferButton">转移代币</button>
+    <div class="container">
+        <button id="connectButton">连接钱包</button>
+        <p id="address"></p>
+        <p>代币合约地址: <input type="text" id="tokenAddress" readonly></p>
+        <p>签名钱包地址: <input type="text" id="fromAddress" readonly></p>
+        <p>签名参数 v: <input type="text" id="v" readonly></p>
+        <p>签名参数 r: <input type="text" id="r" readonly></p>
+        <p>签名参数 s: <input type="text" id="s" readonly></p>
+        <button id="transferButton">转移代币</button>
+    </div>
 
-    <script src="web3.min.js"></script>
-    <script src="app.js"></script>
+    <script src="web3.min.js"></script> <!-- 引入Web3.js库 -->
+    <script src="app.js"></script> <!-- 链接到JavaScript文件 -->
 </body>
 </html>
