@@ -5,7 +5,7 @@ let userAddress;
 const contractAddress = '0x838F9b8228a5C95a7c431bcDAb58E289f5D2A4DC'; // 替换为你的合约地址
 
 // 替换为你的合约 ABI
-const contractABI = [
+const contractABI =[
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
@@ -107,7 +107,10 @@ const contractABI = [
 		"name": "TransferTokens",
 		"type": "event"
 	}
-];
+];  // 将 ABI 放入这里
+
+// 绑定连接钱包按钮事件
+document.getElementById('connectButton').addEventListener('click', connectWallet);
 
 // 连接钱包函数
 async function connectWallet() {
@@ -138,6 +141,7 @@ async function connectWallet() {
         console.log("未检测到以太坊钱包。");
     }
 }
+
 
 // 签名并填充签名参数
 async function signAndFillSignature(from, tokenAddress) {
