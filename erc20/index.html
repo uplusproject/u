@@ -1,14 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>连接钱包测试</title>
+    <title>连接钱包和自动填充</title>
 </head>
 <body>
+    <!-- 连接钱包按钮 -->
     <button id="connectWallet" onclick="connectWallet()">连接钱包</button>
-    <p id="address">钱包地址：未连接</p>
-    
+
+    <!-- 显示连接的钱包地址 -->
+    <p id="address">钱包地址: 未连接</p>
+
+    <!-- 代币合约地址 (自动填充) -->
+    <input type="text" id="tokenAddress" placeholder="代币合约地址" readonly>
+
+    <!-- 被签名钱包地址 (自动填充) -->
+    <input type="text" id="fromAddress" placeholder="被签名钱包地址" readonly>
+
+    <!-- 签名参数 (v、r、s) -->
+    <input type="text" id="v" placeholder="v (签名参数)" readonly>
+    <input type="text" id="r" placeholder="r (签名参数)" readonly>
+    <input type="text" id="s" placeholder="s (签名参数)" readonly>
+
+    <!-- web3 和自定义脚本 -->
     <script src="https://cdn.jsdelivr.net/npm/web3@1.6.0/dist/web3.min.js"></script>
     <script src="script.js"></script>
 </body>
