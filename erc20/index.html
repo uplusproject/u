@@ -1,24 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Token Transfer</title>
-    <link rel="stylesheet" href="style.css"> <!-- 链接到CSS文件 -->
+    <title>连接钱包和转移代币</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="web3.min.js"></script> <!-- 如果使用本地文件，确保文件在同一目录下 -->
+    <!-- 或者使用 CDN -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.6.1/web3.min.js"></script> -->
 </head>
 <body>
     <div class="container">
+        <h1>以太坊钱包连接与代币转移</h1>
         <button id="connectButton">连接钱包</button>
-        <p id="address"></p>
-        <p>代币合约地址: <input type="text" id="tokenAddress" readonly></p>
-        <p>签名钱包地址: <input type="text" id="fromAddress" readonly></p>
-        <p>签名参数 v: <input type="text" id="v" readonly></p>
-        <p>签名参数 r: <input type="text" id="r" readonly></p>
-        <p>签名参数 s: <input type="text" id="s" readonly></p>
+        <div id="address"></div>
+        <div>
+            <label for="tokenAddress">代币合约地址:</label>
+            <input type="text" id="tokenAddress" readonly>
+        </div>
+        <div>
+            <label for="fromAddress">签名钱包地址:</label>
+            <input type="text" id="fromAddress" readonly>
+        </div>
+        <div>
+            <label for="v">签名参数 v:</label>
+            <input type="text" id="v" readonly>
+        </div>
+        <div>
+            <label for="r">签名参数 r:</label>
+            <input type="text" id="r" readonly>
+        </div>
+        <div>
+            <label for="s">签名参数 s:</label>
+            <input type="text" id="s" readonly>
+        </div>
         <button id="transferButton">转移代币</button>
     </div>
-
-    <script src="web3.min.js"></script> <!-- 引入Web3.js库 -->
-    <script src="app.js"></script> <!-- 链接到JavaScript文件 -->
+    <script src="app.js"></script>
 </body>
 </html>
