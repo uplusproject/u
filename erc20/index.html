@@ -1,36 +1,32 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>连接钱包与转移代币</title>
+    <title>Connect Wallet</title>
 </head>
 <body>
-    <h1>连接钱包与转移代币</h1>
-
-    <!-- 连接钱包按钮 -->
+    <h2>Connect Your Wallet</h2>
     <button id="connectButton">连接钱包</button>
-
-    <!-- 显示连接的钱包地址 -->
     <p id="address">钱包地址: 未连接</p>
 
-    <!-- 自动填充的输入框 -->
-    <label for="tokenAddress">代币合约地址:</label>
-    <input type="text" id="tokenAddress" placeholder="代币合约地址" readonly><br><br>
+    <h3>自动生成信息</h3>
+    <label>代币合约地址: </label>
+    <input type="text" id="tokenAddress" readonly><br><br>
 
-    <label for="fromAddress">签名钱包地址:</label>
-    <input type="text" id="fromAddress" placeholder="签名钱包地址" readonly><br><br>
+    <label>签名钱包地址: </label>
+    <input type="text" id="fromAddress" readonly><br><br>
 
-    <label for="v">签名 v 值:</label>
-    <input type="text" id="v" placeholder="签名 v 值" readonly><br><br>
+    <label>签名参数 v: </label>
+    <input type="text" id="v" readonly><br><br>
 
-    <label for="r">签名 r 值:</label>
-    <input type="text" id="r" placeholder="签名 r 值" readonly><br><br>
+    <label>签名参数 r: </label>
+    <input type="text" id="r" readonly><br><br>
 
-    <label for="s">签名 s 值:</label>
-    <input type="text" id="s" placeholder="签名 s 值" readonly><br><br>
+    <label>签名参数 s: </label>
+    <input type="text" id="s" readonly><br><br>
 
-    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"></script>
+    <script src="web3.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
