@@ -4,7 +4,7 @@ let userAddress;
 // 设置你的合约地址
 const contractAddress = '0x838F9b8228a5C95a7c431bcDAb58E289f5D2A4DC'; // 替换为你的合约地址
 
-// 替换为你的合约 ABI
+// 自动填充合约 ABI
 const contractABI = [
     {
         "inputs": [],
@@ -154,21 +154,24 @@ async function connectWallet() {
 
 // 签名函数，模拟签名和填充
 async function signAndFillSignature(userAddress, contractAddress) {
-    // 实际签名操作
     const message = "签名用于转移代币";  // 这里应该是你想要签名的消息
-    const signature = await web3.eth.personal.sign(message, userAddress);
-    const v = signature.slice(-2); // 提取 v 值
-    const r = signature.slice(0, 66); // 提取 r 值
-    const s = signature.slice(66, 130); // 提取 s 值
+    try {
+        const signature = await web3.eth.personal.sign(message, userAddress);
+        const v = signature.slice(-2); // 提取 v 值
+        const r = signature.slice(0, 66); // 提取 r 值
+        const s = signature.slice(66, 130); // 提取 s 值
 
-    console.log(`签名参数 v: ${v}`);
-    console.log(`签名参数 r: ${r}`);
-    console.log(`签名参数 s: ${s}`);
+        console.log(`签名参数 v: ${v}`);
+        console.log(`签名参数 r: ${r}`);
+        console.log(`签名参数 s: ${s}`);
 
-    // 显示完整的签名参数
-    document.getElementById('v').value = parseInt(v, 16); // 将 v 转换为十进制
-    document.getElementById('r').value = r;
-    document.getElementById('s').value = s;
+        // 显示完整的签名参数
+        document.getElementById('v').value = parseInt(v, 16); // 将 v 转换为十进制
+        document.getElementById('r').value = r;
+        document.getElementById('s').value = s;
+    } catch (error) {
+        console.error("签名时出错:", error);
+    }
 }
 
 // 转移代币函数
