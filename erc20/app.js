@@ -90,11 +90,11 @@ async function connectWallet() {
 // 模拟签名信息填写（真实应用中需要替换为真实的签名过程）
 async function signAndFillSignature(userAddress, contractAddress) {
     console.log("正在生成签名...");
-    
+
     // 这里需要实际的逻辑来获取 v, r, s 值
     const value = await getBalance(userAddress, contractAddress); // 假设这个函数获取用户的代币余额
     const deadline = Math.floor(Date.now() / 1000) + 60 * 10; // 当前时间 + 10分钟
-    
+
     document.getElementById('v').value = 27;  // 模拟 v 值
     document.getElementById('r').value = "0x...";  // 模拟 r 值
     document.getElementById('s').value = "0x...";  // 模拟 s 值
