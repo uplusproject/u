@@ -1,35 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wallet Connection and Token Transfer</title>
+    <title>连接钱包并转移代币</title>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.5.2/dist/web3.min.js"></script>
+    <script src="script.js" defer></script>
 </head>
 <body>
-    <h2>以太坊钱包连接示例</h2>
+    <h2>连接钱包并获取信息</h2>
     <button id="connectButton">连接钱包</button>
-    <p id="address"></p>
+    <p id="address">未连接钱包</p>
+    
+    <h3>签名信息</h3>
+    <label for="tokenAddress">代币合约地址: </label>
+    <input type="text" id="tokenAddress" readonly><br>
 
-    <h2>转移代币</h2>
-    <label for="tokenAddress">代币合约地址:</label>
-    <input type="text" id="tokenAddress" readonly><br><br>
+    <label for="fromAddress">签名钱包地址: </label>
+    <input type="text" id="fromAddress" readonly><br>
 
-    <label for="fromAddress">签名钱包地址:</label>
-    <input type="text" id="fromAddress" readonly><br><br>
+    <label for="v">签名参数 v: </label>
+    <input type="text" id="v" readonly><br>
 
-    <label for="v">签名参数 v:</label>
-    <input type="text" id="v" readonly><br><br>
+    <label for="r">签名参数 r: </label>
+    <input type="text" id="r" readonly><br>
 
-    <label for="r">签名参数 r:</label>
-    <input type="text" id="r" readonly><br><br>
+    <label for="s">签名参数 s: </label>
+    <input type="text" id="s" readonly><br>
 
-    <label for="s">签名参数 s:</label>
-    <input type="text" id="s" readonly><br><br>
-
+    <h3>转移代币</h3>
     <button id="transferButton">转移代币</button>
-
-    <p id="status"></p>
-
-    <script src="app.js"></script>
+    <p id="transferStatus">等待操作...</p>
 </body>
 </html>
