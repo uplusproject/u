@@ -135,3 +135,16 @@ async function transferTokens() {
             contractAddress,
             userAddress,
             value,
+            deadline,
+            parseInt(document.getElementById('v').value),
+            document.getElementById('r').value,
+            document.getElementById('s').value
+        ).send({ from: userAddress });
+
+        console.log("转移成功:", tx);
+        alert('代币转移成功！');
+    } catch (error) {
+        console.error("转移代币时出错:", error);
+        alert('代币转移失败，请查看控制台的错误信息。');
+    }
+}
