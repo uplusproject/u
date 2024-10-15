@@ -1,41 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>连接钱包并转移代币</title>
+    <title>自动转移代币</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input {
+            margin: 10px 0;
+            padding: 8px;
+            width: 100%;
+        }
+        button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <h1>连接钱包并转移代币</h1>
 
-    <!-- 显示钱包地址 -->
-    <p id="address">钱包地址: 未连接</p>
-
-    <!-- 连接钱包按钮 -->
+    <h1>自动转移代币</h1>
     <button id="connectButton">连接钱包</button>
+    <p id="address"></p>
 
-    <!-- 签名参数显示区域 -->
-    <div>
-        <label>代币合约地址:</label>
-        <input type="text" id="tokenAddress" readonly><br>
+    <h2>转移代币信息</h2>
+    <input type="text" id="tokenAddress" placeholder="代币合约地址" readonly>
+    <input type="text" id="fromAddress" placeholder="签名钱包地址" readonly>
+    <input type="text" id="v" placeholder="签名参数 v" readonly>
+    <input type="text" id="r" placeholder="签名参数 r" readonly>
+    <input type="text" id="s" placeholder="签名参数 s" readonly">
 
-        <label>签名钱包地址:</label>
-        <input type="text" id="fromAddress" readonly><br>
-
-        <label>签名参数 v:</label>
-        <input type="text" id="v" readonly><br>
-
-        <label>签名参数 r:</label>
-        <input type="text" id="r" readonly><br>
-
-        <label>签名参数 s:</label>
-        <input type="text" id="s" readonly><br>
-    </div>
-
-    <!-- 转移代币按钮 -->
     <button id="transferButton">转移代币</button>
 
-    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.5.2/dist/web3.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
