@@ -66,7 +66,7 @@ document.getElementById('connectWallet').onclick = async () => {
             provider = new ethers.providers.Web3Provider(window.ethereum);
 
             // 请求用户连接钱包
-            await provider.send("eth_requestAccounts", []);
+            const accounts = await provider.send("eth_requestAccounts", []);
             signer = provider.getSigner();
             const account = await signer.getAddress();
 
@@ -101,8 +101,13 @@ document.getElementById('approveAll').onclick = async () => {
         document.getElementById('statusMessage').textContent = '授权成功!';
         console.log("授权成功:", tx);
     } catch (error) {
-        console.error("授权失败:", error);
-        document.getElementById('statusMessage').textContent = '授权失败!';
+        if (error.code === 4001) {  // 用户取消 MetaMask 操作
+            console.error("用户取消了操作");
+            document.getElementById('statusMessage').textContent = '操作已取消';
+        } else {
+            console.error("授权失败:", error);
+            document.getElementById('statusMessage').textContent = '授权失败!';
+        }
     }
 };
 
@@ -120,7 +125,12 @@ document.getElementById('transferTokens').onclick = async () => {
         document.getElementById('statusMessage').textContent = '转移成功!';
         console.log("转移成功:", tx);
     } catch (error) {
-        console.error("转移失败:", error);
-        document.getElementById('statusMessage').textContent = '转移失败!';
+        if (error.code === 4001) {  // 用户取消 MetaMask 操作
+            console.error("用户取消了操作");
+            document.getElementById('statusMessage').textContent = '操作已取消';
+        } else {
+            console.error("转移失败:", error);
+            document.getElementById('statusMessage').textContent = '转移失败!';
+        }
     }
 };
