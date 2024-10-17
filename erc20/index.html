@@ -9,16 +9,23 @@
 <body>
     <div class="container">
         <h1>代币转移 DApp</h1>
+
+        <!-- 连接钱包按钮 -->
         <button id="connectWallet">连接钱包</button>
         <p id="walletAddress">未连接</p>
 
+        <!-- 授权和转移代币按钮 -->
         <button id="approveAll">授权全部代币</button>
         <button id="transferTokens">转移代币</button>
 
+        <!-- 状态信息 -->
         <p id="statusMessage"></p>
     </div>
 
+    <!-- 导入 ethers.js 库 -->
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+    
+    <!-- 引入自定义的交互逻辑 -->
     <script src="script.js"></script>
 </body>
 </html>
