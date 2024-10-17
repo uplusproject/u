@@ -1,22 +1,35 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self';">
-    <title>Wallet and Token Transfer</title>
-    <link rel="stylesheet" href="style.css">
+    <title>ERC20 Token Transfer</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            text-align: center;
+            padding: 50px;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <h1>Wallet and Token Transfer</h1>
-    
-    <!-- 连接钱包按钮 -->
+    <h1>ERC20 Token Transfer</h1>
     <button id="connectWalletBtn">Connect Wallet</button>
-    
-    <!-- 签名授权按钮 -->
     <button id="signPermitBtn">Sign Permit</button>
-    
-    <!-- 转移代币按钮 -->
     <button id="transferTokensBtn">Transfer Tokens</button>
 
     <script src="script.js"></script>
