@@ -1,22 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Token Transfer with Permit</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.3.6/dist/web3.min.js"></script>
+    <title>Connect Wallet Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
     <script src="script.js" defer></script>
 </head>
 <body>
-    <h1>Token Transfer with Permit</h1>
-    
-    <!-- 连接钱包按钮 -->
+    <h1>连接钱包示例</h1>
     <button id="connectWalletBtn">Connect Wallet</button>
-    <p id="walletAddress">Not connected</p>
-
-    <!-- 签名授权和转移代币按钮 -->
-    <button id="signPermitBtn">Sign Permit</button>
-    <button id="transferTokensBtn">Transfer Tokens</button>
+    <div id="walletAddress"></div>
 </body>
 </html>
