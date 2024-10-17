@@ -1,37 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ERC20 Token Transfer</title>
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            text-align: center;
-            padding: 50px;
-        }
-        button {
-            margin: 10px;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <title>连接钱包示例</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.6.9/dist/ethers.umd.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>ERC20 Token Transfer</h1>
-    <button id="connectWalletBtn">Connect Wallet</button>
-    <button id="signPermitBtn" disabled>Sign Permit</button>
-    <button id="transferTokensBtn" disabled>Transfer Tokens</button>
-
+    <div class="container">
+        <h1>钱包连接示例</h1>
+        <button id="connectWalletBtn">连接钱包</button>
+        <button id="signPermitBtn" disabled>签名授权</button>
+        <button id="transferTokensBtn" disabled>转移代币</button>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
