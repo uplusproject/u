@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>钱包交互</title>
     <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
-    <script defer src="script.js"></script> <!-- 确保 script.js 正确加载 -->
+    <script defer src="script.js"></script> <!-- 引入外部 JavaScript 文件 -->
 </head>
 <body>
     <h1>钱包与智能合约交互</h1>
     <button id="connectWallet">连接钱包</button>
     <p id="walletAddress">未连接</p>
-
-    <button id="approveAll">授权全部代币</button>
-    <button id="transferTokens">转移代币</button>
-    <p id="statusMessage"></p>
+    <p id="statusMessage"></p> <!-- 用于显示状态消息 -->
 </body>
 </html>
