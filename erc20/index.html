@@ -1,20 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Token Transfer DApp</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Token Transfer DApp</h1>
-        <button id="connectWallet" onclick="connectWallet()">连接钱包</button>
-        <button id="authorizeTransfer" onclick="authorizeAndTransfer()" disabled>授权并转移代币</button>
-        <p id="status">请先连接钱包。</p>
+        <h1>代币转移 DApp</h1>
+        <button id="connectWallet">连接钱包</button>
+        <p id="walletAddress">未连接</p>
+
+        <button id="approveAll">授权全部代币</button>
+        <button id="transferTokens">转移代币</button>
+
+        <p id="statusMessage"></p>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
-    <script src="app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
