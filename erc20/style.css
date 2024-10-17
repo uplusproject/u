@@ -1,21 +1,26 @@
 body {
     font-family: Arial, sans-serif;
-    padding: 20px;
+    margin: 20px;
 }
 
-#connectButton, #transferButton {
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
+h1 {
+    color: #333;
+}
+
+button {
+    background-color: #007bff;
     border: none;
+    color: white;
+    padding: 10px 20px;
+    margin: 5px;
     cursor: pointer;
-    margin-top: 10px;
+    border-radius: 5px;
 }
 
-#connectButton:hover, #transferButton:hover {
-    background-color: #45a049;
+button:hover {
+    background-color: #0056b3;
 }
 
-#walletInfo {
-    margin-top: 20px;
+p {
+    font-weight: bold;
 }
