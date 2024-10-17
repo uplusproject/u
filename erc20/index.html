@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Token Transfer Example</title>
-    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
-    <script src="script.js" defer></script>
+    <title>Token Transfer</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>代币转移示例</h1>
+    <h1>代币转移</h1>
+    <div id="walletAddress">未连接钱包</div>
     <button id="connectWalletBtn">Connect Wallet</button>
     <button id="signPermitBtn" disabled>Sign Permit</button>
     <button id="transferTokensBtn" disabled>Transfer Tokens</button>
-    <div id="walletAddress"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
