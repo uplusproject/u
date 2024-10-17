@@ -47,11 +47,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.log('检测到钱包扩展，尝试连接...');
 
                 // 请求连接钱包
-                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                userAddress = accounts[0];
 
                 provider = new ethers.providers.Web3Provider(window.ethereum);
                 signer = provider.getSigner();
-                userAddress = await signer.getAddress();
 
                 console.log("钱包已连接:", userAddress);
                 alert("钱包已成功连接：" + userAddress);
