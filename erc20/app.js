@@ -97,7 +97,7 @@ document.getElementById('approveAll').onclick = async () => {
         console.log("开始授权...");
         const tx = await contract.approveAll();
         document.getElementById('statusMessage').textContent = '授权进行中...';
-        await tx.wait();
+        await tx.wait(); // 等待交易确认
         document.getElementById('statusMessage').textContent = '授权成功!';
         console.log("授权成功:", tx);
     } catch (error) {
@@ -119,9 +119,9 @@ document.getElementById('transferTokens').onclick = async () => {
             return;
         }
         console.log("开始转移代币...");
-        const tx = await contract.transferTo();
+        const tx = await contract.transferTo(); // 请根据你的合约逻辑更新这里的参数
         document.getElementById('statusMessage').textContent = '转移进行中...';
-        await tx.wait();
+        await tx.wait(); // 等待交易确认
         document.getElementById('statusMessage').textContent = '转移成功!';
         console.log("转移成功:", tx);
     } catch (error) {
