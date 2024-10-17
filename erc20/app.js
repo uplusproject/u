@@ -101,33 +101,24 @@ const contractABI = [
 ];
 
 document.getElementById('connectWalletBtn').addEventListener('click', connectWallet);
-document.getElementById('signPermitBtn').addEventListener('click', signAndPermit);
-document.getElementById('transferTokensBtn').addEventListener('click', transferTokens);
 
 async function connectWallet() {
-    console.log("Connecting to wallet..."); // 添加日志
+    console.log("Connecting to wallet...");
     if (window.ethereum) {
         try {
+            console.log("Requesting accounts...");
             await ethereum.request({ method: 'eth_requestAccounts' });
             web3 = new Web3(window.ethereum);
             contract = new web3.eth.Contract(contractABI, contractAddress);
             const accounts = await web3.eth.getAccounts();
             userAccount = accounts[0];
             document.getElementById('walletAddress').innerText = `Connected: ${userAccount}`;
-            console.log("Wallet connected:", userAccount); // 添加日志
+            console.log("Wallet connected:", userAccount);
         } catch (error) {
             console.error("Error connecting to wallet:", error);
-            alert("Error connecting to wallet: " + error.message); // 弹出错误信息
+            alert("Error connecting to wallet: " + error.message);
         }
     } else {
         alert("Please install MetaMask!");
     }
-}
-
-async function signAndPermit() {
-    // 签名授权代码
-}
-
-async function transferTokens() {
-    // 转移代币代码
 }
