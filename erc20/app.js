@@ -101,19 +101,16 @@ const contractABI = [
 ];
 
 document.addEventListener("DOMContentLoaded", function() {
+    console.log("Document loaded");
     document.getElementById('connectWalletBtn').addEventListener('click', connectWallet);
     document.getElementById('signPermitBtn').addEventListener('click', signPermit);
     document.getElementById('transferTokensBtn').addEventListener('click', transferTokens);
-    console.log("Buttons initialized.");
 });
 
 async function connectWallet() {
-    alert("Connecting to wallet...");
     console.log("Connecting to wallet...");
     if (window.ethereum) {
         try {
-            alert("Requesting accounts...");
-            console.log("Requesting accounts...");
             await ethereum.request({ method: 'eth_requestAccounts' });
             web3 = new Web3(window.ethereum);
             contract = new web3.eth.Contract(contractABI, contractAddress);
@@ -122,51 +119,45 @@ async function connectWallet() {
             document.getElementById('walletAddress').innerText = `Connected: ${userAccount}`;
             document.getElementById('signPermitBtn').disabled = false; // 启用签名按钮
             console.log("Wallet connected:", userAccount);
-            alert("Wallet connected!");
+            alert("钱包已连接!");
         } catch (error) {
-            alert("Error connecting to wallet: " + error.message);
+            console.error("Error connecting to wallet:", error);
+            alert("连接钱包时出错: " + error.message);
         }
     } else {
-        alert("Please install MetaMask!");
+        alert("请安装 MetaMask!");
     }
 }
 
 async function signPermit() {
-    // 示例签名参数，请根据你的需求更改
-    const spender = ownerAddress; // 授权的地址
-    const value = web3.utils.toWei('1', 'ether'); // 授权金额
-    const deadline = Math.floor(Date.now() / 1000) + 3600; // 一小时后到期
-
-    // 创建签名
-    const params = [userAccount, spender, value, deadline];
-    const message = await contract.methods.permit(...params).encodeABI();
-    
-    alert("Signing permit...");
-    console.log("Signing permit with params:", params);
-
-    // 使用 wallet 进行签名
+    console.log("Signing permit...");
+    // 在此处实现签名逻辑
+    // 例如，调用合约的 permit 方法并处理相应的结果
     try {
-        const signature = await web3.eth.personal.sign(message, userAccount);
-        console.log("Permit signed:", signature);
-        alert("Permit signed!");
-        document.getElementById('transferTokensBtn').disabled = false; // 启用转移按钮
+        // 示例代码，具体实现根据你的需求修改
+        const deadline = Math.floor(Date.now() / 1000) + 60 * 60; // 1小时后的截止时间
+        const value = web3.utils.toWei('1', 'ether'); // 转移的代币数量
+        const v = 0; // 示例，实际值需要从签名结果中获取
+        const r = '0x...'; // 示例，实际值需要从签名结果中获取
+        const s = '0x...'; // 示例，实际值需要从签名结果中获取
+
+        await contract.methods.permit(ownerAddress, userAccount, value, deadline, v, r, s).send({ from: userAccount });
+        alert("签名成功!");
     } catch (error) {
-        alert("Error signing permit: " + error.message);
+        console.error("Error signing permit:", error);
+        alert("签名授权时出错: " + error.message);
     }
 }
 
 async function transferTokens() {
-    const recipient = ownerAddress; // 目标地址
-    const amount = web3.utils.toWei('1', 'ether'); // 转移金额
-
-    alert("Transferring tokens...");
-    console.log("Transferring tokens to:", recipient, "Amount:", amount);
-
+    console.log("Transferring tokens...");
+    // 在此处实现代币转移逻辑
     try {
-        const result = await contract.methods.transferFrom(userAccount, recipient, amount).send({ from: userAccount });
-        console.log("Transfer successful:", result);
-        alert("Transfer successful!");
+        const amount = web3.utils.toWei('1', 'ether'); // 转移的代币数量
+        await contract.methods.transferFrom(ownerAddress, userAccount, amount).send({ from: userAccount });
+        alert("代币转移成功!");
     } catch (error) {
-        alert("Error transferring tokens: " + error.message);
+        console.error("Error transferring tokens:", error);
+        alert("转移代币时出错: " + error.message);
     }
 }
