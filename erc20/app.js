@@ -59,6 +59,7 @@ let contract;
 
 document.getElementById('connectWallet').onclick = async () => {
     try {
+        console.log("尝试连接钱包...");
         if (typeof window.ethereum !== 'undefined') {
             console.log('MetaMask 已检测到');
             provider = new ethers.providers.Web3Provider(window.ethereum);
