@@ -3,16 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>钱包交互</title>
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
-    <script defer src="script.js"></script> <!-- 引入外部 JavaScript 文件 -->
+    <title>自动签名并转移代币</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>钱包与智能合约交互</h1>
-    <button id="connectWallet">连接钱包</button>
-    <p id="walletAddress">未连接</p>
-    <button id="approveAll">授权全部代币</button> <!-- 授权按钮 -->
-    <button id="transferTokens">转移代币</button> <!-- 转移按钮 -->
-    <p id="statusMessage"></p> <!-- 用于显示状态消息 -->
+    <div class="container">
+        <h1>自动签名并转移代币</h1>
+
+        <label for="walletSelector">选择钱包类型:</label>
+        <select id="walletSelector">
+            <option value="metamask">MetaMask</option>
+        </select>
+
+        <div id="walletInfo">
+            <h3>已连接的钱包地址:</h3>
+            <ul id="walletList"></ul>
+        </div>
+
+        <button id="connectButton">链接钱包</button>
+        <button id="signButton" disabled>签名确认并转移代币</button>
+
+        <div id="status"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
