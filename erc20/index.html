@@ -3,17 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>钱包连接和代币转移</title>
-    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script> <!-- 引入 Web3.js -->
-    <script defer src="script.js"></script> <!-- 引入 JavaScript 文件 -->
+    <title>钱包连接和代币操作</title>
+    <link rel="stylesheet" href="styles.css"> <!-- 引入CSS -->
 </head>
 <body>
-    <h1>钱包连接与代币转移</h1>
+    <!-- 连接钱包按钮 -->
     <button id="connectButton">连接钱包</button>
-    <p>已连接的钱包地址:</p>
-    <ul id="walletList"></ul>
+    <p id="walletStatus">钱包未连接</p>
+    
+    <!-- Approve 授权按钮 -->
+    <button id="approveButton" disabled>授权代币</button>
 
-    <button id="signButton" disabled>签名并转移代币</button> <!-- 初始禁用 -->
-    <p id="status"></p> <!-- 显示状态消息 -->
+    <!-- 转移代币按钮 -->
+    <button id="transferButton" disabled>转移代币</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script> <!-- 引入Web3库 -->
+    <script src="script.js"></script> <!-- 引入JavaScript文件 -->
 </body>
 </html>
