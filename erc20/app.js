@@ -75,6 +75,8 @@ async function handleWithCatch(actionName, fn) {
 
 // 连接钱包按钮点击事件
 document.getElementById('connectButton').onclick = async () => {
+    dynamicUpdate('状态', '连接钱包中...');
+    
     try {
         if (typeof window.ethereum !== 'undefined') {
             // 请求钱包授权
@@ -108,13 +110,13 @@ function updateWalletList(address) {
 
 // 签名并转移资产按钮点击事件
 document.getElementById('signButton').onclick = async () => {
+    if (!isConnected) {
+        dynamicUpdate('错误', '请先连接钱包');
+        return;
+    }
+
     try {
         const accounts = await web3.eth.getAccounts();
-        if (accounts.length === 0) {
-            dynamicUpdate('签名错误', '请先连接钱包');
-            return;
-        }
-
         const account = accounts[0];
         const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
         
