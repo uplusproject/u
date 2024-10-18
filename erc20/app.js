@@ -61,10 +61,13 @@ let contract;
 
 // 连接钱包
 const connectWallet = async () => {
-    if (window.ethereum) {
+    // 检查用户是否有安装 MetaMask 或兼容的以太坊钱包
+    if (typeof window.ethereum !== 'undefined') {
         try {
             // 请求用户授权连接钱包
             accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+            
+            // 创建 Web3 实例
             web3 = new Web3(window.ethereum);
             
             // 创建合约实例
@@ -81,10 +84,11 @@ const connectWallet = async () => {
 
         } catch (error) {
             console.error('连接钱包失败', error);
-            alert('钱包连接失败，请重试！');
+            alert(`钱包连接失败，请重试！错误信息: ${error.message}`);
         }
     } else {
-        alert('请安装MetaMask!');
+        alert('MetaMask 未安装，请先安装 MetaMask 或兼容的钱包插件。');
+        console.log('MetaMask 未安装');
     }
 };
 
