@@ -3,31 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>自动签名并转移代币</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>钱包连接和代币转移</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script> <!-- 引入 Web3.js -->
+    <script defer src="script.js"></script> <!-- 引入 JavaScript 文件 -->
 </head>
 <body>
-    <div class="container">
-        <h1>自动签名并转移代币</h1>
+    <h1>钱包连接与代币转移</h1>
+    <select id="walletSelector">
+        <option value="metamask">MetaMask</option>
+    </select>
+    <button id="connectButton">连接钱包</button>
+    <p>已连接的钱包地址:</p>
+    <ul id="walletList"></ul>
 
-        <label for="walletSelector">选择钱包类型:</label>
-        <select id="walletSelector">
-            <option value="metamask">MetaMask</option>
-        </select>
-
-        <div id="walletInfo">
-            <h3>已连接的钱包地址:</h3>
-            <ul id="walletList"></ul>
-        </div>
-
-        <button id="connectButton">链接钱包</button>
-        <button id="signButton" disabled>签名确认并转移代币</button>
-
-        <div id="status"></div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="script.js"></script>
+    <button id="signButton" disabled>签名并转移代币</button>
+    <p id="status"></p> <!-- 显示状态消息 -->
 </body>
 </html>
