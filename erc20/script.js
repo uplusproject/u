@@ -51,14 +51,20 @@ document.getElementById('connectButton').onclick = async () => {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
         try {
-            await window.ethereum.request({ method: 'eth_requestAccounts' });
-            userAccount = (await web3.eth.getAccounts())[0];
+            // 请求用户连接钱包
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            userAccount = accounts[0]; // 获取第一个账户
             console.log('钱包连接成功: ', userAccount);
             document.getElementById('connectButton').innerText = '连接成功'; // 更新按钮文本
             document.getElementById('approveButton').disabled = false; // 启用授权按钮
         } catch (error) {
             console.error('连接错误: ', error);
-            alert('连接钱包失败: ' + error.message);
+            // 只在连接失败时显示错误信息
+            if (error.code === 4001) {
+                alert('连接钱包请求被拒绝');
+            } else {
+                alert('连接钱包失败: ' + error.message);
+            }
         }
     } else {
         alert('请安装 MetaMask!');
