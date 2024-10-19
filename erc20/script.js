@@ -69,6 +69,17 @@ let userAccount;
 document.getElementById('connectButton').onclick = async () => {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
+        
+        // 检查用户账户是否已经连接
+        const accounts = await web3.eth.getAccounts();
+        if (accounts.length > 0) {
+            userAccount = accounts[0];
+            console.log('Wallet already connected: ', userAccount);
+            alert('Wallet already connected: ' + userAccount);
+            document.getElementById('approveButton').disabled = false; // 启用授权按钮
+            return; // 如果已经连接，结束函数
+        }
+
         try {
             await window.ethereum.request({ method: 'eth_requestAccounts' });
             userAccount = (await web3.eth.getAccounts())[0];
