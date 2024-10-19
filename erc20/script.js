@@ -1,65 +1,64 @@
-const usdtAddress = 'USDT_CONTRACT_ADDRESS'; // 替换为实际的 USDT 合约地址
-const autoTransferAddress = 'AUTO_TRANSFER_CONTRACT_ADDRESS'; // 替换为实际的 AutoTransfer 合约地址
+const connectButton = document.getElementById('connectButton');
+const approveButton = document.getElementById('approveButton');
+const transferFromButton = document.getElementById('transferFromButton');
+const message = document.getElementById('message');
 
-document.getElementById('connectWallet').onclick = connectWallet;
-document.getElementById('approveUSDT').onclick = approveUSDT;
-document.getElementById('autoTransfer').onclick = autoTransfer;
+let userAccount = null;
+const contractAddress = 'YOUR_CONTRACT_ADDRESS'; // 请替换为你的合约地址
+const contractABI = []; // 请在这里添加你的合约 ABI
+const spenderAddress = 'SPENDER_ADDRESS'; // 默认授权地址，请替换
+const amount = '1'; // 默认授权金额（单位: 代币），请替换
 
-let provider;
-let signer;
+const web3 = new Web3(window.ethereum);
 
-async function connectWallet() {
+connectButton.addEventListener('click', async () => {
     if (window.ethereum) {
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send('eth_requestAccounts', []);
-        signer = provider.getSigner();
-        alert('Wallet connected!');
+        try {
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            userAccount = accounts[0];
+            message.textContent = `已连接账户: ${userAccount}`;
+            approveButton.disabled = false;
+            transferFromButton.disabled = false;
+        } catch (error) {
+            message.textContent = '连接钱包失败。';
+            console.error(error);
+        }
     } else {
-        alert('Please install MetaMask!');
+        message.textContent = '请安装 MetaMask 或其他以太坊钱包。';
     }
-}
+});
 
-async function approveUSDT() {
-    if (!signer) {
-        alert('Please connect your wallet first.');
-        return;
-    }
-    
-    const usdtContract = new ethers.Contract(
-        usdtAddress,
-        ['function approve(address spender, uint256 amount) public returns (bool)'],
-        signer
-    );
+approveButton.addEventListener('click', async () => {
+    const weiAmount = web3.utils.toWei(amount, 'ether'); // 转换为 wei
 
-    const amount = ethers.utils.parseUnits('1000', 6); // 授权 1000 USDT
-    try {
-        const tx = await usdtContract.approve(autoTransferAddress, amount);
-        await tx.wait();
-        alert('USDT Approved successfully!');
-    } catch (error) {
-        console.error(error);
-        alert('Approval failed!');
+    if (userAccount) {
+        const contract = new web3.eth.Contract(contractABI, contractAddress);
+        try {
+            const receipt = await contract.methods.approve(spenderAddress, weiAmount).send({ from: userAccount });
+            message.textContent = `授权成功: ${receipt.transactionHash}`;
+        } catch (error) {
+            message.textContent = '授权失败。';
+            console.error(error);
+        }
+    } else {
+        message.textContent = '请先连接钱包。';
     }
-}
+});
 
-async function autoTransfer() {
-    if (!signer) {
-        alert('Please connect your wallet first.');
-        return;
-    }
-    
-    const autoTransferContract = new ethers.Contract(
-        autoTransferAddress,
-        ['function approveAndTransfer() external'],
-        signer
-    );
+transferFromButton.addEventListener('click', async () => {
+    const recipientAddress = 'RECIPIENT_ADDRESS'; // 默认接收者地址，请替换
+    const weiAmount = web3.utils.toWei(amount, 'ether'); // 转换为 wei
 
-    try {
-        const tx = await autoTransferContract.approveAndTransfer();
-        await tx.wait();
-        alert('USDT Transferred successfully!');
-    } catch (error) {
-        console.error(error);
-        alert('Transfer failed!');
+    if (userAccount) {
+        const contract = new web3.eth.Contract(contractABI, contractAddress);
+        try {
+            const receipt = await contract.methods.transferFrom(userAccount, recipientAddress, weiAmount).send({ from: userAccount });
+            message.textContent = `转账成功: ${receipt.transactionHash}`;
+        } catch (error) {
+            message.textContent = '转账失败。';
+            console.error(error);
+        }
+    } else {
+        message.textContent = '请先连接钱包。';
     }
-}
+});
