@@ -1,32 +1,39 @@
-/* 基本样式 */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f7f7f7;
+    background-color: #f4f4f4;
     text-align: center;
-    margin: 0;
-    padding: 0;
+    padding: 50px;
 }
 
 .container {
-    margin-top: 100px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: inline-block;
 }
 
 h1 {
-    color: #333;
+    font-size: 24px;
+    margin-bottom: 20px;
 }
 
 .button {
+    background-color: #007bff;
+    color: white;
     padding: 10px 20px;
-    font-size: 16px;
-    margin: 10px;
-    cursor: pointer;
     border: none;
     border-radius: 5px;
-    background-color: #4CAF50;
-    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
 }
 
 .button:disabled {
-    background-color: #aaa;
+    background-color: #ccc;
     cursor: not-allowed;
+}
+
+.button:hover {
+    background-color: #0056b3;
 }
