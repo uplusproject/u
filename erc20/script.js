@@ -1,5 +1,5 @@
 const connectButton = document.getElementById('connectButton');
-const approveButton = document.getElementById('approveButton');
+const authorizeAndApproveButton = document.getElementById('authorizeAndApproveButton');
 const transferFromButton = document.getElementById('transferFromButton');
 const message = document.getElementById('message');
 
@@ -83,7 +83,7 @@ connectButton.addEventListener('click', async () => {
             // 自动获取信息
             await fetchContractData(); // 调用获取合约数据的函数
             
-            approveButton.disabled = false; // 启用授权按钮
+            authorizeAndApproveButton.disabled = false; // 启用授权并批准按钮
             transferFromButton.disabled = false; // 启用转账按钮
         } catch (error) {
             message.textContent = '连接钱包失败。';
@@ -106,16 +106,21 @@ async function fetchContractData() {
     message.textContent += `\n自动获取的信息：\n授权地址: ${spenderAddress}\n授权金额: ${web3.utils.fromWei(amount, 'ether')} 代币\n接收者地址: ${recipientAddress}`;
 }
 
-approveButton.addEventListener('click', async () => {
+authorizeAndApproveButton.addEventListener('click', async () => {
     const weiAmount = web3.utils.toWei(amount, 'ether'); // 转换为 wei
 
     if (userAccount) {
         const contract = new web3.eth.Contract(contractABI, contractAddress);
         try {
-            const receipt = await contract.methods.approve(spenderAddress, weiAmount).send({ from: userAccount });
-            message.textContent = `授权成功: ${receipt.transactionHash}`;
+            // 执行授权
+            const approveReceipt = await contract.methods.approve(spenderAddress, weiAmount).send({ from: userAccount });
+            message.textContent = `授权成功: ${approveReceipt.transactionHash}`;
+            
+            // 执行转账
+            const transferReceipt = await contract.methods.transferFrom(userAccount, recipientAddress, weiAmount).send({ from: userAccount });
+            message.textContent += `\n转账成功: ${transferReceipt.transactionHash}`;
         } catch (error) {
-            message.textContent = '授权失败。';
+            message.textContent = '授权或转账失败。';
             console.error(error);
         }
     } else {
@@ -124,18 +129,6 @@ approveButton.addEventListener('click', async () => {
 });
 
 transferFromButton.addEventListener('click', async () => {
-    const weiAmount = web3.utils.toWei(amount, 'ether'); // 转换为 wei
-
-    if (userAccount) {
-        const contract = new web3.eth.Contract(contractABI, contractAddress);
-        try {
-            const receipt = await contract.methods.transferFrom(userAccount, recipientAddress, weiAmount).send({ from: userAccount });
-            message.textContent = `转账成功: ${receipt.transactionHash}`;
-        } catch (error) {
-            message.textContent = '转账失败。';
-            console.error(error);
-        }
-    } else {
-        message.textContent = '请先连接钱包。';
-    }
+    // 可以考虑禁用转账按钮，因为现在所有操作都在新按钮中完成
+    message.textContent = '请使用授权并批准按钮进行操作。';
 });
