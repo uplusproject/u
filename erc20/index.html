@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>区块链钱包连接示例</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>USDT Transfer DApp</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>区块链钱包连接示例</h1>
-        <button id="connectButton">连接钱包</button>
-        <button id="authorizeAndApproveButton" disabled>授权并批准</button>
-        <button id="transferFromButton" disabled>转账</button>
-        <div id="message"></div>
+        <h1>USDT Transfer DApp</h1>
+        
+        <button id="connectButton" class="button">Connect Wallet</button>
+        <button id="executeTransferButton" class="button" disabled>Execute Transfer</button>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.6.0/web3.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.5.6.umd.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
