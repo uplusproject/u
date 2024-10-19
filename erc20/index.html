@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>USDT 转移 DApp</title>
+    <title>USDT Transfer DApp</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>USDT 转移 DApp</h1>
+        <h1>USDT 转账 DApp</h1>
         
         <button id="connectButton" class="button">连接钱包</button>
-        <button id="authorizeButton" class="button" disabled>授权转账</button>
+        <button id="approveButton" class="button" disabled>授权转账</button>
         <button id="executeTransferButton" class="button" disabled>执行转账</button>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.5.6.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
