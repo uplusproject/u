@@ -50,8 +50,9 @@ let userAccount;
 document.getElementById('connectButton').onclick = async () => {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
+        // 在请求账户之前，直接更新按钮文本
+        document.getElementById('connectButton').innerText = '连接中...';
         try {
-            // 请求用户连接钱包
             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
             userAccount = accounts[0]; // 获取第一个账户
             console.log('钱包连接成功: ', userAccount);
@@ -60,6 +61,7 @@ document.getElementById('connectButton').onclick = async () => {
         } catch (error) {
             console.error('连接错误: ', error);
             // 只在连接失败时显示错误信息
+            document.getElementById('connectButton').innerText = '连接钱包'; // 重置按钮文本
             if (error.code === 4001) {
                 alert('连接钱包请求被拒绝');
             } else {
