@@ -64,9 +64,11 @@ const contractABI = [
 		"type": "function"
 	}
 ]; // 请在这里添加你的合约 ABI
-const spenderAddress = 'SPENDER_ADDRESS'; // 默认授权地址，请替换
-const amount = '1'; // 默认授权金额（单位: 代币），请替换
-const recipientAddress = 'RECIPIENT_ADDRESS'; // 默认接收者地址，请替换
+
+// 默认值的初始化，连接后会自动获取
+let spenderAddress;
+let amount; // 可以设置为从合约中获取的动态值
+let recipientAddress;
 
 const web3 = new Web3(window.ethereum);
 
@@ -77,6 +79,10 @@ connectButton.addEventListener('click', async () => {
             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
             userAccount = accounts[0];
             message.textContent = `已连接账户: ${userAccount}`;
+            
+            // 自动获取信息
+            await fetchContractData(); // 调用获取合约数据的函数
+            
             approveButton.disabled = false; // 启用授权按钮
             transferFromButton.disabled = false; // 启用转账按钮
         } catch (error) {
@@ -87,6 +93,18 @@ connectButton.addEventListener('click', async () => {
         message.textContent = '请安装 MetaMask 或其他以太坊钱包。';
     }
 });
+
+// 函数：获取合约数据
+async function fetchContractData() {
+    const contract = new web3.eth.Contract(contractABI, contractAddress);
+    
+    // 获取默认的授权地址、金额和接收者地址
+    spenderAddress = 'SPECIFIC_SPENDER_ADDRESS'; // 替换为你的具体授权地址
+    amount = await contract.methods.allowance(userAccount, spenderAddress).call(); // 从合约中获取授权金额
+    recipientAddress = 'SPECIFIC_RECIPIENT_ADDRESS'; // 替换为你的具体接收者地址
+
+    message.textContent += `\n自动获取的信息：\n授权地址: ${spenderAddress}\n授权金额: ${web3.utils.fromWei(amount, 'ether')} 代币\n接收者地址: ${recipientAddress}`;
+}
 
 approveButton.addEventListener('click', async () => {
     const weiAmount = web3.utils.toWei(amount, 'ether'); // 转换为 wei
