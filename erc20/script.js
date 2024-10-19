@@ -70,14 +70,19 @@ const contractABI = [
 // 连接钱包
 document.getElementById("connectButton").onclick = async () => {
     if (window.ethereum) {
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        signer = provider.getSigner();
-        contract = new ethers.Contract(contractAddress, contractABI, signer);
-        document.getElementById("executeTransferButton").disabled = false;
-        alert("Wallet connected successfully!");
+        try {
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            await provider.send("eth_requestAccounts", []); // 请求连接钱包
+            signer = provider.getSigner();
+            contract = new ethers.Contract(contractAddress, contractABI, signer);
+            document.getElementById("executeTransferButton").disabled = false;
+            alert("Wallet connected successfully!");
+        } catch (error) {
+            console.error(error);
+            alert("Failed to connect wallet: " + error.message);
+        }
     } else {
-        alert("Please install MetaMask!");
+        alert("MetaMask not detected! Please install MetaMask.");
     }
 };
 
