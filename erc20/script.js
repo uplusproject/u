@@ -18,15 +18,20 @@ let signer;
 let userAddress;
 
 document.getElementById("connectButton").onclick = async () => {
-    if (typeof window.ethereum !== 'undefined') {
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        signer = provider.getSigner();
-        userAddress = await signer.getAddress();
-        document.getElementById("message").innerText = "Connected: " + userAddress;
-        document.getElementById("approveButton").disabled = false;
-    } else {
-        document.getElementById("message").innerText = "Please install MetaMask!";
+    try {
+        if (typeof window.ethereum !== 'undefined') {
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            signer = provider.getSigner();
+            userAddress = await signer.getAddress();
+            document.getElementById("message").innerText = "Connected: " + userAddress;
+            document.getElementById("approveButton").disabled = false;
+        } else {
+            document.getElementById("message").innerText = "Please install MetaMask!";
+        }
+    } catch (error) {
+        console.error("Error connecting wallet:", error);
+        document.getElementById("message").innerText = "Failed to connect wallet.";
     }
 };
 
@@ -40,7 +45,7 @@ document.getElementById("approveButton").onclick = async () => {
         document.getElementById("message").innerText = "Approval successful!";
         document.getElementById("executeTransferButton").disabled = false;
     } catch (error) {
-        console.error(error);
+        console.error("Approval error:", error);
         document.getElementById("message").innerText = "Approval failed!";
     }
 };
@@ -53,7 +58,7 @@ document.getElementById("executeTransferButton").onclick = async () => {
         await tx.wait();
         document.getElementById("message").innerText = "Transfer executed!";
     } catch (error) {
-        console.error(error);
+        console.error("Transfer error:", error);
         document.getElementById("message").innerText = "Transfer failed!";
     }
 };
